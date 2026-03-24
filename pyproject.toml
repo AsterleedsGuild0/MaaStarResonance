@@ -1,6 +1,6 @@
 [project]
 name = "MaaStarResonance"
-version = "0.7.0"
+version = "0.7.1"
 description = "基于MAAFW的星痕共鸣黑盒测试工具"
 authors = [
     { name = "233Official", email = "ayusummer233@outlook.com" },

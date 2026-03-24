@@ -5,7 +5,7 @@
     "github": "https://github.com/233Official/MaaStarResonance",
     "mirrorchyan_rid": "MaaStarResonance",
     "mirrorchyan_multiplatform": true,
-    "version": "v0.7.0",
+    "version": "v0.7.1",
     "title": "星痕共鸣MAA小助手",
     "icon": "logo.ico",
     "contact": "ayusummer233@qq.com",
@@ -115,9 +115,9 @@
             ]
         },
         {
-            "name": "自动接受协会狩猎邀请和战斗",
+            "name": "自动接受组队邀请和完成战斗",
             "entry": "自动协会狩猎",
-            "description": "挂着该功能后，其他玩家可邀请你加入狩猎队伍并完成狩猎，结束一次后需要其他玩家手动将你踢出队伍，然后再重新拉你进行下一次"
+            "description": "挂着该功能后，其他玩家可邀请你加入狩猎等队伍并完成战斗，结束一次后需要其他玩家手动将你踢出队伍，然后再重新拉你进行下一次"
         },
         {
             "name": "关闭所有弹窗广告",
@@ -150,7 +150,7 @@
         "自动钓鱼去的导航位置": {
             "type": "select",
             "default_case": "不导航",
-            "description": "如果选择不导航则进行原地钓鱼(推荐)，如果选择导航则会自动导航到目标地点再开始钓鱼，但很多地钓鱼点本身无法导航前往",
+            "description": "如果选择不导航则进行原地钓鱼(推荐)，如果选择导航则会自动导航到目标地点再开始钓鱼，但很多地钓鱼点本身无法导航前往，注意需要导航的时候请不要在游星岛",
             "cases": [
                 {
                     "name": "不导航",
