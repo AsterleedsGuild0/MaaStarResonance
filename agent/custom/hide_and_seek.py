@@ -4,6 +4,7 @@ from maa.agent.agent_server import AgentServer
 from maa.context import Context
 from maa.custom_action import CustomAction, RecognitionDetail
 
+from agent.attach.common_attach import get_hide_team_type
 from agent.constant.key_event import ANDROID_KEY_EVENT_DATA
 from agent.constant.map_point import NAVIGATE_DATA
 from agent.custom.app_manage_action import wait_for_switch
@@ -36,6 +37,13 @@ class HideSeekPointAction(CustomAction):
         max_game_count = int(params.data["max_game_count"]) if params.data["max_game_count"] else 0
         logger.info(f"本次任务设置的最大躲猫猫次数: {max_game_count if max_game_count != 0 else '无限'}")
 
+        # 躲猫猫队伍类型
+        hide_team_type = get_hide_team_type(context)
+        if hide_team_type == "无":
+            logger.error("请先选择躲猫猫队伍类型！")
+            return False
+        is_leader = hide_team_type in ["单人匹配游戏", "组队匹配游戏（队长）", "组队私人游戏（队长，队伍人数须>=5）"]
+
         while not context.tasker.stopping:
             logger.info(f"=== 已成功躲猫猫 {self.game_count} 次 ===")
             # 检查是否已经躲猫猫足够次数了
@@ -43,13 +51,16 @@ class HideSeekPointAction(CustomAction):
                 logger.info(f"已成功躲猫猫了您所配置的{self.game_count}次，躲猫猫结束！")
                 return True
             
-            # 确保到达躲猫猫的入口
-            has_entry = ensure_hide_entry(context)
-            if not has_entry:
-                return False
+            if is_leader:
+                # 确保到达躲猫猫的入口
+                has_entry = ensure_hide_entry(context)
+                if not has_entry:
+                    return False
+            
+            # TODO 队长根据不同队伍类型选择不同的进本方式
             
             # 确保匹配到玩家
-            has_next = ensure_into_game(context)
+            has_next = ensure_into_game(context, is_leader)
             if not has_next:
                 logger.error("无法匹配到玩家，躲猫猫任务将直接停止...")
                 return False
@@ -63,20 +74,27 @@ class HideSeekPointAction(CustomAction):
             ensure_for_end(context)
             # 等待场景切换完成后开始下一轮
             wait_for_switch(context)
+
+            if is_leader:
+                # 多等待10秒 | 对齐不同设备切换场景的加载速度
+                logger.info(f"等待10秒后进行下一轮躲猫猫...")
+                time.sleep(10)
         
         logger.warning("躲猫猫任务已结束！")
         return True
 
 
-def ensure_into_game(context: Context, timeout: int = 300, try_limit: int = 10) -> bool:
+def ensure_into_game(context: Context, is_leader: bool = True, timeout: int = 300, try_limit: int = 10) -> bool:
     """
     确保匹配到玩家
     """
     # 尝试 try_limit 次匹配
     for try_count in range(try_limit):
         logger.info(f"本轮躲猫猫 - 第 {try_count + 1} 次尝试匹配玩家")
-        # 先点击匹配按钮
-        context.tasker.controller.post_click(895, 344).wait()
+
+        if is_leader:
+            # 先点击匹配按钮
+            context.tasker.controller.post_click(895, 344).wait()
 
         # 循环检测是否到准备页面
         start_time = time.time()

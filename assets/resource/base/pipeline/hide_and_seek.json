@@ -1,0 +1,22 @@
+{
+    // 总入口
+    "游星岛躲猫猫小活动": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "HideSeekPoint",
+                "custom_action_param": {
+                    "max_game_count": 0
+                }
+            }
+        }
+    },
+    "获取参数-躲猫猫队伍类型": {
+        "action": {
+            "type": "DoNothing"
+        },
+        "attach": {
+            "hide_team_type": "无"
+        }
+    }
+}
