@@ -64,13 +64,11 @@ class HideSeekPointAction(CustomAction):
                 time.sleep(1)
             
             # 确保开始游戏 | 匹配/开黑模式
-            has_next = ensure_into_game(context, is_private)
+            has_next = ensure_into_game(context, is_leader, is_private)
             if not has_next:
                 logger.error("无法开始游戏，躲猫猫任务将直接停止...")
                 return False
-            
-            # 点击确认进入副本
-            context.tasker.controller.post_click(1148, 657).wait()
+
             # 等待场景切换完成
             wait_for_switch(context)
 
@@ -88,7 +86,7 @@ class HideSeekPointAction(CustomAction):
         return True
 
 
-def ensure_into_game(context: Context, is_private: bool, timeout: int = 300) -> bool:
+def ensure_into_game(context: Context, is_leader: bool, is_private: bool, timeout: int = 300) -> bool:
     """
     确保开始游戏 | 匹配/开黑模式
     """
@@ -100,6 +98,14 @@ def ensure_into_game(context: Context, is_private: bool, timeout: int = 300) -> 
     while elapsed_time <= timeout and not context.tasker.stopping:
         logger.info(f"检测并准备进入游戏")
         elapsed_time = time.time() - start_time
+
+        if not is_leader:
+            if check_is_ready(context):
+                # 点击确认进入副本
+                context.tasker.controller.post_click(1148, 657).wait()
+                return True
+            # 没有就继续循环 | 不执行下面队长的逻辑
+            continue
 
         img = context.tasker.controller.post_screencap().wait().get()
         if is_private:

@@ -231,3 +231,20 @@ def get_hide_team_type(context: Context) -> str:
                          ) if hide_team_type_node else "无"
     logger.info("躲猫猫队伍类型: {}", str(hide_team_type))
     return str(hide_team_type)
+
+
+def get_maj_team_type(context: Context) -> str:
+    """
+    获取麻将队伍类型：
+    1. 无
+    2. 单人匹配游戏
+    3. 组队私人游戏（队长）
+    4. 组队私人游戏（队员）
+    """
+    maj_team_type_node = context.get_node_data("获取参数-麻将队伍类型")
+    maj_team_type = (maj_team_type_node
+                         .get("attach", {})
+                         .get("maj_team_type", "无")
+                         ) if maj_team_type_node else "无"
+    logger.info("麻将队伍类型: {}", str(maj_team_type))
+    return str(maj_team_type)
