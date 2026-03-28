@@ -5,7 +5,6 @@ from maa.context import Context
 from maa.custom_action import CustomAction, RecognitionDetail
 
 from agent.attach.common_attach import get_hide_team_type
-from agent.constant.key_event import ANDROID_KEY_EVENT_DATA
 from agent.constant.map_point import NAVIGATE_DATA
 from agent.custom.app_manage_action import wait_for_switch
 from agent.custom.general.general import ensure_main_page
@@ -42,7 +41,10 @@ class HideSeekPointAction(CustomAction):
         if hide_team_type == "无":
             logger.error("请先选择躲猫猫队伍类型！")
             return False
+        # 是否是队长：队长要去NPC那边开本，队员不用干活
         is_leader = hide_team_type in ["单人匹配游戏", "组队匹配游戏（队长）", "组队私人游戏（队长，队伍人数须>=5）"]
+        # 是否是开黑模式：开黑模式直接点开始按钮，匹配模式要等待匹配到              
+        is_private = hide_team_type in ["组队私人游戏（队长，队伍人数须>=5）", "组队私人游戏（队员）"]
 
         while not context.tasker.stopping:
             logger.info(f"=== 已成功躲猫猫 {self.game_count} 次 ===")
@@ -57,16 +59,18 @@ class HideSeekPointAction(CustomAction):
                 if not has_entry:
                     return False
             
-            # TODO 队长根据不同队伍类型选择不同的进本方式
+                # 点击不思议的追逃游戏
+                context.tasker.controller.post_click(852, 400).wait()
+                time.sleep(1)
             
-            # 确保匹配到玩家
-            has_next = ensure_into_game(context, is_leader)
+            # 确保开始游戏 | 匹配/开黑模式
+            has_next = ensure_into_game(context, is_private)
             if not has_next:
-                logger.error("无法匹配到玩家，躲猫猫任务将直接停止...")
+                logger.error("无法开始游戏，躲猫猫任务将直接停止...")
                 return False
             
-            # 点击进入副本 TODO 未录入坐标
-            context.tasker.controller.post_click(0, 0).wait()
+            # 点击确认进入副本
+            context.tasker.controller.post_click(1148, 657).wait()
             # 等待场景切换完成
             wait_for_switch(context)
 
@@ -84,27 +88,59 @@ class HideSeekPointAction(CustomAction):
         return True
 
 
-def ensure_into_game(context: Context, is_leader: bool = True, timeout: int = 300, try_limit: int = 10) -> bool:
+def ensure_into_game(context: Context, is_private: bool, timeout: int = 300) -> bool:
     """
-    确保匹配到玩家
+    确保开始游戏 | 匹配/开黑模式
     """
-    # 尝试 try_limit 次匹配
-    for try_count in range(try_limit):
-        logger.info(f"本轮躲猫猫 - 第 {try_count + 1} 次尝试匹配玩家")
+    # 循环检测是否到准备页面
+    start_time = time.time()
+    elapsed_time = 0
 
-        if is_leader:
-            # 先点击匹配按钮
-            context.tasker.controller.post_click(895, 344).wait()
+    # 循环等待游戏开始
+    while elapsed_time <= timeout and not context.tasker.stopping:
+        logger.info(f"检测并准备进入游戏")
+        elapsed_time = time.time() - start_time
 
-        # 循环检测是否到准备页面
-        start_time = time.time()
-        elapsed_time = 0
-        while elapsed_time <= timeout + 5 and not context.tasker.stopping:
-            elapsed_time = time.time() - start_time
-            if check_is_ready(context):
-                return True
-            time.sleep(2)
-        logger.error(f"超 300 秒未匹配到玩家！")
+        img = context.tasker.controller.post_screencap().wait().get()
+        if is_private:
+            # 点击右下角开黑模式
+            ocr_result: RecognitionDetail | None = context.run_recognition(
+                "通用文字识别",
+                img,
+                pipeline_override={
+                    "通用文字识别": {
+                        "expected": "开黑模式",
+                        "roi": [941, 641, 98, 29],
+                    }
+                },
+            )
+            if ocr_result and ocr_result.hit:
+                context.tasker.controller.post_click(990, 656).wait()
+        else:
+            # 点击右下角匹配模式
+            ocr_result: RecognitionDetail | None = context.run_recognition(
+                "通用文字识别",
+                img,
+                pipeline_override={
+                    "通用文字识别": {
+                        "expected": "匹配进入",
+                        "roi": [1128, 641, 93, 31],
+                    }
+                },
+            )
+            if ocr_result and ocr_result.hit:
+                context.tasker.controller.post_click(1175, 656).wait()
+
+        # 每隔两秒检测一次
+        time.sleep(2)
+        if check_is_ready(context):
+            return True
+        
+        time.sleep(2)
+        if check_is_ready(context):
+            return True
+    
+    logger.error(f"超 300 秒未确保开始游戏！")
     return False
 
 
@@ -116,18 +152,8 @@ def ensure_hide_entry(context: Context, timeout: int = 120) -> bool:
     if check_is_entry(context):
         return True
 
-    # 第一次不行的话尝试向前走几步 | 可能是上一把刚结束的情况，走几步就能再次到入口
-    context.tasker.controller.post_key_down(ANDROID_KEY_EVENT_DATA["KEYCODE_W"]).wait()
-    time.sleep(1.4)
-    context.tasker.controller.post_key_up(ANDROID_KEY_EVENT_DATA["KEYCODE_W"]).wait()
-    time.sleep(0.5)
-
-    # 再次检测是否可以直接进
-    if check_is_entry(context):
-        return True
-
-    # 第二次还不行才导航过去
-    teleport_or_navigate(context, "游星岛", "不思议的追逃游戏", "导航", NAVIGATE_DATA)  # TODO 坐标未录入
+    # 不行才导航过去
+    teleport_or_navigate(context, "游星岛", "不思议的追逃游戏", "导航", NAVIGATE_DATA)
 
     # 循环检测是否到达躲猫猫入口
     start_time = time.time()
@@ -168,8 +194,8 @@ def wait_for_end(context: Context):
         img,
         pipeline_override={
             "通用文字识别": {
-                "expected": "",  # TODO 副本内图标
-                "roi": [0, 0, 0, 0],
+                "expected": "退出副本",
+                "roi": [67, 29, 90, 29],
             }
         },
     )
@@ -190,8 +216,8 @@ def check_is_ready(context: Context) -> bool:
         img,
         pipeline_override={
             "通用文字识别": {
-                "expected": "准备",  # TODO 准备按钮
-                "roi": [0, 0, 0, 0],
+                "expected": ["(确认|取消)"],
+                "roi": [1128, 640, 58, 35]
             }
         },
     )
@@ -212,8 +238,8 @@ def check_is_entry(context: Context) -> bool:
         img,
         pipeline_override={
             "通用文字识别": {
-                "expected": "匹配",  # TODO 匹配按钮
-                "roi": [871, 329, 51, 30],
+                "expected": "不思议",
+                "roi": [874, 387, 64, 26],
             }
         },
     )
