@@ -18,5 +18,48 @@
         "attach": {
             "maj_team_type": "无"
         }
+    },
+    "检测是否已经在麻将对局中": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "游星岛/麻将/麻将帮助图标.png",
+                "roi": [1144, 19, 44, 40],
+                "green_mask": true
+            }
+        }
+    },
+    "检测自动和牌是否未开启": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 4,
+                "lower": [122, 122, 122],
+                "upper": [150, 150, 150],
+                "roi": [28, 426, 1, 6]
+            }
+        }
+    },
+    "检测跳过鸣牌是否未开启": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 4,
+                "lower": [122, 122, 122],
+                "upper": [150, 150, 150],
+                "roi": [26, 476, 1, 6]
+            }
+        }
+    },
+    "检测自动摸切是否未开启": {
+        "recognition": {
+            "type": "ColorMatch",
+            "param": {
+                "method": 4,
+                "lower": [122, 122, 122],
+                "upper": [150, 150, 150],
+                "roi": [20, 530, 1, 6]
+            }
+        }
     }
 }
