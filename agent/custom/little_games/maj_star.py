@@ -110,7 +110,10 @@ def ensure_into_game(context: Context, is_leader: bool, timeout: int = 300) -> b
     # 循环等待游戏开始
     while elapsed_time <= timeout and not context.tasker.stopping:
         elapsed_time = time.time() - start_time
-        time.sleep(2)
+        time.sleep(1.5)
+        # 随便点击个位置防止月卡或者锁屏
+        context.tasker.controller.post_click(638, 343).wait()
+        time.sleep(0.5)
 
         # 如果在对局中就返回
         if check_in_match(context):
@@ -186,7 +189,7 @@ def maj_task_cycle(context: Context) -> bool:
             },
         )
         if ocr_result and ocr_result.hit:
-            logger.info(f"本局麻将对局已完成！")
+            logger.info(f"本局麻将对局已完成，等待5秒后开启下一轮！")
             # 点击确认按钮
             time.sleep(1.5)
             context.tasker.controller.post_click(639, 662).wait()
