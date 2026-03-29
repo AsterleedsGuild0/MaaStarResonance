@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package zproto;
+
+import "agent/utils/packet_capture/proto/attr.proto";
+
+// Entity type enum (minimal subset).
+// Original: enum_e_entity_type.proto
+enum EEntityType {
+  EntErrType = 0;
+  EntMonster = 1;
+  EntNpc = 2;
+  EntSceneObject = 3;
+  EntZone = 5;
+  EntBullet = 6;
+  EntClientBullet = 7;
+  EntPet = 8;
+  EntChar = 10;
+  EntDummy = 11;
+  EntDrop = 12;
+  EntField = 14;
+  EntTrap = 15;
+  EntCollection = 16;
+  EntStaticObject = 18;
+  EntVehicle = 19;
+  EntToy = 20;
+  EntCommunityHouse = 21;
+  EntHouseItem = 22;
+  EntCount = 23;
+}
+
+// Minimal entity message - only fields needed for position tracking.
+// Original: stru_entity.proto (stripped temp_attrs, body parts, buffs, etc.)
+message Entity {
+  int64 uuid = 1;
+  EEntityType ent_type = 2;
+  AttrCollection attrs = 3;
+  // Fields 4-10 omitted - not needed for position tracking
+}
+
+// Minimal disappear entity.
+// Original: stru_disappear_entity.proto (stripped EDisappearType)
+message DisappearEntity {
+  int64 uuid = 1;
+  // type (field 2) omitted
+}

@@ -1,0 +1,53 @@
+syntax = "proto3";
+
+package zproto;
+
+import "agent/utils/packet_capture/proto/attr.proto";
+import "agent/utils/packet_capture/proto/entity.proto";
+import "agent/utils/packet_capture/proto/char_data.proto";
+
+// Minimal WorldNtf service messages - only position-related messages.
+// Original: serv_world_ntf.proto (stripped 40+ imports and 40+ message types)
+
+message WorldNtf {
+
+  // Delta update for a single entity's attributes.
+  message AoiSyncDelta {
+      optional int64 Uuid = 1;
+      optional AttrCollection Attrs = 2;
+      // Fields 3-13 omitted (TempAttrs, EventDataList, BulletEvent, etc.)
+  }
+
+  // Delta update targeted at the current player.
+  message AoiSyncToMeDelta {
+      optional AoiSyncDelta BaseDelta = 1;
+      // Fields 2-4 omitted (SyncHateIds, SyncSkillCDs, FightResCDs)
+      optional int64 Uuid = 5;
+  }
+
+  // Full player data sync at login.
+  message SyncContainerData {
+    CharSerialize v_data = 1;
+  }
+
+  // Incremental dirty data (binary format, not pure protobuf).
+  message SyncContainerDirtyData {
+    bytes VData = 1;  // BufferStream.Buffer simplified to bytes
+  }
+
+  // Batch delta updates for nearby entities.
+  message SyncNearDeltaInfo {
+    repeated AoiSyncDelta DeltaInfos = 1;
+  }
+
+  // Nearby entities appearing/disappearing.
+  message SyncNearEntities {
+    repeated Entity appear = 1;
+    repeated DisappearEntity disappear = 2;
+  }
+
+  // Delta update targeted at current player (wrapper).
+  message SyncToMeDeltaInfo {
+    AoiSyncToMeDelta DeltaInfo = 1;
+  }
+}

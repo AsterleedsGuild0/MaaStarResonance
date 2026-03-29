@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package zproto;
+
+// Minimal position message used for player position tracking.
+// Original: stru_position.proto
+message Position {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+  float dir = 4;
+}

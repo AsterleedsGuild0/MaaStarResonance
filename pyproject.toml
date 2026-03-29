@@ -14,10 +14,12 @@ dependencies = [
     "maafw==5.9.2",
     "pip>=25.3",
     "pre-commit>=4.5.0",
+    "protobuf>=5.29.0",
     "rapidfuzz>=3.14.3",
     "scapy>=2.6.1",
     "toml>=0.10.2",
     "tzdata>=2025.2",
+    "zstandard>=0.23.0",
 ]
 
 # 自动扫描 agent 下所有包

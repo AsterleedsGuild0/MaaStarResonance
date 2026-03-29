@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package zproto;
+
+// Minimal CharBaseInfo - only position-related fields.
+// Original: stru_char_base_info.proto (stripped 50+ unrelated fields and imports)
+message CharBaseInfo {
+  int64 char_id = 1;
+  // Fields 2-9 omitted
+  float x = 10;
+  float y = 11;
+  float z = 12;
+  float dir = 13;
+  // Fields 14+ omitted
+}
+
+// Minimal CharSerialize - only char_base field needed.
+// Original: stru_char_serialize.proto (stripped 110+ imports and fields)
+message CharSerialize {
+  int64 char_id = 1;
+  CharBaseInfo char_base = 2;
+  // Fields 3-112 omitted
+}

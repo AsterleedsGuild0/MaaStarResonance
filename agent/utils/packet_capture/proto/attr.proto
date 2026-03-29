@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package zproto;
+
+// Minimal attribute message.
+// Original: stru_attr.proto
+message Attr {
+    optional int32 Id = 1;
+    optional bytes RawData = 2;
+}
+
+// Minimal attribute collection.
+// Original: stru_attr_collection.proto (stripped MapAttr dependency)
+message AttrCollection {
+    optional int64 Uuid = 1;
+    repeated Attr Attrs = 2;
+    // MapAttrs (field 3) omitted - not needed for position tracking
+}
