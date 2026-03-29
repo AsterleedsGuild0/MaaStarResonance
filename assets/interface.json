@@ -37,6 +37,16 @@
     },
     "task": [
         {
+            "name": "不思议的追逃游戏速刷_队员",
+            "entry": "不思议的追逃游戏速刷_队员",
+            "description": "不思议的追逃游戏速刷_队员端,进入与退出游戏"
+        },
+        {
+            "name": "不思议的追逃游戏速刷_队长",
+            "entry": "不思议的追逃游戏速刷_队长",
+            "description": "不思议的追逃游戏速刷_队长端,开始游戏，有人拒绝进入的话会等待10s给予退队时间，游戏即将开始时会自动离开副本然后进入循环"
+        },
+        {
             "name": "自动钓鱼",
             "entry": "启动自动钓鱼入口",
             "description": "请确保选择的鱼竿和鱼饵已经解锁，否则会出现异常",
@@ -99,6 +109,24 @@
             "description": "会自动导航到目标地点进行暴打陈敏",
             "option": [
                 "需要的最大暴打陈敏次数"
+            ]
+        },
+        {
+            "name": "游星岛躲猫猫小活动",
+            "entry": "游星岛躲猫猫小活动",
+            "description": "【开发中暂未完成】单人匹配/组队队长会自动导航到目标地点进行游戏，组队队员在任意点即可",
+            "option": [
+                // "躲猫猫队伍类型",
+                "需要的最大躲猫猫次数"
+            ]
+        },
+        {
+            "name": "游星岛麻将小活动",
+            "entry": "游星岛麻将小活动",
+            "description": "单人匹配/组队队长会自动导航到目标地点进行游戏，组队队员在任意点即可",
+            "option": [
+                "麻将队伍类型",
+                "需要的最大麻将次数"
             ]
         },
         {
@@ -593,6 +621,164 @@
                     }
                 }
             }
+        },
+        "需要的最大躲猫猫次数": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "需要的最大躲猫猫次数",
+                    "description": "需要的最大躲猫猫次数，默认设置0为无限游玩，到足够次数就停止任务",
+                    "pipeline_type": "int",
+                    "default": "0"
+                }
+            ],
+            "pipeline_override": {
+                "游星岛躲猫猫小活动": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "max_game_count": "{需要的最大躲猫猫次数}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "需要的最大麻将次数": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "需要的最大麻将次数",
+                    "description": "需要的最大麻将次数，默认设置0为无限游玩，到足够次数就停止任务",
+                    "pipeline_type": "int",
+                    "default": "0"
+                }
+            ],
+            "pipeline_override": {
+                "游星岛麻将小活动": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "max_game_count": "{需要的最大麻将次数}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "躲猫猫队伍类型": {
+            "type": "select",
+            "default_case": "无",
+            "description": "请根据实际情况选择，请务必选择正确，组队情况下需要队长和队员各自选择不同的选项，另外注意组队私人游戏的队伍人数需要至少5人",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "获取参数-躲猫猫队伍类型": {
+                            "attach": {
+                                "hide_team_type": "无"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "单人匹配游戏",
+                    "pipeline_override": {
+                        "获取参数-躲猫猫队伍类型": {
+                            "attach": {
+                                "hide_team_type": "单人匹配游戏"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "组队匹配游戏（队长）",
+                    "pipeline_override": {
+                        "获取参数-躲猫猫队伍类型": {
+                            "attach": {
+                                "hide_team_type": "组队匹配游戏（队长）"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "组队匹配游戏（队员）",
+                    "pipeline_override": {
+                        "获取参数-躲猫猫队伍类型": {
+                            "attach": {
+                                "hide_team_type": "组队匹配游戏（队员）"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "组队私人游戏（队长，队伍人数须>=5）",
+                    "pipeline_override": {
+                        "获取参数-躲猫猫队伍类型": {
+                            "attach": {
+                                "hide_team_type": "组队私人游戏（队长，队伍人数须>=5）"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "组队私人游戏（队员）",
+                    "pipeline_override": {
+                        "获取参数-躲猫猫队伍类型": {
+                            "attach": {
+                                "hide_team_type": "组队私人游戏（队员）"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "麻将队伍类型": {
+            "type": "select",
+            "default_case": "无",
+            "description": "请根据实际情况选择，请务必选择正确，组队情况下需要队长和队员各自选择不同的选项，另外注意组队私人游戏的队伍人数需要4人",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "获取参数-麻将队伍类型": {
+                            "attach": {
+                                "maj_team_type": "无"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "单人匹配游戏",
+                    "pipeline_override": {
+                        "获取参数-麻将队伍类型": {
+                            "attach": {
+                                "maj_team_type": "单人匹配游戏"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "组队私人游戏（队长）",
+                    "pipeline_override": {
+                        "获取参数-麻将队伍类型": {
+                            "attach": {
+                                "maj_team_type": "组队私人游戏（队长）"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "组队私人游戏（队员）",
+                    "pipeline_override": {
+                        "获取参数-麻将队伍类型": {
+                            "attach": {
+                                "maj_team_type": "组队私人游戏（队员）"
+                            }
+                        }
+                    }
+                }
+            ]
         },
         "目的传送地图选择": {
             "type": "select",

@@ -21,7 +21,7 @@ on:
 
 env:
   MAA_FRAMEWORK_VERSION: "v5.9.2"
-  MFAA_VERSION: "v2.11.4"
+  MFAA_VERSION: "v2.11.6"
 
 jobs:
   meta:
