@@ -259,5 +259,5 @@ def get_maj_wait_time_limit(context: Context) -> int:
                          .get("attach", {})
                          .get("wait_time_limit", 0)
                          ) if maj_wait_time_limit_node else 0
-    logger.info("麻将等待超时时间: {}", maj_wait_time_limit)
+    logger.info("麻将等待超时时间: {}", maj_wait_time_limit if maj_wait_time_limit != 0 else '无限')
     return int(maj_wait_time_limit)

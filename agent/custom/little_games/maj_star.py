@@ -138,7 +138,7 @@ def ensure_into_game(context: Context, is_leader: bool, timeout: int = 300) -> b
                 context.tasker.controller.post_click(857, 342).wait()
                 time.sleep(2)
 
-    logger.error(f"超 {timeout} 秒未开始麻将对局！")
+    logger.error(f"等待麻将对局超时或被手动停止：{timeout}")
     return False
 
 
