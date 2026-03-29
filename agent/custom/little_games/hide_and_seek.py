@@ -81,6 +81,8 @@ class HideSeekPointAction(CustomAction):
                 # 多等待10秒 | 对齐不同设备切换场景的加载速度
                 logger.info(f"等待10秒后进行下一轮躲猫猫...")
                 time.sleep(10)
+
+            self.game_count += 1
         
         logger.warning("躲猫猫任务已结束！")
         return True
@@ -170,7 +172,7 @@ def ensure_hide_entry(context: Context, timeout: int = 120) -> bool:
             logger.info(f"检测到已经到达躲猫猫的入口！")
             return True
         time.sleep(2)
-    logger.error("超 120 秒未到达躲猫猫的入口！")
+    logger.error(f"超 {timeout} 秒未到达躲猫猫的入口！")
     return False
 
 
@@ -186,7 +188,7 @@ def ensure_for_end(context: Context, timeout: int = 1200) -> bool:
             logger.info(f"检测到躲猫猫游戏对局结束！")
             return True
         time.sleep(5)
-    logger.error("超 1200 秒躲猫猫游戏对局未结束！")
+    logger.error(f"超 {timeout} 秒躲猫猫游戏对局未结束！")
     return False
 
 

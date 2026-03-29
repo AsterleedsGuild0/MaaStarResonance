@@ -68,6 +68,9 @@ class MajStarPointAction(CustomAction):
             has_next = maj_task_cycle(context)
             if not has_next:
                 return False
+            
+            self.game_count += 1
+
             # 5秒后开始下一轮
             time.sleep(5)
 
@@ -95,7 +98,7 @@ def ensure_maj_entry(context: Context, timeout: int = 120) -> bool:
             logger.info(f"已经到达麻将的入口，尝试点击开始游戏")
             return True
         time.sleep(2)
-    logger.error("超 120 秒未到达麻将的入口！")
+    logger.error(f"超 {timeout} 秒未到达麻将的入口！")
     return False
 
 
@@ -132,7 +135,7 @@ def ensure_into_game(context: Context, is_leader: bool, timeout: int = 300) -> b
                 context.tasker.controller.post_click(857, 342).wait()
                 time.sleep(2)
 
-    logger.error(f"超 300 秒未开始麻将对局！")
+    logger.error(f"超 {timeout} 秒未开始麻将对局！")
     return False
 
 
