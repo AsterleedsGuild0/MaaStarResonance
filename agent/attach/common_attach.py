@@ -248,3 +248,16 @@ def get_maj_team_type(context: Context) -> str:
                          ) if maj_team_type_node else "无"
     logger.info("麻将队伍类型: {}", str(maj_team_type))
     return str(maj_team_type)
+
+
+def get_maj_wait_time_limit(context: Context) -> int:
+    """
+    获取麻将等待超时时间
+    """
+    maj_wait_time_limit_node = context.get_node_data("获取参数-麻将等待超时时间")
+    maj_wait_time_limit = (maj_wait_time_limit_node
+                         .get("attach", {})
+                         .get("wait_time_limit", 0)
+                         ) if maj_wait_time_limit_node else 0
+    logger.info("麻将等待超时时间: {}", maj_wait_time_limit if maj_wait_time_limit != 0 else '无限')
+    return int(maj_wait_time_limit)
