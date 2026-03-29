@@ -19,6 +19,14 @@
             "maj_team_type": "无"
         }
     },
+    "获取参数-麻将等待超时时间": {
+        "action": {
+            "type": "DoNothing"
+        },
+        "attach": {
+            "wait_time_limit": 0
+        }
+    },
     "检测是否已经在麻将对局中": {
         "recognition": {
             "type": "TemplateMatch",
