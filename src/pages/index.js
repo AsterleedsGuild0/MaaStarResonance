@@ -54,7 +54,7 @@ function Home() {
                   快速开始
                 </a>
                 <a
-                  href="https://github.com/233Official/MaaStarResonance"
+                  href="https://github.com/AsterleedsGuild0/MaaStarResonance"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{

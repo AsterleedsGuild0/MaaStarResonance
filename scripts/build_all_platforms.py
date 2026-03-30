@@ -142,7 +142,7 @@ def compute_tag(explicit_tag: Optional[str], token: Optional[str]) -> str:
     tag = git_latest_tag_v()
     if not tag:
         # 取远端最新发布的 tag
-        tag = gh_latest_release_tag("233Official/MaaStarResonance", token) or "v0.0.0"
+        tag = gh_latest_release_tag("AsterleedsGuild0/MaaStarResonance", token) or "v0.0.0"
     # 追加日期与短 SHA，形成类似 Actions 的非发布标记
     # today = datetime.now().strftime("%y%m%d")
     # 追加小时分钟，避免同一天多次构建冲突
