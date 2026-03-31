@@ -29,7 +29,7 @@ import threading
 import time
 from typing import TYPE_CHECKING
 
-from scapy.all import AsyncSniffer, IP, TCP, conf
+from scapy.all import AsyncSniffer, IFACES, IP, TCP, conf
 
 from agent.logger import logger
 from agent.utils.packet_capture.message_parser import (
@@ -83,6 +83,7 @@ class PacketCapture:
         self._sniffer: AsyncSniffer | None = None
         self._port_thread: threading.Thread | None = None
         self._running = threading.Event()
+        self._stop_event = threading.Event()  # Signaled when stopping
         self._current_filter: str = ""
         self._current_ports: GamePorts = GamePorts()
         self._lock = threading.Lock()
@@ -99,6 +100,7 @@ class PacketCapture:
             return
 
         self._running.set()
+        self._stop_event.clear()
 
         # Start port discovery thread
         self._port_thread = threading.Thread(
@@ -120,6 +122,7 @@ class PacketCapture:
             return
 
         self._running.clear()
+        self._stop_event.set()
 
         self._stop_sniffer()
 
@@ -190,6 +193,14 @@ class PacketCapture:
             if len(payload) == 0:
                 return
 
+            # Skip Npcap artifact packets: short all-zero payloads that appear as
+            # duplicates at the same TCP sequence number as the real data packet.
+            # These are a known Windows/Npcap capture quirk and would corrupt
+            # TCP stream reassembly if processed (they claim sequence positions
+            # that belong to the real data).
+            if len(payload) <= 16 and not any(payload):
+                return
+
             self._tcp_reassembler.process_packet(
                 src_ip=ip_layer.src,
                 src_port=tcp_layer.sport,
@@ -205,8 +216,11 @@ class PacketCapture:
                 self._last_cleanup = now
                 self._tcp_reassembler.cleanup_idle_streams()
 
-        except Exception:
-            logger.exception("Error processing captured packet")
+        except Exception as exc:
+            import traceback
+
+            tb = traceback.format_exc()
+            logger.error(f"Error processing captured packet: {exc!r}\n{tb}")
 
     def _port_discovery_loop(self) -> None:
         """Background thread that periodically refreshes game ports.
@@ -221,12 +235,14 @@ class PacketCapture:
                 logger.exception("Error in port discovery")
 
             # Wait for the refresh interval (or until stopped)
-            self._running.wait(timeout=PORT_REFRESH_INTERVAL)
+            if self._stop_event.wait(timeout=PORT_REFRESH_INTERVAL):
+                break  # Stop event was set
 
     def _refresh_ports_and_restart_sniffer(self) -> None:
         """Discover game ports and restart sniffer if the filter changed."""
         new_ports = discover_game_ports()
         new_filter = build_bpf_filter(new_ports)
+        new_ifaces = self._resolve_interfaces(new_ports.local_ips)
 
         with self._lock:
             if new_filter == self._current_filter:
@@ -235,26 +251,56 @@ class PacketCapture:
             self._current_ports = new_ports
 
         logger.info(f"BPF filter updated: {new_filter}")
+        if new_ifaces:
+            logger.info(f"Sniffing on interfaces: {new_ifaces}")
+
+        # Update reassembler with current local IPs for direction detection
+        self._tcp_reassembler.set_local_ips(new_ports.local_ips)
 
         # Restart sniffer with new filter
         self._stop_sniffer()
-        self._start_sniffer(new_filter)
+        self._start_sniffer(new_filter, new_ifaces)
 
-    def _start_sniffer(self, bpf_filter: str) -> None:
+    @staticmethod
+    def _resolve_interfaces(local_ips: set[str]) -> list[str]:
+        """Find Scapy interface names matching the given local IP addresses.
+
+        Args:
+            local_ips: Set of local IP addresses from game connections.
+
+        Returns:
+            List of Scapy interface names, or empty list (use default).
+        """
+        if not local_ips:
+            return []
+
+        matched: list[str] = []
+        for iface in IFACES.data.values():
+            if getattr(iface, "ip", None) in local_ips:
+                matched.append(iface.name)
+
+        return matched
+
+    def _start_sniffer(self, bpf_filter: str, ifaces: list[str] | None = None) -> None:
         """Start the Scapy AsyncSniffer with the given BPF filter.
 
         Args:
             bpf_filter: BPF filter string.
+            ifaces: List of interface names to sniff on. If empty/None, uses default.
         """
         try:
             # Suppress Scapy's verbose output
             conf.verb = 0
 
-            self._sniffer = AsyncSniffer(
-                filter=bpf_filter,
-                prn=self._packet_handler,
-                store=False,
-            )
+            kwargs: dict = {
+                "filter": bpf_filter,
+                "prn": self._packet_handler,
+                "store": False,
+            }
+            if ifaces:
+                kwargs["iface"] = ifaces if len(ifaces) > 1 else ifaces[0]
+
+            self._sniffer = AsyncSniffer(**kwargs)
             self._sniffer.start()
             logger.debug("Scapy AsyncSniffer started")
         except Exception:

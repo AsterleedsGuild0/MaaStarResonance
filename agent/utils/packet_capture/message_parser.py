@@ -92,15 +92,29 @@ class MessageParser:
 
         Each frame has a 4-byte big-endian length prefix that includes itself.
         """
+        max_skip = 0
         while len(self._buffer) >= 4:
             packet_size = struct.unpack_from(">I", self._buffer, 0)[0]
 
             # Validity check: size must be > 4 and <= 0x0FFFFF
             if packet_size <= 4 or packet_size > 0x0FFFFF:
-                # Invalid frame - try to recover by skipping one byte
-                logger.debug(f"Invalid frame size: {packet_size}, skipping byte")
+                # Invalid frame - skip one byte and try to resync
                 self._buffer = self._buffer[1:]
+                max_skip += 1
+                if max_skip >= 4096:
+                    # Prevent runaway scanning on large junk buffers
+                    logger.debug(
+                        f"Frame resync: skipped {max_skip} bytes, clearing buffer"
+                    )
+                    self._buffer.clear()
+                    return
                 continue
+
+            if max_skip > 0:
+                logger.debug(
+                    f"Frame resync: skipped {max_skip} bytes before valid frame"
+                )
+                max_skip = 0
 
             if len(self._buffer) < packet_size:
                 # Incomplete frame, wait for more data
@@ -109,6 +123,9 @@ class MessageParser:
             frame = bytes(self._buffer[:packet_size])
             self._buffer = self._buffer[packet_size:]
             self._process_message(frame)
+
+        if max_skip > 0:
+            logger.debug(f"Frame resync: skipped {max_skip} bytes (buffer exhausted)")
 
     def _process_message(self, frame: bytes) -> None:
         """Process a single complete message frame.
@@ -122,15 +139,17 @@ class MessageParser:
         # Parse envelope: [4B size][2B type]
         packet_type_raw = struct.unpack_from(">H", frame, 4)[0]
         is_compressed = bool(packet_type_raw & ZSTD_COMPRESSION_FLAG)
-        msg_type = MessageType(packet_type_raw & 0x7FFF)
+        msg_type_value = packet_type_raw & 0x7FFF
 
         payload = frame[6:]
 
-        if msg_type == MessageType.NOTIFY:
+        # Only process Notify and FrameDown; silently skip all other types.
+        # Using integer comparison instead of MessageType(value) to avoid
+        # ValueError on unknown/unexpected type values.
+        if msg_type_value == MessageType.NOTIFY:
             self._handle_notify(payload, is_compressed)
-        elif msg_type == MessageType.FRAME_DOWN:
+        elif msg_type_value == MessageType.FRAME_DOWN:
             self._handle_frame_down(payload, is_compressed)
-        # All other types (CALL, RETURN, ECHO, FRAME_UP, NONE) are silently dropped
 
     def _handle_notify(self, payload: bytes, is_compressed: bool) -> None:
         """Handle a Notify message.
@@ -162,9 +181,13 @@ class MessageParser:
         if handler is not None:
             try:
                 handler(service_uuid, method_id, proto_payload)
-            except Exception:
-                logger.exception(
-                    f"Error in message handler for service {service_uuid}, method {method_id}"
+            except Exception as exc:
+                import traceback
+
+                tb = traceback.format_exc()
+                logger.error(
+                    f"Error in message handler for service {service_uuid}, "
+                    f"method 0x{method_id:02X}: {exc!r}\n{tb}"
                 )
 
     def _handle_frame_down(self, payload: bytes, is_compressed: bool) -> None:

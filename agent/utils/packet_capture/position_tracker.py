@@ -20,8 +20,6 @@ from google.protobuf.message import DecodeError
 from agent.logger import logger
 from agent.utils.packet_capture.proto import (
     attr_pb2,
-    char_data_pb2,
-    entity_pb2,
     position_pb2,
     world_ntf_pb2,
 )
@@ -34,9 +32,10 @@ METHOD_SYNC_CONTAINER_DIRTY_DATA = 0x16  # 22
 METHOD_SYNC_NEAR_DELTA_INFO = 0x2D  # 45
 METHOD_SYNC_TO_ME_DELTA_INFO = 0x2E  # 46
 
-# Attribute type IDs for position/direction
-ATTR_DIR = 50
+# Attribute type IDs for position
 ATTR_POS = 52
+ATTR_DST_POS = 53  # Target/destination position (where entity is moving toward)
+# Note: ATTR_DIR (50) is a varint direction angle, not a Position protobuf
 
 # Entity type for player characters
 ENT_CHAR = 10
@@ -135,10 +134,17 @@ class PositionTracker:
                 self._handle_sync_to_me_delta_info(payload)
             # METHOD_SYNC_CONTAINER_DIRTY_DATA (22) uses custom binary format, not pure protobuf
             # Skipped for now - the other 4 methods provide sufficient position data
-        except DecodeError:
-            logger.debug(f"Protobuf decode error for WorldNtf method {method_id}")
-        except Exception:
-            logger.exception(f"Error processing WorldNtf method {method_id}")
+        except DecodeError as exc:
+            logger.debug(
+                f"Protobuf decode error for WorldNtf method 0x{method_id:02X}: {exc!r}"
+            )
+        except Exception as exc:
+            import traceback
+
+            tb = traceback.format_exc()
+            logger.error(
+                f"Error processing WorldNtf method 0x{method_id:02X}: {exc!r}\n{tb}"
+            )
 
     def _handle_sync_container_data(self, payload: bytes) -> None:
         """Handle SyncContainerData (full player data sync at login).
@@ -215,6 +221,9 @@ class PositionTracker:
     def _handle_sync_to_me_delta_info(self, payload: bytes) -> None:
         """Handle SyncToMeDeltaInfo (delta update targeted at current player).
 
+        Also extracts the player UUID from the message if not already known,
+        since SyncContainerData only occurs at login and may not be captured.
+
         Args:
             payload: Protobuf-encoded SyncToMeDeltaInfo.
         """
@@ -225,6 +234,20 @@ class PositionTracker:
             return
 
         to_me = msg.DeltaInfo
+
+        # Extract player UUID if not already known.
+        # SyncToMeDeltaInfo.Uuid (field 5) is the full entity UUID;
+        # char_id = uuid >> 16.
+        if to_me.HasField("Uuid") and to_me.Uuid != 0:
+            with self._lock:
+                if self._my_uuid is None:
+                    char_id = to_me.Uuid >> 16
+                    self._my_uuid = char_id
+                    logger.info(
+                        f"Player char_id identified from SyncToMeDeltaInfo: "
+                        f"{char_id} (entity uuid={to_me.Uuid})"
+                    )
+
         # SyncToMeDeltaInfo is specifically for the current player
         if to_me.HasField("BaseDelta"):
             self._process_delta(to_me.BaseDelta, "SyncToMeDeltaInfo", force_self=True)
@@ -264,8 +287,13 @@ class PositionTracker:
     ) -> position_pb2.Position | None:
         """Extract position from an AttrCollection's Attr list.
 
-        Looks for AttrPos (ID=52) and AttrDir (ID=50) attributes.
-        RawData for these attributes contains a serialized Position protobuf.
+        Looks for AttrPos (ID=52), AttrDstPos (ID=53), and AttrDir (ID=50).
+        RawData for position attributes contains a serialized Position protobuf.
+        AttrDir (50) is a varint (direction angle), not a Position.
+
+        Priority: AttrPos (52) > AttrDstPos (53).
+        AttrDstPos is the entity's movement target and is commonly the only
+        position attribute in SyncToMeDeltaInfo for the current player.
 
         Args:
             attrs: The attribute collection to search.
@@ -274,52 +302,27 @@ class PositionTracker:
             A Position message if found, or None.
         """
         pos_data: bytes | None = None
-        dir_data: bytes | None = None
+        dst_pos_data: bytes | None = None
 
         for attr in attrs.Attrs:
             attr_id = attr.Id
             if attr_id == ATTR_POS and attr.RawData:
                 pos_data = attr.RawData
-            elif attr_id == ATTR_DIR and attr.RawData:
-                dir_data = attr.RawData
+            elif attr_id == ATTR_DST_POS and attr.RawData:
+                dst_pos_data = attr.RawData
 
-        if pos_data is None and dir_data is None:
+        # Prefer AttrPos (current position) over AttrDstPos (destination)
+        raw = pos_data or dst_pos_data
+
+        if raw is None:
             return None
 
-        # Parse position from AttrPos (primary source with x, y, z, dir)
-        if pos_data is not None:
-            try:
-                pos = position_pb2.Position()
-                pos.ParseFromString(pos_data)
-                return pos
-            except DecodeError:
-                logger.debug("Failed to decode AttrPos RawData as Position")
-
-        # Fallback: parse direction from AttrDir
-        if dir_data is not None:
-            try:
-                pos = position_pb2.Position()
-                pos.ParseFromString(dir_data)
-                # AttrDir might only have direction info; if x/y/z are all 0, merge with current
-                with self._lock:
-                    if (
-                        self._position is not None
-                        and pos.x == 0.0
-                        and pos.y == 0.0
-                        and pos.z == 0.0
-                    ):
-                        # Only direction changed
-                        merged = position_pb2.Position()
-                        merged.x = self._position.x
-                        merged.y = self._position.y
-                        merged.z = self._position.z
-                        merged.dir = pos.dir if pos.dir != 0.0 else self._position.dir
-                        return merged
-                return pos
-            except DecodeError:
-                logger.debug("Failed to decode AttrDir RawData as Position")
-
-        return None
+        try:
+            pos = position_pb2.Position()
+            pos.ParseFromString(raw)
+            return pos
+        except DecodeError:
+            logger.debug("Failed to decode position attribute RawData as Position")
 
     @staticmethod
     def _uuid_matches(entity_uuid: int, my_uuid: int) -> bool:
@@ -355,6 +358,11 @@ class PositionTracker:
         """
         pos = PlayerPosition(
             x=x, y=y, z=z, dir=direction, timestamp=time.time(), source=source
+        )
+
+        logger.debug(
+            f"Position update [{source}]: "
+            f"({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f}), dir={pos.dir:.2f}"
         )
 
         with self._lock:

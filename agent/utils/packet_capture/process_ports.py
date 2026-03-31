@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import ctypes
 import ctypes.wintypes
+import socket
 import struct
 from dataclasses import dataclass, field
 
@@ -15,6 +16,7 @@ from agent.logger import logger
 
 # Game process names (without .exe extension)
 GAME_PROCESS_NAMES: list[str] = ["star", "BPSR_STEAM", "BPSR_EPIC", "BPSR"]
+_GAME_PROCESS_NAMES_UPPER: set[str] = {n.upper() for n in GAME_PROCESS_NAMES}
 
 # --- Windows API constants ---
 AF_INET = 2
@@ -54,6 +56,7 @@ class GamePorts:
     tcp_ports: set[int] = field(default_factory=set)
     udp_ports: set[int] = field(default_factory=set)
     pids: set[int] = field(default_factory=set)
+    local_ips: set[str] = field(default_factory=set)
 
     @property
     def has_ports(self) -> bool:
@@ -103,7 +106,7 @@ def _find_game_pids() -> set[int]:
                 name_no_ext = (
                     exe_name.rsplit(".", 1)[0] if "." in exe_name else exe_name
                 )
-                if name_no_ext in GAME_PROCESS_NAMES:
+                if name_no_ext.upper() in _GAME_PROCESS_NAMES_UPPER:
                     pids.add(pe.th32ProcessID)
                 if not kernel32.Process32NextW(snapshot, ctypes.byref(pe)):
                     break
@@ -113,8 +116,8 @@ def _find_game_pids() -> set[int]:
     return pids
 
 
-def _get_tcp_ports_for_pids(pids: set[int]) -> set[int]:
-    """Get all TCP local ports owned by the given PIDs.
+def _get_tcp_ports_for_pids(pids: set[int]) -> tuple[set[int], set[str]]:
+    """Get all TCP local ports and local IPs owned by the given PIDs.
 
     Uses GetExtendedTcpTable from iphlpapi.dll.
 
@@ -122,13 +125,15 @@ def _get_tcp_ports_for_pids(pids: set[int]) -> set[int]:
         pids: Set of process IDs to filter by.
 
     Returns:
-        Set of local TCP port numbers.
+        Tuple of (local TCP port numbers, local IP addresses).
+        Loopback (127.x.x.x) and unspecified (0.0.0.0) addresses are excluded.
     """
     if not pids:
-        return set()
+        return set(), set()
 
     iphlpapi = ctypes.windll.iphlpapi
     ports: set[int] = set()
+    local_ips: set[str] = set()
 
     # First call to get required buffer size
     buf_size = ctypes.wintypes.DWORD(0)
@@ -137,7 +142,7 @@ def _get_tcp_ports_for_pids(pids: set[int]) -> set[int]:
     )
 
     if buf_size.value == 0:
-        return ports
+        return ports, local_ips
 
     buf = (ctypes.c_byte * buf_size.value)()
     ret = iphlpapi.GetExtendedTcpTable(
@@ -146,7 +151,7 @@ def _get_tcp_ports_for_pids(pids: set[int]) -> set[int]:
 
     if ret != 0:
         logger.warning(f"GetExtendedTcpTable failed with error code {ret}")
-        return ports
+        return ports, local_ips
 
     # Parse table: first DWORD is row count, followed by MIB_TCPROW_OWNER_PID entries
     num_entries = struct.unpack_from("<I", buf, 0)[0]
@@ -162,9 +167,13 @@ def _get_tcp_ports_for_pids(pids: set[int]) -> set[int]:
             port = ((row.dwLocalPort & 0xFF) << 8) | ((row.dwLocalPort >> 8) & 0xFF)
             if port > 0:
                 ports.add(port)
+            # Collect local IP (exclude loopback and unspecified)
+            local_ip = socket.inet_ntoa(struct.pack("<I", row.dwLocalAddr))
+            if local_ip != "0.0.0.0" and not local_ip.startswith("127."):
+                local_ips.add(local_ip)
         offset += row_size
 
-    return ports
+    return ports, local_ips
 
 
 def _get_udp_ports_for_pids(pids: set[int]) -> set[int]:
@@ -231,13 +240,16 @@ def discover_game_ports() -> GamePorts:
         logger.debug("No game processes found")
         return GamePorts()
 
-    tcp_ports = _get_tcp_ports_for_pids(pids)
+    tcp_ports, local_ips = _get_tcp_ports_for_pids(pids)
     udp_ports = _get_udp_ports_for_pids(pids)
 
-    result = GamePorts(tcp_ports=tcp_ports, udp_ports=udp_ports, pids=pids)
+    result = GamePorts(
+        tcp_ports=tcp_ports, udp_ports=udp_ports, pids=pids, local_ips=local_ips
+    )
     if result.has_ports:
         logger.debug(
-            f"Discovered game ports - TCP: {sorted(tcp_ports)}, UDP: {sorted(udp_ports)}, PIDs: {sorted(pids)}"
+            f"Discovered game ports - TCP: {sorted(tcp_ports)}, UDP: {sorted(udp_ports)}, "
+            f"PIDs: {sorted(pids)}, Local IPs: {sorted(local_ips)}"
         )
     return result
 
