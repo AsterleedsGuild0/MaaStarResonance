@@ -24,6 +24,14 @@ if _project_root not in sys.path:
 
 from agent.utils.packet_capture import PacketCapture, PlayerInfo, PlayerPosition
 
+# Suppress debug-level log output so only the periodic status block is
+# printed.  The project logger is configured at DEBUG in agent.logger;
+# raise minimum level to INFO for this script.
+from agent.logger import logger as _app_logger, sink_function as _sink_fn
+
+_app_logger.remove()
+_app_logger.add(_sink_fn, level="INFO", enqueue=True, backtrace=True, diagnose=False)
+
 # ANSI escape codes for terminal colors
 _RESET = "\033[0m"
 _BOLD = "\033[1m"

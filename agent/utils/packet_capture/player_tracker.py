@@ -10,6 +10,7 @@ SyncContainerDataProcessor.cs, ProfessionExtends.cs from StarResonanceDps.
 
 from __future__ import annotations
 
+import math
 import struct
 import threading
 import time
@@ -208,6 +209,41 @@ def _read_protobuf_int64(raw_data: bytes) -> int:
         return value
     except Exception:
         return 0
+
+
+def _read_protobuf_float(raw_data: bytes) -> float | None:
+    """Read a protobuf-encoded float from Attr.RawData.
+
+    AttrDir (ID=50) stores direction as a single protobuf fixed32 float.
+    Wire type 5 (32-bit) = field_tag byte + 4 bytes little-endian IEEE 754.
+
+    The raw_data may be:
+    - 5 bytes: [field_tag (0x0D = field 1, wire type 5)] + [4-byte LE float]
+    - 4 bytes: bare LE float (no field tag)
+
+    Args:
+        raw_data: The raw bytes from Attr.RawData.
+
+    Returns:
+        The decoded float, or None on failure.
+    """
+    if not raw_data:
+        return None
+    try:
+        if len(raw_data) == 4:
+            # Bare 4-byte LE float (no field tag)
+            return struct.unpack("<f", raw_data)[0]
+        if len(raw_data) >= 5:
+            # Protobuf field tag + fixed32: tag byte has wire type 5 (low 3 bits)
+            tag = raw_data[0]
+            if (tag & 0x07) == 5:
+                # Wire type 5 = 32-bit, extract the 4 bytes after the tag
+                return struct.unpack("<f", raw_data[1:5])[0]
+            # Fallback: try the last 4 bytes
+            return struct.unpack("<f", raw_data[-4:])[0]
+        return None
+    except (struct.error, Exception):
+        return None
 
 
 def _decode_varint(data: bytes, offset: int) -> tuple[int, int]:
@@ -557,6 +593,7 @@ class PlayerTracker:
         """
         pos_data: bytes | None = None
         dst_pos_data: bytes | None = None
+        dir_value: float | None = None  # From ATTR_DIR (50), overrides Position.dir
         info_changed = False
 
         for attr in attrs.Attrs:
@@ -568,6 +605,8 @@ class PlayerTracker:
                 pos_data = raw
             elif attr_id == ATTR_DST_POS and raw:
                 dst_pos_data = raw
+            elif attr_id == ATTR_DIR and raw:
+                dir_value = _read_protobuf_float(raw)
 
             # Identity/stats attributes
             elif attr_id == ATTR_NAME and raw:
@@ -656,9 +695,20 @@ class PlayerTracker:
             try:
                 pos = position_pb2.Position()
                 pos.ParseFromString(raw_pos)
-                self._update_position(pos.x, pos.y, pos.z, pos.dir, source)
+                # ATTR_DIR (50) provides the actual facing direction;
+                # Position.dir is always 0.0 due to proto3 default omission.
+                direction = dir_value if dir_value is not None else pos.dir
+                self._update_position(pos.x, pos.y, pos.z, direction, source)
             except DecodeError:
                 logger.debug("Failed to decode position attribute RawData as Position")
+        elif dir_value is not None:
+            # Direction update without a position update — update only dir
+            # on the existing position if we have one.
+            # Read old position outside the lock scope used by _update_position.
+            with self._lock:
+                old = self._position
+            if old is not None:
+                self._update_position(old.x, old.y, old.z, dir_value, source)
 
         if info_changed:
             self._notify_player_info_changed()
@@ -692,13 +742,30 @@ class PlayerTracker:
     ) -> None:
         """Update the stored position and notify callbacks.
 
+        When *direction* is 0.0 (i.e. the server omitted the value), the
+        facing direction is inferred from the movement vector between the
+        previous and current positions using ``atan2(dz, dx)``.  The
+        result is in radians, consistent with the game's coordinate
+        system.
+
         Args:
             x: X coordinate.
             y: Y coordinate.
             z: Z coordinate.
-            direction: Facing direction.
+            direction: Facing direction (0.0 means "not provided").
             source: Description of the source message.
         """
+        # Infer direction from movement when the server doesn't send it
+        if direction == 0.0:
+            with self._lock:
+                prev = self._position
+            if prev is not None:
+                dx = x - prev.x
+                dz = z - prev.z
+                # Only update if there is meaningful displacement
+                if dx * dx + dz * dz > 1e-6:
+                    direction = math.atan2(dz, dx)
+
         pos = PlayerPosition(
             x=x, y=y, z=z, dir=direction, timestamp=time.time(), source=source
         )
