@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n0agent/utils/packet_capture/proto/char_data.proto\x12\x06zproto\"M\n\x0c\x43harBaseInfo\x12\x0f\n\x07\x63har_id\x18\x01 \x01(\x03\x12\t\n\x01x\x18\n \x01(\x02\x12\t\n\x01y\x18\x0b \x01(\x02\x12\t\n\x01z\x18\x0c \x01(\x02\x12\x0b\n\x03\x64ir\x18\r \x01(\x02\"I\n\rCharSerialize\x12\x0f\n\x07\x63har_id\x18\x01 \x01(\x03\x12\'\n\tchar_base\x18\x02 \x01(\x0b\x32\x14.zproto.CharBaseInfob\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n0agent/utils/packet_capture/proto/char_data.proto\x12\x06zproto\"p\n\x0c\x43harBaseInfo\x12\x0f\n\x07\x63har_id\x18\x01 \x01(\x03\x12\x0c\n\x04name\x18\x05 \x01(\t\x12\t\n\x01x\x18\n \x01(\x02\x12\t\n\x01y\x18\x0b \x01(\x02\x12\t\n\x01z\x18\x0c \x01(\x02\x12\x0b\n\x03\x64ir\x18\r \x01(\x02\x12\x13\n\x0b\x66ight_point\x18# \x01(\x05\"+\n\x0eProfessionList\x12\x19\n\x11\x63ur_profession_id\x18\x01 \x01(\x05\"\x1a\n\tRoleLevel\x12\r\n\x05level\x18\x01 \x01(\x05\"/\n\rUserFightAttr\x12\x0e\n\x06\x63ur_hp\x18\x01 \x01(\x03\x12\x0e\n\x06max_hp\x18\x02 \x01(\x03\"\xc6\x01\n\rCharSerialize\x12\x0f\n\x07\x63har_id\x18\x01 \x01(\x03\x12\'\n\tchar_base\x18\x02 \x01(\x0b\x32\x14.zproto.CharBaseInfo\x12#\n\x04\x61ttr\x18\x10 \x01(\x0b\x32\x15.zproto.UserFightAttr\x12%\n\nrole_level\x18\x16 \x01(\x0b\x32\x11.zproto.RoleLevel\x12/\n\x0fprofession_list\x18= \x01(\x0b\x32\x16.zproto.ProfessionListb\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -32,7 +32,13 @@ _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'agent.utils.packet_capture.
 if not _descriptor._USE_C_DESCRIPTORS:
   DESCRIPTOR._loaded_options = None
   _globals['_CHARBASEINFO']._serialized_start=60
-  _globals['_CHARBASEINFO']._serialized_end=137
-  _globals['_CHARSERIALIZE']._serialized_start=139
-  _globals['_CHARSERIALIZE']._serialized_end=212
+  _globals['_CHARBASEINFO']._serialized_end=172
+  _globals['_PROFESSIONLIST']._serialized_start=174
+  _globals['_PROFESSIONLIST']._serialized_end=217
+  _globals['_ROLELEVEL']._serialized_start=219
+  _globals['_ROLELEVEL']._serialized_end=245
+  _globals['_USERFIGHTATTR']._serialized_start=247
+  _globals['_USERFIGHTATTR']._serialized_end=294
+  _globals['_CHARSERIALIZE']._serialized_start=297
+  _globals['_CHARSERIALIZE']._serialized_end=495
 # @@protoc_insertion_point(module_scope)

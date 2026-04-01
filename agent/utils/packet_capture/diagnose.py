@@ -140,7 +140,7 @@ def replay_packets(input_file: str) -> None:
         WORLD_NTF_SERVICE_UUID,
         MessageParser,
     )
-    from agent.utils.packet_capture.position_tracker import PositionTracker
+    from agent.utils.packet_capture.player_tracker import PlayerTracker
     from agent.utils.packet_capture.tcp_reassembly import TcpReassembler
 
     print("=" * 60)
@@ -156,7 +156,7 @@ def replay_packets(input_file: str) -> None:
     print(f"  Local IPs: {sorted(local_ips)}")
 
     # Set up pipeline
-    position_tracker = PositionTracker()
+    player_tracker = PlayerTracker()
     message_parser = MessageParser()
 
     # Counters
@@ -166,6 +166,7 @@ def replay_packets(input_file: str) -> None:
         "messages_parsed": 0,
         "world_ntf_calls": 0,
         "positions_found": 0,
+        "player_info_updates": 0,
         "errors": 0,
     }
 
@@ -177,7 +178,7 @@ def replay_packets(input_file: str) -> None:
         original_feed(data_bytes)
 
     # Wrap position handler to count
-    original_handler = position_tracker.handle_world_ntf
+    original_handler = player_tracker.handle_world_ntf
 
     def counting_handler(service_uuid: int, method_id: int, payload: bytes) -> None:
         stats["world_ntf_calls"] += 1
@@ -190,7 +191,12 @@ def replay_packets(input_file: str) -> None:
         stats["positions_found"] += 1
         print(f"  >>> POSITION: {pos}")
 
-    position_tracker.on_position_update(on_position)
+    def on_player_info(info):
+        stats["player_info_updates"] += 1
+        print(f"  >>> PLAYER INFO: {info}")
+
+    player_tracker.on_position_update(on_position)
+    player_tracker.on_player_info_update(on_player_info)
 
     tcp_reassembler = TcpReassembler(on_data=counting_feed, local_ips=local_ips)
 
@@ -235,8 +241,10 @@ def replay_packets(input_file: str) -> None:
     print("=" * 60)
     for key, val in stats.items():
         print(f"  {key}: {val}")
-    pos = position_tracker.get_position()
+    pos = player_tracker.get_position()
+    info = player_tracker.get_player_info()
     print(f"  final_position: {pos}")
+    print(f"  final_player_info: {info}")
     print(f"  server_endpoints: {tcp_reassembler.server_endpoints}")
 
 
@@ -256,12 +264,18 @@ def live_mode() -> None:
     capture = PacketCapture()
 
     position_count = [0]
+    info_count = [0]
 
     def on_pos(pos):
         position_count[0] += 1
-        print(f"  [{position_count[0]}] {pos}")
+        print(f"  [pos #{position_count[0]}] {pos}")
+
+    def on_info(info):
+        info_count[0] += 1
+        print(f"  [info #{info_count[0]}] {info}")
 
     capture.on_position_update(on_pos)
+    capture.on_player_info_update(on_info)
     capture.start()
 
     try:
@@ -269,17 +283,23 @@ def live_mode() -> None:
         while True:
             time.sleep(5)
             pos = capture.get_position()
+            info = capture.get_player_info()
             if pos:
-                print(f"  [poll] Current: {pos}")
+                print(f"  [poll] Position: {pos}")
             else:
                 print("  [poll] No position data yet")
+            if info.char_id:
+                print(f"  [poll] Player: {info}")
     except KeyboardInterrupt:
         print("\nStopping...")
 
     capture.stop()
     print(f"\nTotal position updates: {position_count[0]}")
+    print(f"Total player info updates: {info_count[0]}")
     final = capture.get_position()
+    final_info = capture.get_player_info()
     print(f"Final position: {final}")
+    print(f"Final player info: {final_info}")
 
 
 def main():

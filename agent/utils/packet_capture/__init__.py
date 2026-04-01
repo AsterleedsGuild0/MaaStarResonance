@@ -1,13 +1,14 @@
-"""Packet capture module for Star Resonance game position tracking.
+"""Packet capture module for Star Resonance game player tracking.
 
-Provides real-time player position extraction from game network traffic
+Provides real-time player data extraction from game network traffic
 via Scapy packet sniffing, TCP stream reassembly, protocol parsing,
 and protobuf deserialization.
 
 Public API
 ----------
-- :class:`PacketCapture` — Main orchestrator (start/stop/get_position/on_position_update)
+- :class:`PacketCapture` — Main orchestrator (start/stop/get_position/get_player_info)
 - :class:`PlayerPosition` — Position data snapshot (x, y, z, dir, timestamp)
+- :class:`PlayerInfo` — Player identity/stats snapshot (name, profession, level, HP, etc.)
 
 Quick start::
 
@@ -18,14 +19,16 @@ Quick start::
 
     # Polling
     pos = capture.get_position()
+    info = capture.get_player_info()
 
-    # Callback
+    # Callbacks
     capture.on_position_update(lambda p: print(p))
+    capture.on_player_info_update(lambda i: print(i))
 
     capture.stop()
 """
 
-from agent.utils.packet_capture.position_tracker import PlayerPosition
+from agent.utils.packet_capture.player_tracker import PlayerInfo, PlayerPosition
 from agent.utils.packet_capture.sniffer import PacketCapture
 
-__all__ = ["PacketCapture", "PlayerPosition"]
+__all__ = ["PacketCapture", "PlayerInfo", "PlayerPosition"]

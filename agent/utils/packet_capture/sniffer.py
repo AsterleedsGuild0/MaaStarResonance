@@ -3,7 +3,7 @@
 Provides the main PacketCapture class that orchestrates all components:
 - Background packet sniffing via Scapy AsyncSniffer
 - Periodic game process port discovery and BPF filter updates
-- TCP reassembly, message parsing, and position tracking
+- TCP reassembly, message parsing, and player tracking
 
 Usage::
 
@@ -17,8 +17,12 @@ Usage::
     if pos:
         print(f"Player at ({pos.x}, {pos.y}, {pos.z}), facing {pos.dir}")
 
+    info = capture.get_player_info()
+    print(f"Name: {info.name}, Profession: {info.profession_name}")
+
     # Callback API
     capture.on_position_update(lambda p: print(f"Moved to {p}"))
+    capture.on_player_info_update(lambda i: print(f"Info: {i}"))
 
     capture.stop()
 """
@@ -36,7 +40,11 @@ from agent.utils.packet_capture.message_parser import (
     WORLD_NTF_SERVICE_UUID,
     MessageParser,
 )
-from agent.utils.packet_capture.position_tracker import PlayerPosition, PositionTracker
+from agent.utils.packet_capture.player_tracker import (
+    PlayerInfo,
+    PlayerPosition,
+    PlayerTracker,
+)
 from agent.utils.packet_capture.process_ports import (
     GamePorts,
     build_bpf_filter,
@@ -63,20 +71,20 @@ class PacketCapture:
     - Scapy AsyncSniffer (background thread)
     - Periodic port discovery (background thread)
     - TCP reassembly pipeline
-    - Message parsing and position tracking
+    - Message parsing and player tracking
 
     Thread-safe: all public methods can be called from any thread.
     """
 
     def __init__(self) -> None:
         # Pipeline components
-        self._position_tracker = PositionTracker()
+        self._player_tracker = PlayerTracker()
         self._message_parser = MessageParser()
         self._tcp_reassembler = TcpReassembler(on_data=self._message_parser.feed)
 
         # Register WorldNtf handler
         self._message_parser.register_handler(
-            WORLD_NTF_SERVICE_UUID, self._position_tracker.handle_world_ntf
+            WORLD_NTF_SERVICE_UUID, self._player_tracker.handle_world_ntf
         )
 
         # Sniffer state
@@ -145,7 +153,17 @@ class PacketCapture:
         Returns:
             The latest PlayerPosition, or None if no position data has been received.
         """
-        return self._position_tracker.get_position()
+        return self._player_tracker.get_position()
+
+    def get_player_info(self) -> PlayerInfo:
+        """Get the current player info snapshot (name, profession, level, etc.).
+
+        Thread-safe polling API.
+
+        Returns:
+            A copy of the current PlayerInfo.
+        """
+        return self._player_tracker.get_player_info()
 
     def on_position_update(self, callback: Callable[[PlayerPosition], None]) -> None:
         """Register a callback for position updates.
@@ -153,15 +171,35 @@ class PacketCapture:
         Args:
             callback: Function receiving a PlayerPosition on each update.
         """
-        self._position_tracker.on_position_update(callback)
+        self._player_tracker.on_position_update(callback)
 
-    def remove_callback(self, callback: Callable[[PlayerPosition], None]) -> None:
+    def on_player_info_update(self, callback: Callable[[PlayerInfo], None]) -> None:
+        """Register a callback for player info updates (name, profession, etc.).
+
+        Args:
+            callback: Function receiving a PlayerInfo on each update.
+        """
+        self._player_tracker.on_player_info_update(callback)
+
+    def remove_position_callback(
+        self, callback: Callable[[PlayerPosition], None]
+    ) -> None:
         """Remove a previously registered position callback.
 
         Args:
             callback: The callback to remove.
         """
-        self._position_tracker.remove_callback(callback)
+        self._player_tracker.remove_position_callback(callback)
+
+    def remove_player_info_callback(
+        self, callback: Callable[[PlayerInfo], None]
+    ) -> None:
+        """Remove a previously registered player info callback.
+
+        Args:
+            callback: The callback to remove.
+        """
+        self._player_tracker.remove_player_info_callback(callback)
 
     def reset(self) -> None:
         """Reset all internal state without stopping capture.
@@ -170,7 +208,7 @@ class PacketCapture:
         """
         self._tcp_reassembler.reset()
         self._message_parser.reset()
-        self._position_tracker.reset()
+        self._player_tracker.reset()
         logger.info("PacketCapture state reset")
 
     def _packet_handler(self, packet: Packet) -> None:

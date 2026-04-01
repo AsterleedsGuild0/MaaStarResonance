@@ -2,22 +2,54 @@ syntax = "proto3";
 
 package zproto;
 
-// Minimal CharBaseInfo - only position-related fields.
-// Original: stru_char_base_info.proto (stripped 50+ unrelated fields and imports)
+// Minimal CharBaseInfo - position + identity fields.
+// Original: stru_char_base_info.proto (stripped 30+ unrelated fields and imports)
 message CharBaseInfo {
   int64 char_id = 1;
-  // Fields 2-9 omitted
+  // Fields 2-4 omitted (account_id, show_id, server_id)
+  string name = 5;
+  // Fields 6-9 omitted (gender, is_deleted, is_forbid, is_mute)
   float x = 10;
   float y = 11;
   float z = 12;
   float dir = 13;
-  // Fields 14+ omitted
+  // Fields 14-34 omitted
+  int32 fight_point = 35;
+  // Fields 36+ omitted
 }
 
-// Minimal CharSerialize - only char_base field needed.
-// Original: stru_char_serialize.proto (stripped 110+ imports and fields)
+// Minimal ProfessionList - only cur_profession_id needed.
+// Original: stru_profession_list.proto
+message ProfessionList {
+  int32 cur_profession_id = 1;
+  // Fields 3-16 omitted
+}
+
+// Minimal RoleLevel - only level needed.
+// Original: stru_role_level.proto
+message RoleLevel {
+  int32 level = 1;
+  // Fields 2-11 omitted
+}
+
+// Minimal UserFightAttr - HP fields needed.
+// Original: stru_user_fight_attr.proto
+message UserFightAttr {
+  int64 cur_hp = 1;
+  int64 max_hp = 2;
+  // Fields 3-9 omitted
+}
+
+// Minimal CharSerialize - position, identity, profession, level, HP fields.
+// Original: stru_char_serialize.proto (stripped 100+ imports and fields)
 message CharSerialize {
   int64 char_id = 1;
   CharBaseInfo char_base = 2;
-  // Fields 3-112 omitted
+  // Fields 3-15 omitted
+  UserFightAttr attr = 16;
+  // Fields 17-21 omitted
+  RoleLevel role_level = 22;
+  // Fields 23-60 omitted
+  ProfessionList profession_list = 61;
+  // Fields 62+ omitted
 }
