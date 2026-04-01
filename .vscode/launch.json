@@ -60,6 +60,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/scripts/generate_changelog.py",
             "console": "integratedTerminal",
+            "envFile": "${workspaceFolder}/.env.local",
             "args": [
                 "--output",
                 "${workspaceFolder}/CHANGELOG.md"
