@@ -27,6 +27,8 @@
 
 ## 界面预览
 
+- 如果觉得还算好用请给我们的项目点个收藏支持一下⭐
+
 ![image-20260109134752](docs/关于/关于我们.assets/image-20260109134752.png)
 
 ---
@@ -41,17 +43,11 @@
 
 ---
 
-## 即将更新
-
-- 👉 [即将到来的更新 - 请查看最新开发分支](https://github.com/AsterleedsGuild0/MaaStarResonance/compare)
-
-- 由于游戏粘性低和开发者自身的工作，项目开发进度可能会受影响，如果觉得还算好用请给我们的项目点个收藏支持一下⭐
-
----
-
 ## 功能列表
 
-> 目前仅支持 `MuMu模拟器` 运行星痕共鸣 接入本 Maa 应用程序
+> ⚠️ 目前仅支持 `MuMu模拟器` 运行星痕共鸣 接入本 Maa 应用程序，支持后台运行，支持多开
+>
+> 您可以采用多个配置页、复制、排列、组合任务列表的方式来完成日常
 
 - 自动钓鱼
 - 简易采集
@@ -70,8 +66,6 @@
 - 地图传送
 - 地图导航
 - 切换分线
-
-> 您可以采用 复制任务、排列任务、组合任务 的方式来完成日常
 
 ---
 
@@ -100,16 +94,15 @@
 - [部分功能流程设计](./docs/开发者文档/流程设计/)
 - [立项初期的待办清单](./docs/开发者文档/待办清单.md)
 
-更多文档请前往 [MaaFramework](https://github.com/MaaXYZ/MaaFramework) 仓库查看
+更多开发文档请前往 [MaaFramework](https://github.com/MaaXYZ/MaaFramework) 仓库查看
 
 ---
 
 ## 鸣谢
 
-本项目由 **[MaaFramework](https://github.com/MaaXYZ/MaaFramework)** 强力驱动！  
-UI 由 [MFAAvalonia](https://github.com/SweetSmellFox/MFAAvalonia)  大力支持！
-AsterleedsGuild0/MaaStarResonanceAsterleedsGuild0/MaaStarResonance
-感谢以下开发者对本项目作出的贡献:
+- 本项目由 **[MaaFramework](https://github.com/MaaXYZ/MaaFramework)** 强力驱动！  
+- 软件UI 由 [MFAAvalonia](https://github.com/SweetSmellFox/MFAAvalonia)  大力支持！
+- 感谢以下开发者对本项目作出的贡献:
 
 [![Contributors](https://contrib.rocks/image?repo=233Official/MaaStarResonance&max=1000)](https://github.com/233Official/MaaStarResonance/graphs/contributors)
 
