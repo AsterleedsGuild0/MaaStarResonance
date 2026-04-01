@@ -365,9 +365,21 @@ class ChangelogGenerator:
                 raw_data = json.load(f)
         except (json.JSONDecodeError, OSError) as e:
             print(f"⚠️ 加载 PR 作者缓存失败: {e}", file=sys.stderr)
+            # JSON 无法解析或文件读写错误时，删除损坏的缓存文件，避免后续运行反复失败
+            try:
+                if cache_path.exists():
+                    cache_path.unlink()
+            except OSError as cleanup_error:
+                print(f"⚠️ 删除损坏的 PR 作者缓存文件失败: {cleanup_error}", file=sys.stderr)
             return {}
 
         if not isinstance(raw_data, dict):
+            # 结构异常时重置为一个空的缓存结构，避免后续一直读取无效数据
+            try:
+                with open(cache_path, "w", encoding="utf-8") as f:
+                    json.dump({}, f, ensure_ascii=False, indent=2)
+            except OSError as e:
+                print(f"⚠️ 重置 PR 作者缓存文件失败: {e}", file=sys.stderr)
             return {}
 
         cache: dict[int, dict[str, list[dict[str, str | None]]]] = {}
