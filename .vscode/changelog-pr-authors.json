@@ -1,0 +1,1235 @@
+{
+  "16": {
+    "perf👌:优化简易采集逻辑,新增简易采集流程文档(#6)": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "fix🐛:忘记把测试时候的false重新打开了": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "fix🐛:移除1500ms的识别速率限制,退回默认的1000ms,修改错误的注释": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ]
+  },
+  "29": {
+    "feat✨:新增回到主页面的节点以及函数装饰器": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "feat✨:新增退出省电模式的函数装饰器": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "config🔧:androidadbkeyevent新增esc按键的值": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "feat✨:领取每日活跃度奖励": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "format🥚:codeformat": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      },
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "updateagent/main.py": [
+      {
+        "author": "233",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ]
+  },
+  "47": {
+    "fix🐛:不在向mirror酱推送不再支持的linux/macosreleases": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "config🔧:新增领取今日活跃度奖励task接口": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "docs📝:添加公告文档": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "docs📝:暂时移除公告中的图片以免程序报错": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "tag📌:v0.5.3": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ]
+  },
+  "57": {
+    "feat✨:合并补充广告关闭": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "refactor🎨:延长默认超时时间，拆分等待登录检测和切换场景检测": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "refactor🎨:优化钓鱼环境检测逻辑，调整钓鱼参数": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "config🔧:maafw更新至5.2.0": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "config🔧:固定maafw的版本为5.2.0": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "fix🐛:修复releasenote中作者链接错误的问题(#46)": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "fix🐛:修复releasenote无法处理多行标准commitmessage的问题(#48)": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "perf👌:优化初始化逻辑,当pyproject没有变动时不再尝试安装依赖(#54)": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "perf👌:优化releaseinfo解析(#48)": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "feat✨:新增两个customreco,当所有/任一reco节点识别成功时认为识别成功": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "feat✨:打开与识别补偿商店页面": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "wip🚧:页面识别": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "config🔧:在ci中固定mfaa版本为2.1.7": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "tag📌:v0.5.8": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "format🥚:规范化页面识别相关常量与工具类代码": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "refactor🎨:根据prreview规范化代码与配置": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "perf👌:优化初始化时的日志打印,添加mfaa规定前缀以支持在mfaa中显示": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "config🔧:dependabot不再跟踪uvlock更新,转而跟踪githubactions更新": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "config🔧:在ci中固定maafw版本为5.2.0": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "config🔧:升级mfaa到v2.1.8": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "fix🐛:修复utils导入失败的问题": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ]
+  },
+  "72": {
+    "ci⚙️:去除已经不需要的获取最新tag任务": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:更新commit模板、cliff模板、pr模板，更新vscode配置文件": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化releaseinfo生成机制,不再使用gitcliff,通过自定义py脚本实现": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "refactor🎨:优化changelog生成脚本": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "docs📚:删除旧版本手写changelog": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "perf🚀:优化changelog生成逻辑,添加本地昵称用户名映射": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "feat✨:挂机自动批复入队申请": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "test🧪:每130s释放一次一号位幻想": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "feat✨:尝试新增游戏聊天消息发送功能，部分静态资源来自particle_g": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:尝试新增地图导航功能": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "refactor🎨:优化聊天消息发送功能": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:补充导航功能所需资源和数据": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "refactor🎨:重构部分聊天消息发送逻辑，新增对应选项参数": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新readme，更新用户手册": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:maafw更新至5.2.5，mfaa更新至2.2.0": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新readme": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复默认值错误": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:尝试提高聊天检测识别率": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:maafw更新至5.2.6，mfaa更新至2.2.1": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:聊天框频道发言新增频道切换成功检测": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:发送消息功能新增可选检测队伍人数功能": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:补充坐标和匹配图标": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:尝试修复弹窗广告检测beta": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化弹窗广告处理逻辑，同步钓鱼时的广告处理": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化通用方法中的任务中断检测，修复部分变量赋值问题": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化消息发送部分场景处理，补充队伍名变量读取，优化接口描述": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:mfaa更新至v2.2.2": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复消息发送逻辑错误和补充坐标": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化消息发送逻辑，提高稳定性": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "refactor🎨:[核心]更换logger中format格式化为sink，防止变量参数被意外格式化": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "format🥚:顺便统一格式化一下attach中的打印": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化传送导航部分场景检测和操作，新增75级茧的导航选项": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:消息发送功能新增选项，控制队伍已满时是否还需发送": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "config🔧:更新githubcopilot全局提示词": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "feat✨:离线打包支持指定mfaa,maafw版本(#66)": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "fix🐛:尝试修复潜在的异步队列下字符串格式化异常导致的日志不打印问题": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:去除会报错的类型声明": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:mfaa更新至2.2.4": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:maafw更新至v5.3.0-beta.5，mfaa更新至v2.2.5": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:mfaa更新至v2.2.6": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:尝试修复未解锁的钓鱼配件位置不同的问题，#71": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "format🥚:优化购买道具的异常退出逻辑，优化接口描述": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:更新bug反馈的模板": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复rect引用缺失": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "updatechangelog.md": [
+      {
+        "author": "AZMIAO",
+        "email": "54100327+azmiao@users.noreply.github.com",
+        "github_username": "azmiao"
+      },
+      {
+        "author": "AZMIAO",
+        "email": "54100327+azmiao@users.noreply.github.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "updateagent/custom/general/chat_message.py": [
+      {
+        "author": "AZMIAO",
+        "email": "54100327+azmiao@users.noreply.github.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:changelog强制utf-8解码": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "tag📌:v0.6.0": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
+  },
+  "74": {
+    "docs📚:新增初版文档页面和依赖": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新更加简洁干净的文档主页面": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:对多次使用的图片去重": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "ci⚙️:新增手动或tag触发文档部署工作流": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "updatesrc/pages/index.js": [
+      {
+        "author": "AZMIAO",
+        "email": "54100327+azmiao@users.noreply.github.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:去除vercel的评论功能": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "mergebranch'dev-docs'ofhttps://github.com/233official/maastarresonanceintodev-docs": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "revert🔁:去除ci文档的手动构建，还是自动方便": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:补充去除不需要的配置": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:补充去除不需要的静态文件": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
+  },
+  "75": {
+    "docs📚:更新和优化文档站点url问题": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:规范部分文档内容格式，防止出现brokenurl和brokenauthor": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新客户端公告中的文档链接，顺便加个协会宣传（": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
+  },
+  "78": {
+    "docs📚:更新整理软件客户端的公告页面": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增切换分线功能和接口": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:为自动钓鱼补充切换分线功能": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复钓鱼超时会强制重启游戏的bug": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:maafw更新至v5.3.0，mfaa更新至v2.3.0": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化聊天框频道id识别效果": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:maafw更新v5.3.2，mfaa更新v2.5.0": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新readme.md": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:补充uv.lock": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新部分文档和readme": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:地图传送导航支持自动根据传送点判断地图": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:补充类型声明": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:mfaa更新至v2.5.1": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增通用版本刷茧的开发版本": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:版本统一调整为v0.6.2": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:maafw更新至v5.3.3": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:更新maafw至5.5.0，更新mfaa至2.5.7": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "ci⚙️:尝试适配新版mfaa的编译流": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:更新maafw至5.8.1，更新mfaa至2.9.1": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "ci⚙️:不再手动编译mfaa": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "ci⚙️:补充打包时遗漏的图标文件": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ]
+  },
+  "82": {
+    "ci⚙️:适配mfaa仓库变化版本改图标的ci": [
+      {
+        "author": "dependabot[bot]",
+        "email": "49699333+dependabot[bot]@users.noreply.github.com",
+        "github_username": "dependabot[bot]"
+      }
+    ],
+    "mergebranch'v0.6.3'ofhttps://github.com/233official/maastarresonanceintov0.6.3": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新本项目官网链接": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化钓鱼逻辑，将张力满检测改为根据张力值检测": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:优化修复部分场景下钓鱼上钩判断异常": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:自动钓鱼新增检测周期补偿逻辑，重构收线检测逻辑，降低资源消耗，提高钓鱼成功率": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:更新mfaa版本至v2.10.5": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新新手上路的前置文档": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新readme": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:修改循环检测间隔减少箭头识别丢失概率": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:更新mfaa至v2.10.7": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
+  },
+  "83": {
+    "deps🧩:maafw更新至v5.9.1，mfaa更新至v2.10.9": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增开发版本的上下载具和开关自动战斗的函数": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增战斗时视角旋转的函数": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增开发版本检测复活函数": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增开发版本不稳定空间自动战斗功能": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:补充不稳定空间参数": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:更新上下载具、开关自动战斗的参数": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:更换部分识别为绿幕的模板识别": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复不稳定空间功能流程": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复转动视角持续时间参数错误": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:maafw更新至v5.9.2": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:同步退出副本按钮的绿幕识别参数": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:调整主接口，新增不稳定空间入口": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新文档，优化接口描述": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:自动钓鱼新增导航至钓鱼点的选项": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:补充导航点数据": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:新增游星岛暴打陈敏活动方法": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复游星岛传送问题": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化修复暴打陈敏接口": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:更新mfaa至2.11.3": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新readme.md": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新说明文档": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复暴打陈敏计数问题": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复小游戏切分线逻辑判断": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
+  },
+  "84": {
+    "feat✨:搭建躲猫猫小游戏匹配模式基本架构逻辑": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增躲猫猫不同队伍模式的基本架构逻辑": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:添加躲猫猫小游戏的任务接口": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:不思议的追讨游戏_速刷_队员端": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "feat✨:不思议的追逃游戏_速刷_队长端": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "patch🚑:补充完整躲猫猫正常挂机逻辑": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "mergebranch'v0.8.0'ofhttps://github.com/asterleedsguild0/maastarresonanceintov0.8.0": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:迁移躲猫猫和麻将合并至一个文件夹": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增麻将挂机的基本逻辑框架，整理代码结构": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增单人匹配模式的麻将挂机功能": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:兼容四人组队麻将队长和队员模式": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:更新mfaa至v2.11.6": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新文档": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复计数问题": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
+  },
+  "85": {
+    "perf🚀:麻将新增对局前等待超时时长设置": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:修改麻将日志打印内容": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
+  },
+  "89": {
+    "fix🐛:修复躲猫猫队员端未处理省电模式的问题": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "fix🐛:处理因为仓库迁移到组织导致的更新异常问题": [
+      {
+        "author": "233Official",
+        "email": "ayusummer233@outlook.com",
+        "github_username": "233Official"
+      }
+    ],
+    "chore🔧:删除队长端的追逃游戏速刷入口（游戏bug已修复）": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
+  }
+}

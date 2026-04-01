@@ -461,6 +461,8 @@ install
 # Tools
 tools/ImageCropper/**/*.png
 
+.env.local
+
 config
 debug
 

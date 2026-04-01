@@ -6,9 +6,10 @@
 
 ✨ **智能获取真实 GitHub 用户名** - 自动将 git 提交的用户信息转换为真实的 GitHub 用户名,确保 `@提及` 被正确识别
 
-🚀 **完全自动化的用户名识别** - 无需任何手动配置,支持多种邮箱格式:
+🚀 **多策略用户名识别** - 支持本地映射、GitHub 邮箱自动提取和 API 查询:
 
 - GitHub 邮箱格式自动提取 (例如: `azmiao`, `dependabot[bot]`)
+- 本地昵称映射文件优先覆盖
 - 任意公开邮箱通过 API 查询 (需要 GITHUB_TOKEN)
 - 邮箱 -> GitHub 账户的完整追踪
 
@@ -48,33 +49,86 @@ python scripts/generate_changelog.py --repo /path/to/repo
 
 - 脚本无需任何参数配置,开箱即用
 - 对于使用 GitHub `noreply` 邮箱的用户,用户名会自动提取
-- 对于使用公开邮箱的用户,需要设置 `GITHUB_TOKEN` 环境变量进行 API 查询
+- 对于使用公开邮箱的用户,建议设置 `GITHUB_TOKEN` 环境变量进行 API 查询
+
+### 本地配置 GITHUB_TOKEN
+
+本地生成完整 changelog 时,如果希望脚本把公开邮箱识别成真实 GitHub 用户名,推荐配置 `GITHUB_TOKEN`。
+
+#### 方式一: 使用 VS Code 调试配置读取 `.env.local` (推荐)
+
+项目中的“生成完整 changelog”调试项已经配置了:
+
+```json
+"envFile": "${workspaceFolder}/.env.local"
+```
+
+因此只需要在仓库根目录创建 `.env.local`:
+
+```env
+GITHUB_TOKEN=ghp_xxxxxxxxxxxxxxxxxxxx
+```
+
+然后直接在 VS Code 中运行“生成完整 changelog”即可。
+
+> `.env.local` 已加入 `.gitignore`,不会被提交到仓库。
+
+#### 方式二: 在 PowerShell 中临时设置
+
+```powershell
+$env:GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxx"
+python .\scripts\generate_changelog.py --output .\CHANGELOG.md
+```
+
+这种方式只对当前 PowerShell 会话生效,关闭终端后失效。
+
+#### 方式三: 配置系统环境变量
+
+如果你希望所有终端和 VS Code 会话都能直接读取:
+
+```powershell
+[System.Environment]::SetEnvironmentVariable("GITHUB_TOKEN", "ghp_xxxxxxxxxxxxxxxxxxxx", "User")
+```
+
+设置后需要重新打开终端或重启 VS Code 才会生效。
 
 ### 用户名获取策略
 
-脚本采用完全自动化的策略获取 GitHub 用户名,无需任何手动配置:
+脚本按以下优先级获取 GitHub 用户名:
 
-1. **GitHub 邮箱格式提取** (最高优先级,自动)
+1. **本地昵称映射** (最高优先级)
+   - 默认读取 `.vscode/git-nickname-username.json`
+   - 适合处理公开邮箱查不到、昵称与 GitHub 用户名不一致的情况
+   - 例如:
+
+```json
+{
+  "233": "233Official",
+  "本地昵称": "github-username"
+}
+```
+
+2. **GitHub 邮箱格式提取** (自动)
    - 当用户用 GitHub 提供的 `noreply` 邮箱时自动提取
    - 格式: `{id}+{username}@users.noreply.github.com`
    - 例如: `54100327+azmiao@users.noreply.github.com` -> 自动提取 `azmiao`
    - 无需任何配置,立即生效
 
-2. **GitHub API 查询** (自动,需要 token)
+3. **GitHub API 查询** (自动,需要 token)
    - 当用户用公开邮箱(如 `outlook.com`, `gmail.com` 等)时通过 API 查询
-   - 使用 `GITHUB_TOKEN` 环境变量 (GitHub Actions 自动提供)
+   - 使用 `GITHUB_TOKEN` 环境变量 (GitHub Actions 自动提供,本地可自行配置)
    - 脚本会查询邮箱对应的 GitHub 账户名
-   - 结果被缓存以提高性能
+   - PR 提交作者信息会缓存到 `.vscode/changelog-pr-authors.json`
 
-3. **昵称回退** (无法识别时)
+4. **昵称回退** (无法识别时)
    - 当无法通过上述方式识别时,使用原始 git 提交中的昵称
-   - 这种情况下 `@提及` 可能无法被 GitHub 识别
+   - 这种情况下会显示作者名,但不会强行拼成错误的 `@提及`
 
 ### 工作原理
 
 1. **读取 git 历史** - 使用 `git log` 获取提交记录
 2. **解析提交** - 按约定式提交格式解析 type、scope、message,支持带 emoji 的格式
-3. **获取用户名** - 自动识别 GitHub 用户名 (GitHub 邮箱格式提取或 API 查询)
+3. **获取用户名** - 按映射文件、GitHub 邮箱格式、GitHub API 的顺序自动识别用户名
 4. **展开 squash merge** - 检测并展开消息体中的 `*` 开头的子提交行
 5. **过滤干扰** - 移除 dependabot 样板文本、分隔线等
 6. **分组排序** - 按提交类型分组,组内按 scope 排序
@@ -217,6 +271,8 @@ git add CHANGELOG.md
 git commit -m "docs📚: 更新 CHANGELOG"
 ```
 
+如果本地希望尽量生成完整的 GitHub 用户名映射,建议先配置 `.env.local` 中的 `GITHUB_TOKEN` 再执行。
+
 ### CI/CD 集成
 
 在 GitHub Actions 中自动生成,脚本会自动使用 `GITHUB_TOKEN`:
@@ -281,7 +337,9 @@ changelog:
 - 脚本会自动用 token 查询公开邮箱对应的 GitHub 用户名
 - 生成的 changelog 中的 `@提及` 会被正确链接到对应用户
 - 使用 `--latest` 参数生成最新版本（适用于 Release Body）
-- 不带参数或使用 `-o` 生成完整的 CHANGELOG.md 文件---
+- 不带参数或使用 `-o` 生成完整的 `CHANGELOG.md` 文件
+
+---
 
 ## 常见问题
 
@@ -289,17 +347,26 @@ changelog:
 
 A: 脚本有以下几种方式可以识别 `233` 用户的真实 GitHub 用户名:
 
-1. **本地环境已配置 `GITHUB_TOKEN`**
-   - 如果本地已有有效的 GitHub token,脚本会自动查询邮箱对应的 GitHub 用户名
-   - 验证方法: `echo $GITHUB_TOKEN` 查看是否设置
+1. **优先在本地昵称映射里显式指定**
+   - 在 `.vscode/git-nickname-username.json` 中添加:
 
-2. **CI/CD 环境中自动处理**
+```json
+{
+  "233": "233Official"
+}
+```
+
+2. **本地环境已配置 `GITHUB_TOKEN`**
+   - 如果本地已有有效的 GitHub token,脚本会自动查询邮箱对应的 GitHub 用户名
+   - PowerShell 可用 `echo $env:GITHUB_TOKEN` 查看是否设置
+
+3. **CI/CD 环境中自动处理**
    - GitHub Actions 会自动提供 `GITHUB_TOKEN` 环境变量
    - 脚本无需任何配置,会自动查询所有公开邮箱对应的用户名
 
-3. **本地测试时(无 token)**
+4. **本地测试时(无 token)**
    - 如果本地没有 token,公开邮箱用户会显示为昵称 (例如 `@233`)
-   - 这时可以在 CI/CD 中生成 changelog,会自动获取真实用户名
+   - 这时可以改用映射文件,或在 CI/CD 中生成 changelog
 
 ### Q: 为什么 squash merge 的子提交没有被展开?
 
