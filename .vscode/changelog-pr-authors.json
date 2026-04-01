@@ -1231,5 +1231,42 @@
         "github_username": "azmiao"
       }
     ]
+  },
+  "90": {
+    "ci⚙️:新增版本更新时自动更新changelog.md": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:尝试修复changelog作者异常问题": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "ci⚙️:修复仅在tag时触发更新changelog": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "chore🔧:更新脚手架脚本和文档": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:作者名缓存异常时自动重建": [
+      {
+        "author": "AZMIAO",
+        "email": "54100327+azmiao@users.noreply.github.com",
+        "github_username": "azmiao"
+      }
+    ]
   }
 }

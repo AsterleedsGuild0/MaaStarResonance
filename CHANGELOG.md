@@ -1,26 +1,37 @@
 # 更新日志
 
-## 未发布
+## 0.8.1 (2026-04-01)
 
 ### 🐛 Bug修复
 
+- 修复优化CHANGLOG #48 #73 (#90) @azmiao (Co-authored: sourcery-ai[bot])
 - 尝试修复CHANGELOG作者异常问题 @azmiao
 - 修复躲猫猫队员端未处理省电模式的问题 (#89) @azmiao (Co-authored: 233Official)
 - 处理因为仓库迁移到组织导致的更新异常问题 @233Official
 
 ### 🚀 性能优化
 
+- 作者名缓存异常时自动重建 @azmiao
 - 麻将新增对局前等待超时时长设置 (#85) @azmiao
 
 ### 🧹 日常维护
 
+- 更新脚手架脚本和文档 @azmiao
 - 删除队长端的追逃游戏速刷入口（游戏BUG已修复） @azmiao
 - 修改麻将日志打印内容 @azmiao
 
+### 🧩 修改依赖
+
+- 更新MFAA至v2.11.8 @azmiao
+
+### 📌 发布
+
+- v0.8.1 @azmiao
+
 ### ⚙️ 持续集成
 
-- 修复仅在Tag时触发更新CHANGELOG @azmiao
 - 新增版本更新时自动更新CHANGELOG.md @azmiao
+- 修复仅在Tag时触发更新CHANGELOG @azmiao
 
 ## 0.8.0 (2026-03-29)
 
@@ -900,11 +911,11 @@
 
 ### 🔧 配置文件
 
-- 修改包体名称 @233PC
+- 修改包体名称 @233
 
 ## 0.0.1 (2025-09-08)
 
 ### 🧹 日常维护
 
-- 📝 更新开发随笔 @233PC
+- 📝 更新开发随笔 @233
 - Initial commit @233Official
