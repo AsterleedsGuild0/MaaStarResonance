@@ -35,6 +35,7 @@ import re
 import shutil
 import subprocess
 import sys
+import time
 from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -49,6 +50,7 @@ from urllib.request import Request, urlopen
 
 # 默认昵称映射文件路径（相对于仓库根目录）
 DEFAULT_NICKNAME_MAP_PATH = ".vscode/git-nickname-username.json"
+DEFAULT_PR_AUTHOR_CACHE_PATH = ".vscode/changelog-pr-authors.json"
 
 # 约定式提交正则: type[emoji](scope): message
 CONVENTIONAL_COMMIT_PATTERN = re.compile(
@@ -58,6 +60,11 @@ CONVENTIONAL_COMMIT_PATTERN = re.compile(
 # GitHub noreply 邮箱正则: {id}+{username}@users.noreply.github.com
 GITHUB_NOREPLY_EMAIL_PATTERN = re.compile(
     r"^(\d+)\+([^@]+)@users\.noreply\.github\.com$"
+)
+PR_NUMBER_PATTERN = re.compile(r"\(#(?P<number>\d+)\)$")
+GITHUB_REPO_REMOTE_PATTERN = re.compile(
+    r"github\.com[:/](?P<owner>[^/]+)/(?P<repo>[^/.]+?)(?:\.git)?$",
+    re.IGNORECASE,
 )
 
 # Git log 中需要过滤的干扰文本模式
@@ -105,6 +112,7 @@ TYPE_GROUPS: dict[str, tuple[str, int]] = {
 DEFAULT_GROUP = ("其他变更", 99)
 COMMIT_SEPARATOR = "---COMMIT-SEPARATOR---"
 GIT_LOG_FORMAT = "%H|%an|%ae|%ai|%B"
+GITHUB_API_REQUEST_INTERVAL_SECONDS = 0.3
 
 
 # ============================================================================
@@ -126,6 +134,7 @@ class Commit:
     breaking: bool = False
     footers: dict[str, str] = field(default_factory=dict)
     original_message: str = ""
+    github_username: str | None = None
 
     def __post_init__(self) -> None:
         """初始化后处理：保存原始消息并解析提交格式"""
@@ -308,11 +317,21 @@ class ChangelogGenerator:
         self,
         repo_path: Path | None = None,
         nickname_map_path: Path | None = None,
+        pr_author_cache_path: Path | None = None,
     ) -> None:
         self.repo_path = repo_path or Path.cwd()
         self.email_to_names = self._build_email_to_names_map()
         self.nickname_map = self._load_nickname_map(nickname_map_path)
         self.user_cache = GitHubUserCache(self.email_to_names, self.nickname_map)
+        self.github_repo = self._detect_github_repo()
+        self.pr_author_cache_path = (
+            pr_author_cache_path
+            if pr_author_cache_path is not None
+            else self.repo_path / DEFAULT_PR_AUTHOR_CACHE_PATH
+        )
+        self.pr_commit_cache = self._load_pr_commit_cache()
+        self.commit_pr_cache: dict[str, int | None] = {}
+        self._last_github_api_request_at = 0.0
 
     def _load_nickname_map(self, nickname_map_path: Path | None) -> dict[str, str]:
         """加载昵称到用户名的映射文件"""
@@ -335,6 +354,77 @@ class ChangelogGenerator:
             print(f"⚠️ 加载昵称映射文件失败: {e}", file=sys.stderr)
             return {}
 
+    def _load_pr_commit_cache(self) -> dict[int, dict[str, list[dict[str, str | None]]]]:
+        """加载 PR 作者缓存"""
+        cache_path = self.pr_author_cache_path
+        if not cache_path.exists():
+            return {}
+
+        try:
+            with open(cache_path, encoding="utf-8") as f:
+                raw_data = json.load(f)
+        except (json.JSONDecodeError, OSError) as e:
+            print(f"⚠️ 加载 PR 作者缓存失败: {e}", file=sys.stderr)
+            return {}
+
+        if not isinstance(raw_data, dict):
+            return {}
+
+        cache: dict[int, dict[str, list[dict[str, str | None]]]] = {}
+        for pr_number_str, subjects in raw_data.items():
+            if not isinstance(pr_number_str, str) or not pr_number_str.isdigit():
+                continue
+            if not isinstance(subjects, dict):
+                continue
+
+            normalized_subjects: dict[str, list[dict[str, str | None]]] = {}
+            for subject, authors in subjects.items():
+                if not isinstance(subject, str) or not isinstance(authors, list):
+                    continue
+
+                normalized_authors: list[dict[str, str | None]] = []
+                for author in authors:
+                    if not isinstance(author, dict):
+                        continue
+                    normalized_authors.append(
+                        {
+                            "author": author.get("author") or "",
+                            "email": author.get("email") or "",
+                            "github_username": author.get("github_username"),
+                        }
+                    )
+
+                normalized_subjects[subject] = normalized_authors
+
+            cache[int(pr_number_str)] = normalized_subjects
+
+        return cache
+
+    def _save_pr_commit_cache(self) -> None:
+        """保存 PR 作者缓存到本地 JSON"""
+        cache_path = self.pr_author_cache_path
+
+        try:
+            cache_path.parent.mkdir(parents=True, exist_ok=True)
+            serializable_cache = {
+                str(pr_number): subjects
+                for pr_number, subjects in sorted(self.pr_commit_cache.items())
+            }
+            with open(cache_path, "w", encoding="utf-8") as f:
+                json.dump(serializable_cache, f, ensure_ascii=False, indent=2)
+        except OSError as e:
+            print(f"⚠️ 保存 PR 作者缓存失败: {e}", file=sys.stderr)
+
+    @staticmethod
+    def _clone_pr_commit_authors(
+        authors_by_subject: dict[str, list[dict[str, str | None]]],
+    ) -> dict[str, list[dict[str, str | None]]]:
+        """复制 PR 作者数据，避免匹配阶段修改原缓存"""
+        return {
+            subject: [dict(author) for author in authors]
+            for subject, authors in authors_by_subject.items()
+        }
+
     def _run_git(self, *args) -> str:
         """运行 git 命令"""
         result = subprocess.run(
@@ -344,6 +434,19 @@ class ChangelogGenerator:
             check=True,
         )
         return result.stdout.decode("utf-8")
+
+    def _detect_github_repo(self) -> tuple[str, str] | None:
+        """从 origin remote 中识别 GitHub 仓库"""
+        try:
+            remote_url = self._run_git("remote", "get-url", "origin").strip()
+        except subprocess.CalledProcessError:
+            return None
+
+        match = GITHUB_REPO_REMOTE_PATTERN.search(remote_url)
+        if not match:
+            return None
+
+        return match.group("owner"), match.group("repo")
 
     def _build_email_to_names_map(self) -> dict[str, set[str]]:
         """构建邮箱到用户名的映射 (同一邮箱可能有多个用户名)
@@ -400,6 +503,113 @@ class ChangelogGenerator:
             footers=footers,
         )
 
+    def _github_api_request(self, url: str) -> Any | None:
+        """统一的 GitHub API 请求"""
+        elapsed = time.monotonic() - self._last_github_api_request_at
+        if elapsed < GITHUB_API_REQUEST_INTERVAL_SECONDS:
+            time.sleep(GITHUB_API_REQUEST_INTERVAL_SECONDS - elapsed)
+
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2026-03-10",
+        }
+        github_token = os.getenv("GITHUB_TOKEN")
+        if github_token:
+            headers["Authorization"] = f"Bearer {github_token}"
+
+        try:
+            req = Request(url, headers=headers)
+            with urlopen(req, timeout=5) as response:
+                self._last_github_api_request_at = time.monotonic()
+                return json.loads(response.read().decode())
+        except (URLError, json.JSONDecodeError, TimeoutError):
+            self._last_github_api_request_at = time.monotonic()
+            return None
+
+    @staticmethod
+    def _normalize_commit_subject(subject: str) -> str:
+        """标准化提交标题，便于匹配 squash 子提交与 PR 原始提交"""
+        first_line = subject.strip().split("\n")[0]
+        first_line = re.sub(r"^[-*]\s*", "", first_line).strip()
+        return re.sub(r"\s+", "", first_line).lower()
+
+    @staticmethod
+    def _extract_pr_number(message: str) -> int | None:
+        """从提交标题末尾的 (#123) 提取 PR 编号"""
+        first_line = message.strip().split("\n")[0]
+        match = PR_NUMBER_PATTERN.search(first_line)
+        return int(match.group("number")) if match else None
+
+    def _find_pr_number_by_commit(self, commit_hash: str) -> int | None:
+        """通过 merge 后的 commit 反查关联 PR 编号"""
+        if commit_hash in self.commit_pr_cache:
+            return self.commit_pr_cache[commit_hash]
+
+        if not self.github_repo:
+            self.commit_pr_cache[commit_hash] = None
+            return None
+
+        owner, repo = self.github_repo
+        data = self._github_api_request(
+            f"https://api.github.com/repos/{owner}/{repo}/commits/{commit_hash}/pulls"
+        )
+        pr_number = None
+        if isinstance(data, list) and data:
+            pr_number = data[0].get("number")
+
+        self.commit_pr_cache[commit_hash] = pr_number
+        return pr_number
+
+    def _fetch_pr_commit_authors(
+        self, pr_number: int
+    ) -> dict[str, list[dict[str, str | None]]]:
+        """获取 PR 中每个提交标题对应的作者信息"""
+        if pr_number in self.pr_commit_cache:
+            return self._clone_pr_commit_authors(self.pr_commit_cache[pr_number])
+
+        if not self.github_repo:
+            return {}
+
+        owner, repo = self.github_repo
+        page = 1
+        authors_by_subject: dict[str, list[dict[str, str | None]]] = defaultdict(list)
+
+        while True:
+            data = self._github_api_request(
+                "https://api.github.com/repos/"
+                f"{owner}/{repo}/pulls/{pr_number}/commits?per_page=100&page={page}"
+            )
+            if not isinstance(data, list):
+                return {}
+            if not data:
+                break
+
+            for item in data:
+                commit_info = item.get("commit") or {}
+                author_info = commit_info.get("author") or {}
+                subject = (commit_info.get("message") or "").split("\n", 1)[0].strip()
+                normalized = self._normalize_commit_subject(subject)
+                if not normalized:
+                    continue
+
+                github_author = item.get("author") or {}
+                authors_by_subject[normalized].append(
+                    {
+                        "author": author_info.get("name") or "",
+                        "email": author_info.get("email") or "",
+                        "github_username": github_author.get("login"),
+                    }
+                )
+
+            if len(data) < 100:
+                break
+            page += 1
+
+        cached = dict(authors_by_subject)
+        self.pr_commit_cache[pr_number] = cached
+        self._save_pr_commit_cache()
+        return self._clone_pr_commit_authors(cached)
+
     def _parse_date(self, date_str: str) -> datetime:
         """解析日期字符串"""
         try:
@@ -451,6 +661,13 @@ class ChangelogGenerator:
                     squash_items.append(squash_line)
 
             if squash_items:
+                pr_number = self._extract_pr_number(first_line)
+                if pr_number is None:
+                    pr_number = self._find_pr_number_by_commit(commit.hash)
+                pr_commit_authors = (
+                    self._fetch_pr_commit_authors(pr_number) if pr_number else {}
+                )
+
                 # 这是一个 squash merge,将其展开
                 
                 # 1. 添加主提交的第一行(但要去重,如果内容太相似则跳过)
@@ -465,16 +682,21 @@ class ChangelogGenerator:
                         continue
 
                     seen_messages.add(squash_line)
+                    normalized = self._normalize_commit_subject(squash_line)
+                    matched_author = None
+                    if normalized in pr_commit_authors and pr_commit_authors[normalized]:
+                        matched_author = pr_commit_authors[normalized].pop(0)
 
                     # 创建虚拟的子提交对象
                     sub_commit = Commit(
                         hash=commit.hash,  # 使用父提交的hash
                         message=squash_line,
-                        author=commit.author,
-                        email=commit.email,
+                        author=(matched_author or {}).get("author") or commit.author,
+                        email=(matched_author or {}).get("email") or commit.email,
                         date=commit.date,
-                        footers=commit.footers,
+                        footers={},
                         original_message=squash_line,
+                        github_username=(matched_author or {}).get("github_username"),
                     )
                     result.append(sub_commit)
             else:
@@ -628,7 +850,7 @@ class ChangelogGenerator:
         2. 如果无法获取，只使用昵称（不加 @，避免链接到错误用户）
         3. 如果有 Co-authored-by，添加到括号中
         """
-        github_username = self.user_cache.get_github_username(
+        github_username = commit.github_username or self.user_cache.get_github_username(
             commit.author, commit.email
         )
 
@@ -744,9 +966,21 @@ def _run_markdownlint(file_path: Path, fix: bool = True) -> bool:
         return False
 
 
+def _configure_stdio() -> None:
+    """尽量避免 Windows 控制台输出 emoji 时发生编码错误"""
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            try:
+                stream.reconfigure(encoding="utf-8", errors="replace")
+            except (ValueError, OSError):
+                pass
+
+
 def main() -> None:
     """主函数"""
     import argparse
+
+    _configure_stdio()
 
     parser = argparse.ArgumentParser(description="生成 CHANGELOG")
     parser.add_argument(
@@ -772,6 +1006,11 @@ def main() -> None:
         help=f"昵称映射文件路径(默认为 {DEFAULT_NICKNAME_MAP_PATH})",
     )
     parser.add_argument(
+        "--pr-author-cache",
+        type=Path,
+        help=f"PR 作者缓存文件路径(默认为 {DEFAULT_PR_AUTHOR_CACHE_PATH})",
+    )
+    parser.add_argument(
         "--no-format",
         action="store_true",
         help="禁用 markdownlint 格式化",
@@ -779,7 +1018,11 @@ def main() -> None:
 
     args = parser.parse_args()
 
-    generator = ChangelogGenerator(args.repo, args.nickname_map)
+    generator = ChangelogGenerator(
+        args.repo,
+        args.nickname_map,
+        args.pr_author_cache,
+    )
 
     try:
         if args.latest:
