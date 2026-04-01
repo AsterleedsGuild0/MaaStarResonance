@@ -259,6 +259,8 @@ jobs:
         run: |
           # 生成最新版本的 changelog
           python scripts/generate_changelog.py --latest > CHANGES.md
+          # 生成完整的 changelog
+          python scripts/generate_changelog.py --output CHANGELOG.md
           
           # 将内容输出到 GitHub Actions output
           {
@@ -268,6 +270,15 @@ jobs:
           } >> "$GITHUB_OUTPUT"
           
           echo "✅ Changelog 已生成"
+
+      - name: Commit CHANGELOG
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add CHANGELOG.md
+          git diff --cached --quiet && exit 0
+          git commit -m "Auto⚙️: Update CHANGELOG"
+          git push origin HEAD:${{ github.event.repository.default_branch }}
 
   release:
     if: ${{ needs.meta.outputs.is_release == 'true' }}
