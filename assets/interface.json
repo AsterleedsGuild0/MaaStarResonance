@@ -2,7 +2,7 @@
     "interface_version": 2,
     "license": "LICENSE",
     "name": "MaaStarResonance",
-    "github": "https://github.com/233Official/MaaStarResonance",
+    "github": "https://github.com/AsterleedsGuild0/MaaStarResonance",
     "mirrorchyan_rid": "MaaStarResonance",
     "mirrorchyan_multiplatform": true,
     "version": "v0.8.0",
@@ -36,16 +36,6 @@
         ]
     },
     "task": [
-        {
-            "name": "不思议的追逃游戏速刷_队员",
-            "entry": "不思议的追逃游戏速刷_队员",
-            "description": "不思议的追逃游戏速刷_队员端,进入与退出游戏"
-        },
-        {
-            "name": "不思议的追逃游戏速刷_队长",
-            "entry": "不思议的追逃游戏速刷_队长",
-            "description": "不思议的追逃游戏速刷_队长端,开始游戏，有人拒绝进入的话会等待10s给予退队时间，游戏即将开始时会自动离开副本然后进入循环"
-        },
         {
             "name": "自动钓鱼",
             "entry": "启动自动钓鱼入口",
@@ -112,9 +102,14 @@
             ]
         },
         {
+            "name": "不思议的追逃游戏速刷_队员",
+            "entry": "不思议的追逃游戏速刷_队员",
+            "description": "不思议的追逃游戏速刷_队员端,进入与退出游戏"
+        },
+        {
             "name": "游星岛躲猫猫小活动",
             "entry": "游星岛躲猫猫小活动",
-            "description": "【开发中暂未完成】单人匹配/组队队长会自动导航到目标地点进行游戏，组队队员在任意点即可",
+            "description": "【开发暂未完成，请先用另一个功能】单人匹配/组队队长会自动导航到目标地点进行游戏，组队队员在任意点即可",
             "option": [
                 // "躲猫猫队伍类型",
                 "需要的最大躲猫猫次数"

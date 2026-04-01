@@ -18,7 +18,7 @@
 
 1. 如果很久以前 fork 过，先在自己仓库的 `Settings` 里，翻到最下面，删除
 
-2. 打开 [MaaStarResonance主仓库](https://github.com/233Official/MaaStarResonance)，点击 `Fork`，继续点击 `Create fork`
+2. 打开 [MaaStarResonance主仓库](https://github.com/AsterleedsGuild0/MaaStarResonance)，点击 `Fork`，继续点击 `Create fork`
 
 3. 克隆你自己的仓库到本地，并使用 `--recursive` 拉取子模块
 
@@ -158,7 +158,7 @@
     1. 关联 MaaStarResonance 原仓库：
 
         ```bash
-        git remote add upstream https://github.com/233Official/MaaStarResonance.git
+        git remote add upstream https://github.com/AsterleedsGuild0/MaaStarResonance.git
         ```
 
     2. 拉取远程仓库更新：

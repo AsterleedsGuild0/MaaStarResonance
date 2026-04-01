@@ -8,7 +8,7 @@
 
 由 [MaaFramework](https://github.com/MaaXYZ/MaaFramework) 强力驱动！  
 
-<a href="https://github.com/233Official/MaaStarResonance" target="_blank" style="font-weight: bold;">🔗 本项目 GitHub 仓库</a><br>
+<a href="https://github.com/AsterleedsGuild0/MaaStarResonance" target="_blank" style="font-weight: bold;">🔗 本项目 GitHub 仓库</a><br>
 <a href="https://maa-star-resonance.ayusummer233.top" target="_blank" style="font-weight: bold;">🔗 使用文档</a><br>
 
 </div>
@@ -18,9 +18,9 @@
   <img alt="platform" src="https://img.shields.io/badge/platform-Windows-blueviolet">
   <img alt="license" src="https://img.shields.io/github/license/MAA1999/M9A">
   <br>
-  <img alt="commit" src="https://img.shields.io/github/commit-activity/m/233Official/MaaStarResonance">
-  <img alt="stars" src="https://img.shields.io/github/stars/233Official/MaaStarResonance?style=social">
-  <img alt="downloads" src="https://img.shields.io/github/downloads/233Official/MaaStarResonance/total?style=social">
+  <img alt="commit" src="https://img.shields.io/github/commit-activity/m/AsterleedsGuild0/MaaStarResonance">
+  <img alt="stars" src="https://img.shields.io/github/stars/AsterleedsGuild0/MaaStarResonance?style=social">
+  <img alt="downloads" src="https://img.shields.io/github/downloads/AsterleedsGuild0/MaaStarResonance/total?style=social">
 </p>
 
 ---
@@ -43,7 +43,7 @@
 
 ## 即将更新
 
-- 👉 [即将到来的更新 - 请查看最新开发分支](https://github.com/233Official/MaaStarResonance/compare)
+- 👉 [即将到来的更新 - 请查看最新开发分支](https://github.com/AsterleedsGuild0/MaaStarResonance/compare)
 
 - 由于游戏粘性低和开发者自身的工作，项目开发进度可能会受影响，如果觉得还算好用请给我们的项目点个收藏支持一下⭐
 
@@ -61,7 +61,7 @@
 - 聊天频道发言
 - 周期性聊天频道发言
 - 游星岛暴打陈敏小游戏
-- 游星岛躲猫猫BUG速刷（队长/队员）
+- 游星岛躲猫猫小游戏（队员）
 - 游星岛躲猫猫小游戏（开发中）
 - 游星岛麻将挂机小游戏
 - Lv10浮游之茧(通用刷茧暂停开发)
@@ -108,7 +108,7 @@
 
 本项目由 **[MaaFramework](https://github.com/MaaXYZ/MaaFramework)** 强力驱动！  
 UI 由 [MFAAvalonia](https://github.com/SweetSmellFox/MFAAvalonia)  大力支持！
-
+AsterleedsGuild0/MaaStarResonanceAsterleedsGuild0/MaaStarResonance
 感谢以下开发者对本项目作出的贡献:
 
 [![Contributors](https://contrib.rocks/image?repo=233Official/MaaStarResonance&max=1000)](https://github.com/233Official/MaaStarResonance/graphs/contributors)
