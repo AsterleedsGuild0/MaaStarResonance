@@ -295,6 +295,14 @@ class PacketCapture:
         # Update reassembler with current local IPs for direction detection
         self._tcp_reassembler.set_local_ips(new_ports.local_ips)
 
+        # Reset TCP reassembly and message parser state.  The old sniffer's
+        # TCP streams have stale sequence numbers that will never match the
+        # new connections, and the message parser buffer may contain
+        # incomplete frames from the old stream.  PlayerTracker state
+        # (position, player info) is deliberately preserved.
+        self._tcp_reassembler.reset()
+        self._message_parser.reset()
+
         # Restart sniffer with new filter
         self._stop_sniffer()
         self._start_sniffer(new_filter, new_ifaces)
