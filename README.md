@@ -104,7 +104,7 @@
 - 软件UI 由 [MFAAvalonia](https://github.com/SweetSmellFox/MFAAvalonia)  大力支持！
 - 感谢以下开发者对本项目作出的贡献:
 
-[![Contributors](https://contrib.rocks/image?repo=233Official/MaaStarResonance&max=1000)](https://github.com/233Official/MaaStarResonance/graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=AsterleedsGuild0/MaaStarResonance&max=1000)](https://github.com/AsterleedsGuild0/MaaStarResonance/graphs/contributors)
 
 ---
 
