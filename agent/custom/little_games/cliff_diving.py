@@ -62,7 +62,10 @@ class CliffDivingPointAction(CustomAction):
 
             # 已经在游戏中了，等待游戏结束
             logger.info("等待游戏结束后开启下一轮...")
-            while not context.tasker.stopping:
+            while True:
+                if context.tasker.stopping:
+                    logger.warning("极限落潮任务已结束！")
+                    return True
                 # 随便点击个位置防止月卡或者锁屏
                 context.tasker.controller.post_click(638, 343).wait()
                 time.sleep(0.5)
