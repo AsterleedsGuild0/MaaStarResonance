@@ -135,7 +135,7 @@ def ensure_ball_entry(context: Context, timeout: int = 120) -> bool:
             logger.info(f"检测到已经到达浪花躲避球的入口！")
             return True
         time.sleep(2)
-    logger.error("超 120 秒未到达浪花躲避球的入口 或 小游戏暂未开启！")
+    logger.error(f"超 {timeout} 秒未到达浪花躲避球的入口 或 小游戏暂未开启！")
     return False
 
 

@@ -125,7 +125,7 @@ def ensure_spin_entry(context: Context, timeout: int = 120) -> bool:
             logger.info(f"检测到已经到达镭射回旋的入口！")
             return True
         time.sleep(2)
-    logger.error("超 120 秒未到达镭射回旋的入口 或 小游戏暂未开启！")
+    logger.error(f"超 {timeout} 秒未到达镭射回旋的入口 或 小游戏暂未开启！")
     return False
 
 
