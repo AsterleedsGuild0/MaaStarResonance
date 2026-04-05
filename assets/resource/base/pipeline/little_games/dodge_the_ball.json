@@ -1,0 +1,13 @@
+{
+    "游星岛浪花躲避球小活动": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "DodgeTheBallPoint",
+                "custom_action_param": {
+                    "max_game_count": 0
+                }
+            }
+        }
+    }
+}
