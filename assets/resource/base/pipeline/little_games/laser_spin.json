@@ -1,0 +1,13 @@
+{
+    "游星岛镭射回旋小活动": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "LaserSpinPoint",
+                "custom_action_param": {
+                    "max_game_count": 0
+                }
+            }
+        }
+    }
+}

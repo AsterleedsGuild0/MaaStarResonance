@@ -96,7 +96,7 @@
         {
             "name": "游星岛暴打陈敏小活动",
             "entry": "游星岛暴打陈敏小活动",
-            "description": "会自动导航到目标地点进行暴打陈敏",
+            "description": "会自动导航到目标地点进行暴打陈敏，会根据需要自动切换分线",
             "option": [
                 "需要的最大暴打陈敏次数"
             ]
@@ -113,6 +113,30 @@
             "option": [
                 // "躲猫猫队伍类型",
                 "需要的最大躲猫猫次数"
+            ]
+        },
+        {
+            "name": "游星岛镭射回旋小活动",
+            "entry": "游星岛镭射回旋小活动",
+            "description": "若已到游戏入口将直接进入活动，如果不在入口处将会传送到游星岛 1 线后导航到游戏入口",
+            "option": [
+                "需要的最大镭射回旋次数"
+            ]
+        },
+        {
+            "name": "游星岛极限落潮小活动",
+            "entry": "游星岛极限落潮小活动",
+            "description": "若已到游戏入口将直接进入活动，如果不在入口处将会传送到游星岛 1 线后导航到游戏入口",
+            "option": [
+                "需要的最大极限落潮次数"
+            ]
+        },
+        {
+            "name": "游星岛浪花躲避球小活动",
+            "entry": "游星岛浪花躲避球小活动",
+            "description": "若已到游戏入口将直接进入活动，如果不在入口处将会传送到游星岛 1 线后导航到游戏入口",
+            "option": [
+                "需要的最大浪花躲避球次数"
             ]
         },
         {
@@ -634,6 +658,72 @@
                         "param": {
                             "custom_action_param": {
                                 "max_game_count": "{需要的最大躲猫猫次数}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "需要的最大镭射回旋次数": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "需要的最大镭射回旋次数",
+                    "description": "需要的最大镭射回旋次数，默认设置0为无限游玩，到足够次数就停止任务",
+                    "pipeline_type": "int",
+                    "default": "0"
+                }
+            ],
+            "pipeline_override": {
+                "游星岛镭射回旋小活动": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "max_game_count": "{需要的最大镭射回旋次数}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "需要的最大极限落潮次数": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "需要的最大极限落潮次数",
+                    "description": "需要的最大极限落潮次数，默认设置0为无限游玩，到足够次数就停止任务",
+                    "pipeline_type": "int",
+                    "default": "0"
+                }
+            ],
+            "pipeline_override": {
+                "游星岛极限落潮小活动": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "max_game_count": "{需要的最大极限落潮次数}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "需要的最大浪花躲避球次数": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "需要的最大浪花躲避球次数",
+                    "description": "需要的最大浪花躲避球次数，默认设置0为无限游玩，到足够次数就停止任务",
+                    "pipeline_type": "int",
+                    "default": "0"
+                }
+            ],
+            "pipeline_override": {
+                "游星岛极限落潮小活动": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "max_game_count": "{需要的最大浪花躲避球次数}"
                             }
                         }
                     }

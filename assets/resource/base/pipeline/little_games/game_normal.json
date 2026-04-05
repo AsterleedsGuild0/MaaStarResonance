@@ -1,0 +1,12 @@
+{
+    "检测是否在活动中": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "游星岛/活动中图标.png",
+                "roi": [24, 268, 24, 28],
+                "green_mask": true
+            }
+        }
+    }
+}

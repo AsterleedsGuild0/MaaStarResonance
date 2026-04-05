@@ -1,0 +1,13 @@
+{
+    "游星岛极限落潮小活动": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CliffDivingPoint",
+                "custom_action_param": {
+                    "max_game_count": 0
+                }
+            }
+        }
+    }
+}

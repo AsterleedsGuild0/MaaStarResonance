@@ -148,7 +148,7 @@ def ensure_into_game(context: Context, is_leader: bool, is_private: bool, timeou
         if check_is_ready(context):
             return True
     
-    logger.error(f"超 300 秒未确保开始游戏！")
+    logger.error(f"超 {timeout} 秒未确保开始游戏！")
     return False
 
 
