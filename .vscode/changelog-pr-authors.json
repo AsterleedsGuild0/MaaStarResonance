@@ -1268,5 +1268,84 @@
         "github_username": "azmiao"
       }
     ]
+  },
+  "91": {
+    "chore🔧:新增活动中检测方式": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增游星岛镭射回旋小游戏": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增游星岛极限落潮小游戏": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增游星岛浪花躲避球小游戏": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复切线前检测": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化调整提前躲避方向和时间": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化手动结束任务中断": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:微调躲避球的左移时间": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:微调镭射回旋的后移时间": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新文档说明": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化日志打印逻辑": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
   }
 }
