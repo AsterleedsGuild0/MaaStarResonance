@@ -46,7 +46,7 @@ class CliffDivingPointAction(CustomAction):
                 return True
 
             # 第一次任务需要手动切换到 1 线
-            if self.is_first_time:
+            if not check_is_entry(context) and self.is_first_time:
                 switch_line(context, ["1"])
             self.is_first_time = False
 
