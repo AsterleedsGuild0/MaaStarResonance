@@ -150,6 +150,14 @@
             ]
         },
         {
+            "name": "游星岛环城载具赛小活动",
+            "entry": "游星岛环城载具赛小活动",
+            "description": "",
+            "option": [
+                "需要的最大环城载具赛次数"
+            ]
+        },
+        {
             "name": "自动挂Lv10茧",
             "entry": "自动挂Lv10茧"
         },
@@ -746,6 +754,28 @@
                         "param": {
                             "custom_action_param": {
                                 "max_game_count": "{需要的最大麻将次数}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "需要的最大环城载具赛次数": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "需要的最大环城载具赛次数",
+                    "description": "需要的最大环城载具赛次数，默认设置0为无限游玩，到足够次数就停止任务",
+                    "pipeline_type": "int",
+                    "default": "0"
+                }
+            ],
+            "pipeline_override": {
+                "游星岛环城载具赛小活动": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "max_game_count": "{需要的最大环城载具赛次数}"
                             }
                         }
                     }

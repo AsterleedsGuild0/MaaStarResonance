@@ -8,5 +8,15 @@
                 "green_mask": true
             }
         }
+    },
+    "检测倒计时图标": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "游星岛/倒计时图标.png",
+                "roi": [592, 40, 17, 21],
+                "green_mask": true
+            }
+        }
     }
 }

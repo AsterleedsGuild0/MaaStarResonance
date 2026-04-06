@@ -1,0 +1,24 @@
+{
+    "游星岛环城载具赛小活动": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "VehicleRacePoint",
+                "custom_action_param": {
+                    "max_game_count": 0
+                }
+            }
+        }
+    },
+    "游星岛环城载具赛检查点按键实现": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "VehicleCheckPoint",
+                "custom_action_param": {
+                    "check_id": 1
+                }
+            }
+        }
+    }
+}

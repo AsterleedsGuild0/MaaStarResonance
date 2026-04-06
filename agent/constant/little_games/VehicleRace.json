@@ -1,0 +1,854 @@
+{
+  "check_1": [
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 3000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 600,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 6000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    }
+  ],
+  "check_2": [
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 4000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 800,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 600,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 2000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 800,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 4000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 600,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 3000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 3500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    }
+  ],
+  "check_3": [
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 2500,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 800,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 6000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 2500,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 2000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 600,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 2000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 600,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 2000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    }
+  ],
+  "check_4": [
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 800,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 600,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 3000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 3000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    }
+  ],
+  "check_5": [
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 800,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 600,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 800,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 400,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 5000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 2000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    }
+  ],
+  "check_6": [
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 3000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 2000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 1650,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 8000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    }
+  ],
+  "check_7": [
+        {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 4500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1300,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 3000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 3300,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 2000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    }
+  ],
+  "check_8": [
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 10000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 800,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 4000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 2000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 3000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    }
+  ],
+  "check_9": [
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 4000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 2000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 3000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    }
+  ],
+  "check_10": [
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 500,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_SHIFT_LEFT"
+    },
+    {
+      "delay": 2800,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 2000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_D"
+    },
+    {
+      "delay": 100,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 800,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_A"
+    },
+    {
+      "delay": 3000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_W"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_down",
+      "key_name": "KEYCODE_G"
+    },
+    {
+      "delay": 1000,
+      "action_type": "post_key_up",
+      "key_name": "KEYCODE_G"
+    }
+  ]
+}
