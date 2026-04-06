@@ -61,10 +61,15 @@ class VehicleRacePointAction(CustomAction):
             if not has_next:
                 return False
 
-            # 结束了，等待退出副本
-            logger.info("本轮游戏结束，等待退出副本...")
-            time.sleep(5)
+            # 结束了，准备 P 出副本
+            logger.info("本轮游戏结束，准备 P 出副本...")
+            time.sleep(2)
+            context.tasker.controller.post_key_down(ANDROID_KEY_EVENT_DATA["KEYCODE_P"]).wait()
+            time.sleep(2)
+            context.tasker.controller.post_click(798, 535).wait()
+            time.sleep(2)
             wait_for_switch(context)
+
             self.game_count += 1
 
         logger.warning("环城载具赛任务已结束！")
@@ -146,17 +151,20 @@ def game_content_cycle(context: Context) -> bool:
         if not has_next:
             return False
 
-        # 最多 3 次检测检查点
-        time.sleep(1)
-        check_point = get_check_point(context)
-        if not check_point:
-            # 旋转视角再次检测
-            attack_rotate_view(context, 1)
+        if check_id != 1:
+            # 最多 3 次检测检查点
+            time.sleep(1)
             check_point = get_check_point(context)
-        if not check_point:
-            # 旋转视角再次检测
-            attack_rotate_view(context, 1)
-            check_point = get_check_point(context)
+            if not check_point:
+                # 旋转视角再次检测
+                attack_rotate_view(context, 1)
+                check_point = get_check_point(context)
+            if not check_point:
+                # 旋转视角再次检测
+                attack_rotate_view(context, 1)
+                check_point = get_check_point(context)
+        else:
+            check_point = 2
 
         if not check_point or check_point == check_id + 1:
             logger.info(f"成功执行完检查点ID：{check_id}")
@@ -286,15 +294,16 @@ def get_check_point(context: Context) -> int | None:
         img,
         pipeline_override={
             "通用文字识别": {
-                "expected": ["\\d+"],
+                "expected": ["(\\d+/15)"],
                 "roi": [1116, 602, 52, 31]
             }
         },
     )
     if ocr_result and ocr_result.hit:
-        check_point = int(ocr_result.best_result.text)  # type:ignore
+        check_point = str(ocr_result.best_result.text)  # type:ignore
+        check_point = check_point.replace("(", "").replace("15)", "")
         logger.info(f"获取到当前检查点为：{check_point}")
-        return check_point
+        return int(check_point)
     else:
         return None
 
