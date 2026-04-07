@@ -137,7 +137,7 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 600,
+      "delay": 700,
       "action_type": "post_key_up",
       "key_name": "KEYCODE_D"
     },
@@ -153,7 +153,7 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 500,
+      "delay": 400,
       "action_type": "post_key_up",
       "key_name": "KEYCODE_D"
     },

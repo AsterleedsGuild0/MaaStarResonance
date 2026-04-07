@@ -1,3 +1,4 @@
+import re
 import time
 
 from maa.agent.agent_server import AgentServer
@@ -10,7 +11,7 @@ from agent.constant.key_event import ANDROID_KEY_EVENT_DATA
 from agent.constant.little_games import VEHICLE_CLICK_DATA
 from agent.constant.map_point import NAVIGATE_DATA
 from agent.custom.app_manage_action import wait_for_switch
-from agent.custom.general.general import ensure_main_page
+from agent.custom.general.general import ensure_main_page, default_ensure_main_page
 from agent.custom.general.move_battle import attack_rotate_view
 from agent.custom.general.power_saving_mode import exit_power_saving_mode
 from agent.custom.teleport_action import teleport_or_navigate
@@ -26,7 +27,6 @@ class VehicleRacePointAction(CustomAction):
         self.game_count = None
 
     @exit_power_saving_mode()
-    @ensure_main_page()
     def run(
             self,
             context: Context,
@@ -58,6 +58,9 @@ class VehicleRacePointAction(CustomAction):
                 logger.info(f"已成功环城载具赛了您所配置的{self.game_count}次，任务结束！")
                 return True
 
+            # 循环中手动确保主界面
+            default_ensure_main_page(context)
+
             if is_leader:
                 # 确保到达环城载具赛的入口
                 if not ensure_race_entry(context):
@@ -70,20 +73,21 @@ class VehicleRacePointAction(CustomAction):
 
             # 具体游戏操作
             time.sleep(2)
-            has_next = game_content_cycle(context)
-            if not has_next:
-                return False
+            success = game_content_cycle(context)
+            if success:
+                # 结束了，准备 P 出副本
+                logger.info("本轮游戏结束，准备 P 出副本...")
+                time.sleep(2)
+                context.tasker.controller.post_key_down(ANDROID_KEY_EVENT_DATA["KEYCODE_P"]).wait()
+                time.sleep(2)
+                context.tasker.controller.post_click(798, 535).wait()
+                time.sleep(2)
+                wait_for_switch(context)
 
-            # 结束了，准备 P 出副本
-            logger.info("本轮游戏结束，准备 P 出副本...")
-            time.sleep(2)
-            context.tasker.controller.post_key_down(ANDROID_KEY_EVENT_DATA["KEYCODE_P"]).wait()
-            time.sleep(2)
-            context.tasker.controller.post_click(798, 535).wait()
-            time.sleep(2)
-            wait_for_switch(context)
-
-            self.game_count += 1
+                self.game_count += 1
+            else:
+                # 执行失败
+                logger.error("本轮环城载具赛执行失败！")
 
         logger.warning("环城载具赛任务已结束！")
         return True
@@ -157,14 +161,23 @@ def game_content_cycle(context: Context) -> bool:
     游戏内容循环
     """
     check_id = 1
-    while check_id < 15:
+    while check_id <= 15:
+        time.sleep(1.5)
+        # 随便点击个位置防止月卡或者锁屏
+        context.tasker.controller.post_click(638, 343).wait()
+        time.sleep(0.5)
+
+        # 不在比赛中了：超时 或者 异常情况
+        if not check_in_match(context):
+            return False
+
         # 按键实现
         logger.info(f"环城载具赛比赛检查点ID：{check_id}")
         has_next = check_key_service(context, check_id)
         if not has_next:
             return False
 
-        if check_id != 1:
+        if check_id != 1 and check_id != 15:
             # 最多 3 次检测检查点
             time.sleep(1)
             check_point = get_check_point(context)
@@ -177,7 +190,8 @@ def game_content_cycle(context: Context) -> bool:
                 attack_rotate_view(context, 1)
                 check_point = get_check_point(context)
         else:
-            check_point = 2
+            # 为 1 或者 15 的时候，就直接放行
+            check_point = check_id + 1
 
         if not check_point or check_point == check_id + 1:
             logger.info(f"成功执行完检查点ID：{check_id}")
@@ -186,21 +200,23 @@ def game_content_cycle(context: Context) -> bool:
         else:
             logger.warning(f"检查点ID：{check_id} 执行失败，再次尝试该检查点任务")
 
-        # 回检查点
-        time.sleep(1)
-        context.tasker.controller.post_click(868, 522, 1, 1).wait()
-        start_time = time.time()
-        elapsed_time = 0
-        while elapsed_time <= 90 and not context.tasker.stopping:
-            elapsed_time = time.time() - start_time
-            if check_in_match(context):
-                break
-            time.sleep(2)
+        if check_id != 15:
+            # 回检查点
+            time.sleep(1)
+            context.tasker.controller.post_click(868, 522, 1, 1).wait()
+            time.sleep(3)
+            start_time = time.time()
+            elapsed_time = 0
+            while elapsed_time <= 45 and not context.tasker.stopping:
+                elapsed_time = time.time() - start_time
+                if check_in_match(context):
+                    break
+                time.sleep(2)
 
     return True
 
 
-def check_key_service(context: Context, check_id: int):
+def check_key_service(context: Context, check_id: int) -> bool:
     """
     检查点按键实现方法
     """
@@ -307,17 +323,23 @@ def get_check_point(context: Context) -> int | None:
         img,
         pipeline_override={
             "通用文字识别": {
-                "expected": ["(\\d+/15)"],
-                "roi": [1116, 602, 52, 31]
+                "expected": [".*?([0-9]{1,2})/15.*"],
+                "roi": [155, 242, 64, 26]
             }
         },
     )
     if ocr_result and ocr_result.hit:
         check_point = str(ocr_result.best_result.text)  # type:ignore
-        check_point = check_point.replace("(", "").replace("15)", "")
-        logger.info(f"获取到当前检查点为：{check_point}")
-        return int(check_point)
+        match = re.match(r'.*?([0-9]{1,2})/15.*', check_point)
+        if match:
+            check_point = match.group(1)
+            logger.info(f"获取到当前检查点为：{check_point}")
+            return int(check_point)
+        else:
+            logger.error(f"获取到当前检查点识别异常：{check_point}")
+            return None
     else:
+        logger.error(f"获取到当前检查点失败：{ocr_result}")
         return None
 
 
