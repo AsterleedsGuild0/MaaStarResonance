@@ -281,7 +281,7 @@ jobs:
           git add .vscode/changelog-pr-authors.json
           git add CHANGELOG.md
           git diff --cached --quiet && exit 0
-          git commit -m "Auto⚙️: Update CHANGELOG"
+          git commit -m "chore🔧: Update CHANGELOG"
           git push origin HEAD:${{ github.event.repository.default_branch }}
 
   release:
