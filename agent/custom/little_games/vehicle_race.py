@@ -5,6 +5,7 @@ from maa.context import Context
 from maa.custom_action import CustomAction, RecognitionDetail
 from maa.define import Rect
 
+from agent.attach.little_game_attach import get_vehicle_team_type, get_game_wait_time_limit
 from agent.constant.key_event import ANDROID_KEY_EVENT_DATA
 from agent.constant.little_games import VEHICLE_CLICK_DATA
 from agent.constant.map_point import NAVIGATE_DATA
@@ -39,6 +40,17 @@ class VehicleRacePointAction(CustomAction):
         max_game_count = int(params.data["max_game_count"]) if params.data["max_game_count"] else 0
         logger.info(f"本次任务设置的最大环城载具赛次数: {max_game_count if max_game_count != 0 else '无限'}")
 
+        # 游戏等待超时时间
+        wait_time_limit = get_game_wait_time_limit(context)
+
+        # 队伍类型
+        team_type = get_vehicle_team_type(context)
+        if team_type == "无":
+            logger.error("请先选择队伍类型！")
+            return False
+        # 是否是队长：队长要去NPC那边开本，队员不用干活
+        is_leader = team_type in ["单人匹配游戏", "组队匹配游戏（队长）"]
+
         while not context.tasker.stopping:
             logger.info(f"=== 已成功环城载具赛 {self.game_count} 次 ===")
             # 检查是否已经游戏足够次数了
@@ -46,12 +58,13 @@ class VehicleRacePointAction(CustomAction):
                 logger.info(f"已成功环城载具赛了您所配置的{self.game_count}次，任务结束！")
                 return True
 
-            # 确保到达环城载具赛的入口
-            if not ensure_race_entry(context):
-                return False
+            if is_leader:
+                # 确保到达环城载具赛的入口
+                if not ensure_race_entry(context):
+                    return False
 
             # 确保进入环城载具赛
-            has_next = ensure_into_race(context)
+            has_next = ensure_into_race(context, is_leader, wait_time_limit)
             if not has_next:
                 return False
 
@@ -76,11 +89,10 @@ class VehicleRacePointAction(CustomAction):
         return True
 
 
-def ensure_into_race(context: Context, timeout: int = 300) -> bool:
+def ensure_into_race(context: Context, is_leader: bool, timeout: int = 300) -> bool:
     """
     确保开始对局
     """
-
     # 循环检测是否到准备页面
     start_time = time.time()
     elapsed_time = 0
@@ -103,14 +115,15 @@ def ensure_into_race(context: Context, timeout: int = 300) -> bool:
             time.sleep(0.5)
             context.tasker.controller.post_click(1142, 618).wait()
 
-        # 没进入副本就再次检测
-        rect = check_is_entry(context)
-        if rect:
-            # 点击进行匹配
-            point_x = int(rect.x + rect.w / 2)
-            point_y = int(rect.y + rect.h / 2)
-            context.tasker.controller.post_click(point_x, point_y).wait()
-            time.sleep(2)
+        if is_leader:
+            # 没进入副本就再次检测
+            rect = check_is_entry(context)
+            if rect:
+                # 点击进行匹配
+                point_x = int(rect.x + rect.w / 2)
+                point_y = int(rect.y + rect.h / 2)
+                context.tasker.controller.post_click(point_x, point_y).wait()
+                time.sleep(2)
 
     logger.error(f"等待环城载具赛对局超时或被手动停止：{timeout}")
     return False

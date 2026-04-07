@@ -10,6 +10,14 @@
             }
         }
     },
+    "获取参数-载具赛队伍类型": {
+        "action": {
+            "type": "DoNothing"
+        },
+        "attach": {
+            "vehicle_team_type": "无"
+        }
+    },
     "游星岛环城载具赛检查点按键实现": {
         "action": {
             "type": "Custom",

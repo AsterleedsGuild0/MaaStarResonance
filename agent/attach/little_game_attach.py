@@ -3,6 +3,19 @@ from maa.context import Context
 from agent.logger import logger
 
 
+def get_game_wait_time_limit(context: Context) -> int:
+    """
+    获取游戏等待超时时间
+    """
+    wait_time_limit_node = context.get_node_data("获取参数-游戏等待超时时间")
+    wait_time_limit = (wait_time_limit_node
+                         .get("attach", {})
+                         .get("wait_time_limit", 0)
+                         ) if wait_time_limit_node else 0
+    logger.info("游戏等待超时时间: {}", wait_time_limit if wait_time_limit != 0 else '无限')
+    return int(wait_time_limit)
+
+
 def get_hide_team_type(context: Context) -> str:
     """
     获取躲猫猫队伍类型：
@@ -39,14 +52,19 @@ def get_maj_team_type(context: Context) -> str:
     return str(maj_team_type)
 
 
-def get_maj_wait_time_limit(context: Context) -> int:
+def get_vehicle_team_type(context: Context) -> str:
     """
-    获取麻将等待超时时间
+    获取载具赛队伍类型：
+    1. 无
+    2. 单人匹配游戏
+    3. 组队匹配游戏（队长）
+    4. 组队匹配游戏（队员）
     """
-    maj_wait_time_limit_node = context.get_node_data("获取参数-麻将等待超时时间")
-    maj_wait_time_limit = (maj_wait_time_limit_node
+    vehicle_team_type_node = context.get_node_data("获取参数-载具赛队伍类型")
+    vehicle_team_type = (vehicle_team_type_node
                          .get("attach", {})
-                         .get("wait_time_limit", 0)
-                         ) if maj_wait_time_limit_node else 0
-    logger.info("麻将等待超时时间: {}", maj_wait_time_limit if maj_wait_time_limit != 0 else '无限')
-    return int(maj_wait_time_limit)
+                         .get("vehicle_team_type", "无")
+                         ) if vehicle_team_type_node else "无"
+    logger.info("载具赛队伍类型: {}", str(vehicle_team_type))
+    return str(vehicle_team_type)
+

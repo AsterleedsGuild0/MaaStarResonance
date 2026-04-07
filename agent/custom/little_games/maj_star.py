@@ -4,7 +4,7 @@ from maa.agent.agent_server import AgentServer
 from maa.context import Context
 from maa.custom_action import CustomAction, RecognitionDetail
 
-from agent.attach.little_game_attach import get_maj_team_type, get_maj_wait_time_limit
+from agent.attach.little_game_attach import get_maj_team_type, get_game_wait_time_limit
 from agent.constant.map_point import NAVIGATE_DATA
 from agent.custom.general.general import ensure_main_page
 from agent.custom.general.power_saving_mode import exit_power_saving_mode
@@ -35,16 +35,16 @@ class MajStarPointAction(CustomAction):
         max_game_count = int(params.data["max_game_count"]) if params.data["max_game_count"] else 0
         logger.info(f"本次任务设置的最大麻将次数: {max_game_count if max_game_count != 0 else '无限'}")
 
-        # 麻将队伍类型
-        maj_wait_time_limit = get_maj_wait_time_limit(context)
+        # 游戏等待超时时间
+        wait_time_limit = get_game_wait_time_limit(context)
 
         # 麻将队伍类型
-        maj_team_type = get_maj_team_type(context)
-        if maj_team_type == "无":
+        team_type = get_maj_team_type(context)
+        if team_type == "无":
             logger.error("请先选择麻将队伍类型！")
             return False
         # 是否是队长：队长要去NPC那边开本，队员不用干活
-        is_leader = maj_team_type in ["单人匹配游戏", "组队私人游戏（队长）"]
+        is_leader = team_type in ["单人匹配游戏", "组队私人游戏（队长）"]
 
         while not context.tasker.stopping:
             logger.info(f"=== 已成功完成麻将 {self.game_count} 次 ===")
@@ -63,7 +63,7 @@ class MajStarPointAction(CustomAction):
                 time.sleep(2)
 
             # 确保开始对局
-            has_next = ensure_into_game(context, is_leader, maj_wait_time_limit)
+            has_next = ensure_into_game(context, is_leader, wait_time_limit)
             if not has_next:
                 return False
 
