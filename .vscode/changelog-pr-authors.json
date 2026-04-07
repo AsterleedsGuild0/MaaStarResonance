@@ -1347,5 +1347,77 @@
         "github_username": "azmiao"
       }
     ]
+  },
+  "92": {
+    "feat✨:新增环城载具赛功能实现": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化载具赛输入逻辑": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "format🥚:优化attach引用": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:载具赛新增队伍类型选项和等待时长设置": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化载具赛的流程逻辑，防止进入省电模式": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:调整躲猫猫的部分检测逻辑": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "revert\"perf🚀:优化载具赛的流程逻辑，防止进入省电模式\"": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复载具赛整理流程问题": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新文档": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "deps🧩:maafw更新至v5.10.0": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
   }
 }
