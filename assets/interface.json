@@ -150,6 +150,16 @@
             ]
         },
         {
+            "name": "游星岛环城载具赛小活动",
+            "entry": "游星岛环城载具赛小活动",
+            "description": "",
+            "option": [
+                "载具赛队伍类型",
+                "比赛开始前的最大等待时长",
+                "需要的最大环城载具赛次数"
+            ]
+        },
+        {
             "name": "自动挂Lv10茧",
             "entry": "自动挂Lv10茧"
         },
@@ -752,6 +762,28 @@
                 }
             }
         },
+        "需要的最大环城载具赛次数": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "需要的最大环城载具赛次数",
+                    "description": "需要的最大环城载具赛次数，默认设置0为无限游玩，到足够次数就停止任务",
+                    "pipeline_type": "int",
+                    "default": "0"
+                }
+            ],
+            "pipeline_override": {
+                "游星岛环城载具赛小活动": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "max_game_count": "{需要的最大环城载具赛次数}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "躲猫猫队伍类型": {
             "type": "select",
             "default_case": "无",
@@ -878,9 +910,75 @@
                 }
             ],
             "pipeline_override": {
-                "获取参数-麻将等待超时时间": {
+                "获取参数-游戏等待超时时间": {
                     "attach": {
                         "wait_time_limit": "{对局开始前的最大等待时长}"
+                    }
+                }
+            }
+        },
+        "载具赛队伍类型": {
+            "type": "select",
+            "default_case": "无",
+            "description": "请根据实际情况选择，请务必选择正确，组队情况下需要队长和队员各自选择不同的选项",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "获取参数-载具赛队伍类型": {
+                            "attach": {
+                                "vehicle_team_type": "无"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "单人匹配游戏",
+                    "pipeline_override": {
+                        "获取参数-载具赛队伍类型": {
+                            "attach": {
+                                "vehicle_team_type": "单人匹配游戏"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "组队匹配游戏（队长）",
+                    "pipeline_override": {
+                        "获取参数-载具赛队伍类型": {
+                            "attach": {
+                                "vehicle_team_type": "组队匹配游戏（队长）"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "组队匹配游戏（队员）",
+                    "pipeline_override": {
+                        "获取参数-载具赛队伍类型": {
+                            "attach": {
+                                "vehicle_team_type": "组队匹配游戏（队员）"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "比赛开始前的最大等待时长": {
+            "type": "input",
+            "label": "比赛开始前的最大等待时长（秒）",
+            "inputs": [
+                {
+                    "name": "比赛开始前的最大等待时长",
+                    "description": "载具赛比赛开始前的最大等待时长，单位为秒，0为无限时间",
+                    "pattern_msg": "int",
+                    "default": "0"
+                }
+            ],
+            "pipeline_override": {
+                "获取参数-游戏等待超时时间": {
+                    "attach": {
+                        "wait_time_limit": "{比赛开始前的最大等待时长}"
                     }
                 }
             }

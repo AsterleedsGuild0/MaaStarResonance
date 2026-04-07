@@ -4,7 +4,7 @@ from maa.agent.agent_server import AgentServer
 from maa.context import Context
 from maa.custom_action import CustomAction, RecognitionDetail
 
-from agent.attach.common_attach import get_hide_team_type
+from agent.attach.little_game_attach import get_hide_team_type
 from agent.constant.map_point import NAVIGATE_DATA
 from agent.custom.app_manage_action import wait_for_switch
 from agent.custom.general.general import ensure_main_page
@@ -59,28 +59,23 @@ class HideSeekPointAction(CustomAction):
                 if not has_entry:
                     return False
             
-                # 点击不思议的追逃游戏
-                context.tasker.controller.post_click(852, 400).wait()
-                time.sleep(1)
-            
             # 确保开始游戏 | 匹配/开黑模式
             has_next = ensure_into_game(context, is_leader, is_private)
             if not has_next:
-                logger.error("无法开始游戏，躲猫猫任务将直接停止...")
                 return False
 
-            # 等待场景切换完成
-            wait_for_switch(context)
+            # 具体游戏操作 | 暂时纯挂机
 
             # 等待躲猫猫游戏对局结束
             ensure_for_end(context)
+
             # 等待场景切换完成后开始下一轮
             wait_for_switch(context)
 
             if is_leader:
-                # 多等待10秒 | 对齐不同设备切换场景的加载速度
-                logger.info(f"等待10秒后进行下一轮躲猫猫...")
-                time.sleep(10)
+                # 多等待一会 | 对齐不同设备切换场景的加载速度
+                logger.info(f"等待 5 秒后进行下一轮躲猫猫...")
+                time.sleep(5)
 
             self.game_count += 1
         
@@ -90,24 +85,30 @@ class HideSeekPointAction(CustomAction):
 
 def ensure_into_game(context: Context, is_leader: bool, is_private: bool, timeout: int = 300) -> bool:
     """
-    确保开始游戏 | 匹配/开黑模式
+    确保开始游戏
     """
     # 循环检测是否到准备页面
     start_time = time.time()
     elapsed_time = 0
 
     # 循环等待游戏开始
-    while elapsed_time <= timeout and not context.tasker.stopping:
-        logger.info(f"检测并准备进入游戏")
+    while (timeout == 0 or elapsed_time <= timeout) and not context.tasker.stopping:
         elapsed_time = time.time() - start_time
+        time.sleep(1.5)
+        # 随便点击个位置防止月卡或者锁屏
+        context.tasker.controller.post_click(638, 343).wait()
+        time.sleep(0.5)
+
+        # 如果在对局中就返回
+        if check_in_match(context):
+            return True
 
         if not is_leader:
             if check_is_ready(context):
+                logger.info("尝试点击进入躲猫猫对局...")
                 # 点击确认进入副本
+                time.sleep(0.5)
                 context.tasker.controller.post_click(1148, 657).wait()
-                return True
-            # 没有就继续循环 | 不执行下面队长的逻辑
-            continue
 
         img = context.tasker.controller.post_screencap().wait().get()
         if is_private:
@@ -123,6 +124,7 @@ def ensure_into_game(context: Context, is_leader: bool, is_private: bool, timeou
                 },
             )
             if ocr_result and ocr_result.hit:
+                time.sleep(0.5)
                 context.tasker.controller.post_click(990, 656).wait()
         else:
             # 点击右下角匹配模式
@@ -137,18 +139,17 @@ def ensure_into_game(context: Context, is_leader: bool, is_private: bool, timeou
                 },
             )
             if ocr_result and ocr_result.hit:
+                time.sleep(0.5)
                 context.tasker.controller.post_click(1175, 656).wait()
 
-        # 每隔两秒检测一次
-        time.sleep(2)
-        if check_is_ready(context):
-            return True
-        
-        time.sleep(2)
-        if check_is_ready(context):
-            return True
+        if is_leader:
+            # 没进入副本就再次检测
+            if check_is_entry(context):
+                # 点击进入不思议的追逃游戏
+                context.tasker.controller.post_click(852, 400).wait()
+                time.sleep(2)
     
-    logger.error(f"超 {timeout} 秒未确保开始游戏！")
+    logger.error(f"等待躲猫猫对局超时或被手动停止：{timeout}")
     return False
 
 
@@ -184,10 +185,17 @@ def ensure_for_end(context: Context, timeout: int = 1200) -> bool:
     elapsed_time = 0
     while elapsed_time <= timeout and not context.tasker.stopping:
         elapsed_time = time.time() - start_time
-        if wait_for_end(context):
+        if wait_for_end(context):  # TODO 位置和点击位置
             logger.info(f"检测到躲猫猫游戏对局结束！")
+            context.tasker.controller.post_click(0, 0).wait()
+            time.sleep(5)
             return True
-        time.sleep(5)
+
+        time.sleep(1.5)
+        # 随便点击个位置防止月卡或者锁屏
+        context.tasker.controller.post_click(638, 343).wait()
+        time.sleep(3.5)
+
     logger.error(f"超 {timeout} 秒躲猫猫游戏对局未结束！")
     return False
 
@@ -224,7 +232,7 @@ def check_is_ready(context: Context) -> bool:
         img,
         pipeline_override={
             "通用文字识别": {
-                "expected": ["(确认|取消)"],
+                "expected": ["确认"],
                 "roi": [1128, 640, 58, 35]
             }
         },
@@ -253,6 +261,19 @@ def check_is_entry(context: Context) -> bool:
     )
     if ocr_result and ocr_result.hit:
         logger.info(f"检测到已经到达躲猫猫的入口！")
+        return True
+    else:
+        return False
+
+
+def check_in_match(context: Context) -> bool:
+    """
+    检测是否在比赛中
+    """
+    img = context.tasker.controller.post_screencap().wait().get()
+    reg_result: RecognitionDetail | None = context.run_recognition("检测倒计时图标", img)
+    if reg_result and reg_result.hit:
+        logger.info(f"检测到已经在比赛中...")
         return True
     else:
         return False

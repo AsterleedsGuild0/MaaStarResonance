@@ -8,5 +8,23 @@
                 "green_mask": true
             }
         }
+    },
+    "检测倒计时图标": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "游星岛/倒计时图标.png",
+                "roi": [592, 40, 17, 21],
+                "green_mask": true
+            }
+        }
+    },
+    "获取参数-游戏等待超时时间": {
+        "action": {
+            "type": "DoNothing"
+        },
+        "attach": {
+            "wait_time_limit": 0
+        }
     }
 }
