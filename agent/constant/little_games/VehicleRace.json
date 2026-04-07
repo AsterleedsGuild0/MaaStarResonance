@@ -110,7 +110,13 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 3000,
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 2000,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_D"
     },
@@ -120,7 +126,13 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 5000,
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 4000,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_D"
     },
@@ -146,7 +158,13 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 4500,
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 3500,
       "action_type": "post_key_up",
       "key_name": "KEYCODE_W"
     },
@@ -214,7 +232,13 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 7000,
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 6000,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_D"
     },
@@ -224,7 +248,13 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 3500,
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 2500,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_D"
     },
@@ -234,7 +264,13 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 3000,
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 2000,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_D"
     },
@@ -260,7 +296,13 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 3000,
+      "delay": 1000,
+      "action_type": "post_click",
+      "x": 640,
+      "y": 360
+    },
+    {
+      "delay": 2000,
       "action_type": "post_key_up",
       "key_name": "KEYCODE_W"
     },
@@ -352,13 +394,7 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 2000,
+      "delay": 3000,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_D"
     },
@@ -445,13 +481,7 @@
       "key_name": "KEYCODE_A"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 4000,
+      "delay": 5000,
       "action_type": "post_key_up",
       "key_name": "KEYCODE_A"
     },
@@ -518,13 +548,7 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 1000,
+      "delay": 2000,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_A"
     },
@@ -616,13 +640,7 @@
       "key_name": "KEYCODE_A"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 1300,
+      "delay": 2300,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_A"
     },
@@ -724,13 +742,7 @@
       "key_name": "KEYCODE_A"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 2000,
+      "delay": 3000,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_A"
     },
@@ -792,13 +804,7 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 1000,
+      "delay": 2000,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_D"
     },
@@ -870,13 +876,7 @@
       "key_name": "KEYCODE_A"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 2000,
+      "delay": 3000,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_D"
     },
@@ -1048,13 +1048,7 @@
       "key_name": "KEYCODE_A"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 2000,
+      "delay": 3000,
       "action_type": "post_key_up",
       "key_name": "KEYCODE_W"
     },
@@ -1106,13 +1100,7 @@
       "key_name": "KEYCODE_A"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 4000,
+      "delay": 5000,
       "action_type": "post_key_up",
       "key_name": "KEYCODE_W"
     },
@@ -1172,13 +1160,7 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 12000,
+      "delay": 13000,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_A"
     },
@@ -1230,13 +1212,7 @@
       "key_name": "KEYCODE_SHIFT_LEFT"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 9500,
+      "delay": 10500,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_A"
     },
@@ -1308,13 +1284,7 @@
       "key_name": "KEYCODE_A"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 4000,
+      "delay": 5000,
       "action_type": "post_key_down",
       "key_name": "KEYCODE_D"
     },
@@ -1406,13 +1376,7 @@
       "key_name": "KEYCODE_D"
     },
     {
-      "delay": 1000,
-      "action_type": "post_click",
-      "x": 640,
-      "y": 360
-    },
-    {
-      "delay": 10000,
+      "delay": 11000,
       "action_type": "post_key_up",
       "key_name": "KEYCODE_W"
     },
