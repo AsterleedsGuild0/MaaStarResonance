@@ -4,7 +4,7 @@ from maa.agent.agent_server import AgentServer
 from maa.context import Context
 from maa.custom_action import CustomAction, RecognitionDetail
 
-from agent.attach.common_attach import get_hide_team_type
+from agent.attach.little_game_attach import get_hide_team_type
 from agent.constant.map_point import NAVIGATE_DATA
 from agent.custom.app_manage_action import wait_for_switch
 from agent.custom.general.general import ensure_main_page

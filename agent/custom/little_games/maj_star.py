@@ -4,7 +4,7 @@ from maa.agent.agent_server import AgentServer
 from maa.context import Context
 from maa.custom_action import CustomAction, RecognitionDetail
 
-from agent.attach.common_attach import get_maj_team_type, get_maj_wait_time_limit
+from agent.attach.little_game_attach import get_maj_team_type, get_maj_wait_time_limit
 from agent.constant.map_point import NAVIGATE_DATA
 from agent.custom.general.general import ensure_main_page
 from agent.custom.general.power_saving_mode import exit_power_saving_mode

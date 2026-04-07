@@ -6,7 +6,7 @@ from maa.agent.agent_server import AgentServer
 from maa.context import Context, RecognitionDetail
 from maa.custom_action import CustomAction
 
-from agent.attach.common_attach import get_chat_channel, get_chat_loop_interval, get_chat_loop_limit, \
+from agent.attach.chat_message_attach import get_chat_channel, get_chat_loop_interval, get_chat_loop_limit, \
     get_chat_message_content, get_chat_channel_id_list, get_chat_message_need_team, get_full_team_force_send
 from agent.constant.key_event import ANDROID_KEY_EVENT_DATA
 from agent.constant.world_channel import CHANNEL_DATA

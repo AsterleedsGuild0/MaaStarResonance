@@ -6,7 +6,7 @@ from maa.agent.agent_server import AgentServer
 from maa.context import Context, RecognitionDetail, Rect
 from maa.custom_action import CustomAction
 
-from agent.attach.common_attach import get_restart_for_except, get_max_restart_count, get_fish_equipment, \
+from agent.attach.fishing_attach import get_restart_for_except, get_max_restart_count, get_fish_equipment, \
     get_fish_navigation
 from agent.constant.fish import FISH_LIST
 from agent.constant.map_point import NAVIGATE_DATA
