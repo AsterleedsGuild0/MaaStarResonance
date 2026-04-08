@@ -4,21 +4,17 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 
 REQUIRED_FILES = {
-    ROOT / "docs/用户文档/用户手册入口.md": ["# 用户手册入口", "## 我应该先看哪一篇"],
+    ROOT / "docs/新手指南/新手指南入口.md": ["# 新手指南入口", "## 按流程阅读"],
+    ROOT / "docs/功能文档/功能文档入口.md": ["# 功能文档入口", "## 功能索引"],
     ROOT / "docs/开发者文档/QuickStart.md": [
         "# QuickStart",
         "## Github Pull Request 流程简述",
     ],
-    ROOT / "docs/开发者文档/个性化配置.md": ["# 个性化配置", "## 代码格式化工具"],
     ROOT / "docs/开发者文档/开发者文档入口.md": [
         "# 开发者文档入口",
         "## 我应该先看哪一篇",
     ],
-    ROOT / "docs/开发者文档/文档编写规范.md": ["# 文档编写规范", "## 模板一：入口页"],
-    ROOT / "docs/开发者文档/文档维护流程.md": [
-        "# 文档维护流程",
-        "## 修改文档时的最小检查清单",
-    ],
+    ROOT / "docs/关于/关于我们.md": ["# 星痕共鸣 MAA 小助手", "## 声明与许可"],
 }
 
 

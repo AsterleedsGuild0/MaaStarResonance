@@ -87,32 +87,27 @@ const config = {
                 items: [
                     {
                         type: "docSidebar",
-                        sidebarId: "startSidebar",
+                        sidebarId: "beginnerSidebar",
                         position: "left",
-                        label: "快速开始",
+                        label: "新手指南",
                     },
                     {
                         type: "docSidebar",
-                        sidebarId: "userSidebar",
+                        sidebarId: "featureSidebar",
                         position: "left",
-                        label: "用户使用",
+                        label: "功能文档",
                     },
                     {
                         type: "docSidebar",
                         sidebarId: "devSidebar",
                         position: "left",
-                        label: "开发贡献",
+                        label: "开发文档",
                     },
                     {
                         type: "docSidebar",
                         sidebarId: "aboutSidebar",
                         position: "left",
-                        label: "关于项目",
-                    },
-                    {
-                        href: "https://github.com/AsterleedsGuild0/MaaStarResonance",
-                        label: "GitHub",
-                        position: "right",
+                        label: "关于我们",
                     },
                 ],
             },
@@ -123,19 +118,19 @@ const config = {
                         title: "Docs",
                         items: [
                             {
-                                label: "快速开始",
-                                to: "/docs/用户文档/新手上路",
+                                label: "新手指南",
+                                to: "/docs/新手指南/新手指南入口",
                             },
                             {
-                                label: "用户手册入口",
-                                to: "/docs/用户文档/用户手册入口",
+                                label: "功能文档",
+                                to: "/docs/功能文档/功能文档入口",
                             },
                             {
-                                label: "开发者入口",
+                                label: "开发文档",
                                 to: "/docs/开发者文档/开发者文档入口",
                             },
                             {
-                                label: "关于项目",
+                                label: "关于我们",
                                 to: "/docs/关于/关于我们",
                             },
                         ],

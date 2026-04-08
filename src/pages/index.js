@@ -44,7 +44,7 @@ function Home() {
                             </p>
                             <div style={{display: "flex", gap: "1rem", flexWrap: "wrap"}}>
                                 <a
-                                    href="/docs/用户文档/用户手册入口"
+                                    href="/docs/新手指南/新手指南入口"
                                     style={{
                                         backgroundImage: "linear-gradient(135deg, #996dff, #7f8cff, #4e8dff)",
                                         color: "white",
@@ -67,7 +67,7 @@ function Home() {
                                         e.target.style.boxShadow = "0 4px 10px rgba(87, 74, 255, 0.35)";
                                         e.target.style.filter = "brightness(1)";
                                     }}>
-                                    用户开始使用
+                                    新手指南
                                 </a>
                                 <a
                                     href="/docs/开发者文档/开发者文档入口"
@@ -93,7 +93,7 @@ function Home() {
                                         e.target.style.boxShadow = "0 4px 10px rgba(55, 135, 255, 0.28)";
                                         e.target.style.filter = "brightness(1)";
                                     }}>
-                                    参与开发贡献
+                                    开发文档
                                 </a>
                                 <a
                                     href="https://github.com/AsterleedsGuild0/MaaStarResonance"
