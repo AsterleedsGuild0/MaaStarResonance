@@ -6,6 +6,7 @@
         "docusaurus": "docusaurus",
         "start": "docusaurus start",
         "build": "docusaurus build",
+        "docs:check": "uv run python scripts/check_docs_structure.py && docusaurus build",
         "swizzle": "docusaurus swizzle",
         "deploy": "docusaurus deploy",
         "clear": "docusaurus clear",

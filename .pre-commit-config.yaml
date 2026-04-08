@@ -24,6 +24,12 @@ repos:
           - prettier@3.3.3
           - prettier-plugin-multiline-arrays@^3.0.0
         # 如出现 Windows file:// 路径问题，可暂时移除插件或添加 .prettierrc.json 手动指定 plugins
+      - id: docs-structure-check
+        name: docs structure check
+        entry: uv run python scripts/check_docs_structure.py
+        language: system
+        pass_filenames: false
+        files: ^docs/.*|^README\.md$|^sidebars\.js$|^docusaurus\.config\.js$
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: v0.13.0
     hooks:
