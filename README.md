@@ -8,20 +8,7 @@
 
 由 [MaaFramework](https://github.com/MaaXYZ/MaaFramework) 强力驱动！  
 
-<a
-  href="https://github.com/AsterleedsGuild0/MaaStarResonance"
-  target="_blank"
-  style="font-weight: bold;"
->
-  🔗 本项目 GitHub 仓库
-</a><br>
-<a
-  href="https://maa-star-resonance.ayusummer233.top"
-  target="_blank"
-  style="font-weight: bold;"
->
-  🔗 使用文档
-</a><br>
+<a href="https://github.com/AsterleedsGuild0/MaaStarResonance" style="font-weight: bold;">🔗 本项目 GitHub 仓库</a><br>
 
 </div>
 
