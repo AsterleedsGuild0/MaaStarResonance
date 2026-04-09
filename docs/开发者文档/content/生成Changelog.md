@@ -1,7 +1,7 @@
 ---
 title: 生成 Changelog
 sidebar_label: 生成 Changelog
-sidebar_position: 8
+sidebar_position: 6
 description: 使用 Python 脚本或 git-cliff 生成项目变更日志
 keywords: 
   - Changelog
@@ -11,9 +11,14 @@ hide_title: false
 hide_table_of_contents: false
 ---
 
-# 生成 Changelog
+## 目录
 
-本项目提供了两种生成 changelog 的方式。
+- [主要特性](#主要特性)
+- [实现方式](#实现方式)
+- [CI 集成](#CI-集成)
+- [常见问题](#常见问题)
+
+---
 
 ## 主要特性
 
@@ -32,9 +37,9 @@ hide_table_of_contents: false
 
 ---
 
-## 方式一: Python 脚本(推荐)
+## 实现方式
 
-使用 `scripts/generate_changelog.py` 脚本,提供更灵活的控制和自定义逻辑。
+使用 `scripts/generate_changelog.py` 脚本,提供更灵活的控制和自定义逻辑，且可以通过CI集成自动执行
 
 ### 优点
 
@@ -232,63 +237,9 @@ def _filter_squash_commits(self, commits):
     pass
 ```
 
----
+### CI 集成
 
-## 方式二: git-cliff(配置较复杂)
-
-使用 `git-cliff` 工具和 `.github/cliff.toml` 配置文件。
-
-### 优点
-
-- ✅ 专业工具,社区广泛使用
-- ✅ 支持多种输出格式
-
-### 缺点
-
-- ⚠️ 配置复杂,难以调试
-- ⚠️ 模板语法限制较多
-- ⚠️ 处理复杂场景(squash merge)需要大量正则和预处理器
-
-### 使用方法
-
-```bash
-# 安装 git-cliff
-cargo install git-cliff
-
-# 生成完整 changelog
-git cliff -c .github/cliff.toml --strip header -o CHANGELOG.md
-
-# 只生成最新版本
-git cliff -c .github/cliff.toml --latest --strip header
-```
-
----
-
-## 推荐工作流
-
-### 日常开发
-
-使用 Python 脚本快速查看:
-
-```bash
-python scripts/generate_changelog.py --latest
-```
-
-### 发版前
-
-生成完整 changelog:
-
-```bash
-python scripts/generate_changelog.py -o CHANGELOG.md
-git add CHANGELOG.md
-git commit -m "docs📚: 更新 CHANGELOG"
-```
-
-如果本地希望尽量生成完整的 GitHub 用户名映射,建议先配置 `.env.local` 中的 `GITHUB_TOKEN` 再执行。
-
-### CI/CD 集成
-
-在 GitHub Actions 中自动生成,脚本会自动使用 `GITHUB_TOKEN`:
+在 GitHub Actions 中自动生成，脚本会自动使用 `GITHUB_TOKEN`生成完成CHNAGELOG，无需手动操作:
 
 **生成 Release Body (最新版本):**
 
@@ -415,13 +366,3 @@ A: 不会!脚本可以处理任意数量的子提交行,会逐条展开。
 ### Q: 如何跳过某个提交类型?
 
 A: 修改 `TYPE_GROUPS`,或在 `_filter_squash_commits` 中添加过滤逻辑。
-
----
-
-## 贡献
-
-如果你发现 changelog 生成有问题或有改进建议,欢迎:
-
-1. 提 Issue
-2. 提交 PR 改进脚本
-3. 在讨论区分享你的用法

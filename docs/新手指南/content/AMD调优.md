@@ -11,8 +11,6 @@ hide_title: false
 hide_table_of_contents: false
 ---
 
-# AMD调优
-
 ## AMD 的 CPU
 
 控制面板\系统和安全\电源选项，务必使用 **平衡** 模式，Win11下安装AMD的`Chipset芯片组`后，对平衡模式有特调逻辑，调完记得 **重启电脑**
