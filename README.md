@@ -1,4 +1,4 @@
-<!-- markdownlint-disable MD041 -->
+<!-- markdownlint-disable MD041 MD034 -->
 <div align="center">
 <img alt="LOGO" src="static/img/logo_transparent.png" width="256" height="256" />
 
@@ -8,8 +8,20 @@
 
 由 [MaaFramework](https://github.com/MaaXYZ/MaaFramework) 强力驱动！  
 
-<a href="https://github.com/AsterleedsGuild0/MaaStarResonance" target="_blank" style="font-weight: bold;">🔗 本项目 GitHub 仓库</a><br>
-<a href="https://maa-star-resonance.ayusummer233.top" target="_blank" style="font-weight: bold;">🔗 使用文档</a><br>
+<a
+  href="https://github.com/AsterleedsGuild0/MaaStarResonance"
+  target="_blank"
+  style="font-weight: bold;"
+>
+  🔗 本项目 GitHub 仓库
+</a><br>
+<a
+  href="https://maa-star-resonance.ayusummer233.top"
+  target="_blank"
+  style="font-weight: bold;"
+>
+  🔗 使用文档
+</a><br>
 
 </div>
 
@@ -75,30 +87,7 @@
 
 ## 文档
 
-> 欢迎前往我们的在线文档查看 ➡︎ [星痕共鸣 Maa 小助手](https://maa-star-resonance.ayusummer233.top)
->
-> 也可通过下面的超链接查看Github上的文档
-
-## 用户手册
-
-- [新手上路](./docs/用户文档/新手上路/新手上路.md)(**使用前必看**)
-- [自动钓鱼](./docs/用户文档/任务流说明/自动钓鱼/自动钓鱼使用须知.md)
-- [简易采集](./docs/用户文档/任务流说明/简易采集/简易采集使用须知.md)
-- [自动接受协会狩猎邀请和战斗](./docs/用户文档/任务流说明/自动协会狩猎/使用须知.md)
-- [聊天频道发言](./docs/用户文档/任务流说明/聊天频道发言/聊天频道发言使用须知.md)
-- [Lv10浮游之茧](./docs/用户文档/任务流说明/S2自动刷茧/lv10茧/S2自动刷lv10茧使用须知.md)
-
----
-
-## 开发手册
-
-- [快速开始](./docs/开发者文档/QuickStart.md)
-- [个性化配置](./docs/开发者文档/个性化配置.md)
-- [其他开发随笔](./docs/开发者文档/开发随笔.md)
-- [部分功能流程设计](./docs/开发者文档/流程设计/)
-- [立项初期的待办清单](./docs/开发者文档/待办清单.md)
-
-更多开发文档请前往 [MaaFramework](https://github.com/MaaXYZ/MaaFramework) 仓库查看
+- 在线文档入口: [星痕共鸣 Maa 小助手](https://maa-star-resonance.ayusummer233.top)
 
 ---
 
