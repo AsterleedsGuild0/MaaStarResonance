@@ -1,3 +1,16 @@
+---
+title: AMD调优
+sidebar_label: AMD调优
+sidebar_position: 7
+description: AMD CPU 和显卡用户的模拟器性能优化指南
+keywords: 
+  - AMD调优
+  - 性能优化
+  - 帧率优化
+hide_title: false
+hide_table_of_contents: false
+---
+
 # AMD调优
 
 ## AMD 的 CPU
