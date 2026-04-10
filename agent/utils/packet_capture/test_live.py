@@ -39,7 +39,6 @@ _DIM = "\033[2m"
 _CYAN = "\033[36m"
 _GREEN = "\033[32m"
 _YELLOW = "\033[33m"
-_MAGENTA = "\033[35m"
 
 
 def _format_hp(hp: int, max_hp: int) -> str:

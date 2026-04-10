@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import time
 from collections import OrderedDict
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
 from agent.logger import logger
@@ -102,6 +102,23 @@ class TcpStream:
         while len(self.cache) > MAX_CACHE_ENTRIES:
             self.cache.popitem(last=False)
 
+    def _drain_cache(self, result: bytearray) -> None:
+        """Drain contiguous segments from cache into result.
+
+        Pops cached entries whose sequence number matches ``next_seq``,
+        appending their data to *result* and advancing ``next_seq``.
+
+        Args:
+            result: Buffer to extend with cached segment data.
+        """
+        while self.cache:
+            if self.next_seq in self.cache:
+                entry = self.cache.pop(self.next_seq)
+                result.extend(entry.data)
+                self.next_seq = (self.next_seq + len(entry.data)) & 0xFFFFFFFF
+            else:
+                break
+
     def process_segment(self, seq: int, payload: bytes) -> bytes:
         """Process an incoming TCP segment and return reassembled data.
 
@@ -133,13 +150,7 @@ class TcpStream:
             self.next_seq = (self.next_seq + payload_len) & 0xFFFFFFFF
 
             # Try to consume cached segments
-            while self.cache:
-                if self.next_seq in self.cache:
-                    entry = self.cache.pop(self.next_seq)
-                    result.extend(entry.data)
-                    self.next_seq = (self.next_seq + len(entry.data)) & 0xFFFFFFFF
-                else:
-                    break
+            self._drain_cache(result)
 
             return bytes(result)
 
@@ -176,13 +187,7 @@ class TcpStream:
                 self.next_seq = (self.next_seq + len(new_data)) & 0xFFFFFFFF
 
                 # Try to consume cached segments
-                while self.cache:
-                    if self.next_seq in self.cache:
-                        entry = self.cache.pop(self.next_seq)
-                        result.extend(entry.data)
-                        self.next_seq = (self.next_seq + len(entry.data)) & 0xFFFFFFFF
-                    else:
-                        break
+                self._drain_cache(result)
 
                 return bytes(result)
 
@@ -307,7 +312,7 @@ class TcpReassembler:
         if ep in self._server_endpoints:
             is_from_server = True
         else:
-            if self._detect_server(src_ip, src_port, payload, seq, len(payload)):
+            if self._detect_server(src_ip, src_port, payload):
                 is_from_server = True
 
         if not is_from_server:
@@ -328,9 +333,7 @@ class TcpReassembler:
         if reassembled:
             self._on_data(reassembled)
 
-    def _detect_server(
-        self, src_ip: str, src_port: int, payload: bytes, seq: int, payload_len: int
-    ) -> bool:
+    def _detect_server(self, src_ip: str, src_port: int, payload: bytes) -> bool:
         """Attempt to detect the game server from packet content.
 
         Uses three methods (checked in order):
@@ -342,8 +345,6 @@ class TcpReassembler:
             src_ip: Source IP address.
             src_port: Source port.
             payload: Packet payload.
-            seq: TCP sequence number.
-            payload_len: Payload length.
 
         Returns:
             True if server was detected (packet consumed).
@@ -354,7 +355,7 @@ class TcpReassembler:
                 payload[:10] == LOGIN_RETURN_PREFIX
                 and payload[14:20] == LOGIN_RETURN_MID
             ):
-                self._set_server(src_ip, src_port, seq, payload_len)
+                self._set_server(src_ip, src_port)
                 logger.info(f"Game server detected (login return): {src_ip}:{src_port}")
                 return True
 
@@ -363,7 +364,7 @@ class TcpReassembler:
             # Skip first 10 bytes, then scan for signature in remaining data
             inner = payload[10:]
             if self._scan_for_server_signature(inner):
-                self._set_server(src_ip, src_port, seq, payload_len)
+                self._set_server(src_ip, src_port)
                 logger.info(
                     f"Game server detected (server signature): {src_ip}:{src_port}"
                 )
@@ -373,7 +374,7 @@ class TcpReassembler:
         # If the first 6 bytes look like a valid frame header with a server-side
         # message type (Notify or FrameDown), treat this as the server.
         if self._detect_by_message_envelope(payload):
-            self._set_server(src_ip, src_port, seq, payload_len)
+            self._set_server(src_ip, src_port)
             logger.info(f"Game server detected (message envelope): {src_ip}:{src_port}")
             return True
 
@@ -444,14 +445,12 @@ class TcpReassembler:
             offset += frame_size
         return False
 
-    def _set_server(self, ip: str, port: int, seq: int, payload_len: int) -> None:
+    def _set_server(self, ip: str, port: int) -> None:
         """Record the server endpoint and reset stream state.
 
         Args:
             ip: Server IP address.
             port: Server port.
-            seq: Current sequence number.
-            payload_len: Current payload length.
         """
         self._server_endpoints.add(ServerEndpoint(ip=ip, port=port))
         # Clear all existing streams on new server detection

@@ -16,10 +16,8 @@ Usage (as admin):
 from __future__ import annotations
 
 import argparse
-import json
 import os
 import pickle
-import struct
 import sys
 import time
 import traceback
@@ -30,8 +28,6 @@ _project_root = os.path.abspath(
 )
 if _project_root not in sys.path:
     sys.path.insert(0, _project_root)
-
-from agent.logger import logger  # noqa: E402
 
 
 def diagnose_ports() -> None:

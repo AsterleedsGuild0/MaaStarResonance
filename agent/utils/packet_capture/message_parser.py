@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import enum
 import struct
+import traceback
 from collections.abc import Callable
 
 import zstandard
@@ -19,7 +20,6 @@ from agent.logger import logger
 
 # --- Constants ---
 WORLD_NTF_SERVICE_UUID = 1664308034
-WORLD_SERVICE_UUID = 103198054
 
 # Zstd magic bytes (little-endian in buffer)
 ZSTD_MAGIC = 0xFD2FB528
@@ -182,8 +182,6 @@ class MessageParser:
             try:
                 handler(service_uuid, method_id, proto_payload)
             except Exception as exc:
-                import traceback
-
                 tb = traceback.format_exc()
                 logger.error(
                     f"Error in message handler for service {service_uuid}, "

@@ -14,8 +14,9 @@ import math
 import struct
 import threading
 import time
+import traceback
 from collections.abc import Callable
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from google.protobuf.message import DecodeError
 
@@ -30,13 +31,11 @@ from agent.utils.packet_capture.proto import (
 # --- WorldNtf method IDs ---
 METHOD_SYNC_NEAR_ENTITIES = 0x06  # 6
 METHOD_SYNC_CONTAINER_DATA = 0x15  # 21
-METHOD_SYNC_CONTAINER_DIRTY_DATA = 0x16  # 22
 METHOD_SYNC_NEAR_DELTA_INFO = 0x2D  # 45
 METHOD_SYNC_TO_ME_DELTA_INFO = 0x2E  # 46
 
 # --- EAttrType IDs (from enum_e_attr_type.proto) ---
 ATTR_NAME = 1
-ATTR_ID = 10  # Monster/NPC ID
 ATTR_DIR = 50
 ATTR_POS = 52
 ATTR_DST_POS = 53  # Target/destination position (AttrTargetPos)
@@ -45,17 +44,12 @@ ATTR_LEVEL = 10000
 ATTR_FIGHT_POINT = 10030
 ATTR_RANK_LEVEL = 10060
 ATTR_SEASON_LEVEL = 10070
-ATTR_CRI = 11110
-ATTR_LUCK = 11130
 ATTR_HP = 11310
 ATTR_MAX_HP = 11320
 ATTR_SEASON_STRENGTH = 11440
 
 # Entity type for player characters
 ENT_CHAR = 10
-
-# Player entity UUID marker: low 16 bits == 640
-PLAYER_UUID_MARKER = 640
 
 # --- Profession ID → name mapping ---
 # From ProfessionExtends.cs / Classes.cs in StarResonanceDps
@@ -384,8 +378,6 @@ class PlayerTracker:
                 f"Protobuf decode error for WorldNtf method 0x{method_id:02X}: {exc!r}"
             )
         except Exception as exc:
-            import traceback
-
             tb = traceback.format_exc()
             logger.error(
                 f"Error processing WorldNtf method 0x{method_id:02X}: {exc!r}\n{tb}"
@@ -407,10 +399,6 @@ class PlayerTracker:
         """
         msg = world_ntf_pb2.WorldNtf.SyncContainerData()
         msg.ParseFromString(payload)
-
-        logger.debug(
-            f"[SyncContainerData] entered handler, has v_data={msg.HasField('v_data')}"
-        )
 
         if not msg.HasField("v_data"):
             return
@@ -503,11 +491,6 @@ class PlayerTracker:
         msg = world_ntf_pb2.WorldNtf.SyncNearEntities()
         msg.ParseFromString(payload)
 
-        logger.debug(
-            f"[SyncNearEntities] entered handler, "
-            f"appear_count={len(msg.appear)}, my_uuid={self._my_uuid}"
-        )
-
         for entity in msg.appear:
             # Only process player characters
             if entity.ent_type != ENT_CHAR:
@@ -545,10 +528,6 @@ class PlayerTracker:
         msg = world_ntf_pb2.WorldNtf.SyncNearDeltaInfo()
         msg.ParseFromString(payload)
 
-        logger.debug(
-            f"[SyncNearDeltaInfo] entered handler, delta_count={len(msg.DeltaInfos)}"
-        )
-
         for delta in msg.DeltaInfos:
             self._process_delta(delta, "SyncNearDeltaInfo")
 
@@ -572,12 +551,6 @@ class PlayerTracker:
             return
 
         to_me = msg.DeltaInfo
-
-        logger.debug(
-            f"[SyncToMeDeltaInfo] entered handler, "
-            f"Uuid={to_me.Uuid if to_me.HasField('Uuid') else 'N/A'}, "
-            f"my_uuid={self._my_uuid}"
-        )
 
         # Extract player UUID if not already known
         if to_me.HasField("Uuid") and to_me.Uuid != 0:
@@ -850,11 +823,6 @@ class PlayerTracker:
 
         pos = PlayerPosition(
             x=x, y=y, z=z, dir=direction, timestamp=time.time(), source=source
-        )
-
-        logger.debug(
-            f"Position update [{source}]: "
-            f"({pos.x:.2f}, {pos.y:.2f}, {pos.z:.2f}), dir={pos.dir:.2f}"
         )
 
         with self._lock:

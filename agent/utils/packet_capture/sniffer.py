@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import threading
 import time
+import traceback
 from typing import TYPE_CHECKING
 
 from scapy.all import AsyncSniffer, IFACES, IP, TCP, conf
@@ -256,8 +257,6 @@ class PacketCapture:
                 self._tcp_reassembler.cleanup_idle_streams()
 
         except Exception as exc:
-            import traceback
-
             tb = traceback.format_exc()
             logger.error(f"Error processing captured packet: {exc!r}\n{tb}")
 
