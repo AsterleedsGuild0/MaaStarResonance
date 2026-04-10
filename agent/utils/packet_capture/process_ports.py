@@ -257,9 +257,11 @@ def discover_game_ports() -> GamePorts:
 def build_bpf_filter(game_ports: GamePorts) -> str:
     """Build a BPF filter string from discovered game ports.
 
-    Filter format matches the C# reference implementation:
-    - With ports: ``(ip or ip6) and ((tcp and (port X or port Y)) or (udp and (port A or port B)))``
-    - No ports: ``(ip or ip6) and (port 0)`` (match nothing)
+    Uses IP-based filtering to capture all TCP traffic to/from the game
+    process's local IP addresses.  This avoids filter churn caused by
+    ephemeral port changes (e.g., area switches opening new TCP
+    connections), which would otherwise force a sniffer restart and miss
+    critical early packets like SyncNearEntities.
 
     Args:
         game_ports: Discovered game ports.
@@ -267,18 +269,11 @@ def build_bpf_filter(game_ports: GamePorts) -> str:
     Returns:
         BPF filter string for Scapy.
     """
-    if not game_ports.has_ports:
+    if not game_ports.local_ips:
+        # No local IPs found — fall back to a match-nothing filter so the
+        # sniffer doesn't capture irrelevant traffic.
         return "(ip or ip6) and (port 0)"
 
-    parts: list[str] = []
-
-    if game_ports.tcp_ports:
-        tcp_port_expr = " or ".join(f"port {p}" for p in sorted(game_ports.tcp_ports))
-        parts.append(f"(tcp and ({tcp_port_expr}))")
-
-    if game_ports.udp_ports:
-        udp_port_expr = " or ".join(f"port {p}" for p in sorted(game_ports.udp_ports))
-        parts.append(f"(udp and ({udp_port_expr}))")
-
-    filter_body = " or ".join(parts)
-    return f"(ip or ip6) and ({filter_body})"
+    # Filter by local IP addresses: captures all TCP to/from these IPs.
+    ip_exprs = " or ".join(f"host {ip}" for ip in sorted(game_ports.local_ips))
+    return f"(ip or ip6) and tcp and ({ip_exprs})"

@@ -93,6 +93,7 @@ class PacketCapture:
         self._running = threading.Event()
         self._stop_event = threading.Event()  # Signaled when stopping
         self._current_filter: str = ""
+        self._current_ifaces: list[str] = []
         self._current_ports: GamePorts = GamePorts()
         self._lock = threading.Lock()
         self._last_cleanup: float = 0.0
@@ -277,33 +278,49 @@ class PacketCapture:
                 break  # Stop event was set
 
     def _refresh_ports_and_restart_sniffer(self) -> None:
-        """Discover game ports and restart sniffer if the filter changed."""
+        """Discover game ports and update sniffer if needed.
+
+        The BPF filter is IP-based (not port-based), so it only changes
+        when the set of local IPs changes.  Port changes (e.g., area
+        switches opening new TCP connections) only update the local_ips
+        on the reassembler without restarting the sniffer — this avoids
+        a capture gap that would miss critical early packets like
+        SyncNearEntities.
+
+        The sniffer is only restarted when:
+        - The BPF filter string changes (new local IPs discovered)
+        - The matched network interfaces change
+        """
         new_ports = discover_game_ports()
         new_filter = build_bpf_filter(new_ports)
         new_ifaces = self._resolve_interfaces(new_ports.local_ips)
 
+        # Always keep the reassembler up-to-date with current local IPs
+        self._tcp_reassembler.set_local_ips(new_ports.local_ips)
+
         with self._lock:
-            if new_filter == self._current_filter:
+            filter_changed = new_filter != self._current_filter
+            ifaces_changed = sorted(new_ifaces) != sorted(self._current_ifaces)
+
+            if not filter_changed and not ifaces_changed:
                 return
+
             self._current_filter = new_filter
             self._current_ports = new_ports
+            self._current_ifaces = new_ifaces
 
         logger.info(f"BPF filter updated: {new_filter}")
         if new_ifaces:
             logger.info(f"Sniffing on interfaces: {new_ifaces}")
 
-        # Update reassembler with current local IPs for direction detection
-        self._tcp_reassembler.set_local_ips(new_ports.local_ips)
-
-        # Reset TCP reassembly and message parser state.  The old sniffer's
-        # TCP streams have stale sequence numbers that will never match the
-        # new connections, and the message parser buffer may contain
-        # incomplete frames from the old stream.  PlayerTracker state
+        # Reset TCP reassembly and message parser state.  The old
+        # connection's sequence numbers and partial frame buffers are
+        # invalid for the new capture session.  PlayerTracker state
         # (position, player info) is deliberately preserved.
         self._tcp_reassembler.reset()
         self._message_parser.reset()
 
-        # Restart sniffer with new filter
+        # Restart sniffer with new filter / interfaces
         self._stop_sniffer()
         self._start_sniffer(new_filter, new_ifaces)
 
