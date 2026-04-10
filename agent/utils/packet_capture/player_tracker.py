@@ -281,11 +281,15 @@ class PlayerTracker:
     player info updates.
     """
 
+    # Maximum number of entities to cache while waiting for UUID identification
+    _MAX_PENDING_ENTITIES = 50
+
     def __init__(self) -> None:
         self._lock = threading.Lock()
         self._position: PlayerPosition | None = None
         self._player_info: PlayerInfo = PlayerInfo()
         self._my_uuid: int | None = None  # char_id (not full entity UUID)
+        self._pending_entities: list[tuple[int, attr_pb2.AttrCollection]] = []
         self._position_callbacks: list[PositionCallback] = []
         self._player_info_callbacks: list[PlayerInfoCallback] = []
 
@@ -404,6 +408,10 @@ class PlayerTracker:
         msg = world_ntf_pb2.WorldNtf.SyncContainerData()
         msg.ParseFromString(payload)
 
+        logger.debug(
+            f"[SyncContainerData] entered handler, has v_data={msg.HasField('v_data')}"
+        )
+
         if not msg.HasField("v_data"):
             return
 
@@ -418,6 +426,8 @@ class PlayerTracker:
                     self._player_info.char_id = char_data.char_id
                     info_changed = True
             logger.info(f"Player char_id identified: {char_data.char_id}")
+            # Process any entities that arrived before char_id was known
+            self._process_pending_entities()
 
         # Extract from CharBaseInfo
         if char_data.HasField("char_base"):
@@ -483,11 +493,20 @@ class PlayerTracker:
         For player characters (EntChar), extracts position and identity
         attributes from the entity's AttrCollection.
 
+        When ``_my_uuid`` is not yet known, player-character entities are
+        cached in ``_pending_entities`` so they can be retroactively
+        matched once the UUID is established.
+
         Args:
             payload: Protobuf-encoded SyncNearEntities.
         """
         msg = world_ntf_pb2.WorldNtf.SyncNearEntities()
         msg.ParseFromString(payload)
+
+        logger.debug(
+            f"[SyncNearEntities] entered handler, "
+            f"appear_count={len(msg.appear)}, my_uuid={self._my_uuid}"
+        )
 
         for entity in msg.appear:
             # Only process player characters
@@ -496,9 +515,20 @@ class PlayerTracker:
 
             entity_uuid = entity.uuid
             with self._lock:
-                is_me = self._my_uuid is not None and self._uuid_matches(
-                    entity_uuid, self._my_uuid
-                )
+                uuid_known = self._my_uuid is not None
+                is_me = uuid_known and self._uuid_matches(entity_uuid, self._my_uuid)
+
+            if not uuid_known:
+                # UUID not yet identified — cache entity for later matching
+                if entity.HasField("attrs"):
+                    with self._lock:
+                        if len(self._pending_entities) < self._MAX_PENDING_ENTITIES:
+                            self._pending_entities.append((entity_uuid, entity.attrs))
+                    logger.debug(
+                        f"[SyncNearEntities] cached entity uuid={entity_uuid} "
+                        f"(my_uuid unknown, pending={len(self._pending_entities)})"
+                    )
+                continue
 
             if not is_me:
                 continue
@@ -515,6 +545,10 @@ class PlayerTracker:
         msg = world_ntf_pb2.WorldNtf.SyncNearDeltaInfo()
         msg.ParseFromString(payload)
 
+        logger.debug(
+            f"[SyncNearDeltaInfo] entered handler, delta_count={len(msg.DeltaInfos)}"
+        )
+
         for delta in msg.DeltaInfos:
             self._process_delta(delta, "SyncNearDeltaInfo")
 
@@ -523,6 +557,10 @@ class PlayerTracker:
 
         Also extracts the player UUID from the message if not already known,
         since SyncContainerData only occurs at login and may not be captured.
+
+        When the UUID is first established here, any previously cached
+        entities from ``_pending_entities`` are checked for a match and
+        processed retroactively.
 
         Args:
             payload: Protobuf-encoded SyncToMeDeltaInfo.
@@ -535,23 +573,67 @@ class PlayerTracker:
 
         to_me = msg.DeltaInfo
 
+        logger.debug(
+            f"[SyncToMeDeltaInfo] entered handler, "
+            f"Uuid={to_me.Uuid if to_me.HasField('Uuid') else 'N/A'}, "
+            f"my_uuid={self._my_uuid}"
+        )
+
         # Extract player UUID if not already known
         if to_me.HasField("Uuid") and to_me.Uuid != 0:
+            uuid_newly_established = False
             with self._lock:
                 if self._my_uuid is None:
                     char_id = to_me.Uuid >> 16
                     self._my_uuid = char_id
                     self._player_info.char_id = char_id
-                    logger.info(
-                        f"Player char_id identified from SyncToMeDeltaInfo: "
-                        f"{char_id} (entity uuid={to_me.Uuid})"
-                    )
+                    uuid_newly_established = True
+            if uuid_newly_established:
+                logger.info(
+                    f"Player char_id identified from SyncToMeDeltaInfo: "
+                    f"{char_id} (entity uuid={to_me.Uuid})"
+                )
+                # Notify that char_id itself is an info change
+                self._notify_player_info_changed()
+                # Process any entities that arrived before UUID was known
+                self._process_pending_entities()
 
         # SyncToMeDeltaInfo is specifically for the current player
         if to_me.HasField("BaseDelta"):
             self._process_delta(to_me.BaseDelta, "SyncToMeDeltaInfo", force_self=True)
 
     # --- Internal processing ---
+
+    def _process_pending_entities(self) -> None:
+        """Process cached entities against the now-known ``_my_uuid``.
+
+        Called after ``_my_uuid`` is first established (from either
+        SyncToMeDeltaInfo or SyncContainerData) to retroactively extract
+        player data from SyncNearEntities that arrived earlier.
+
+        Clears the pending cache regardless of whether matches were found.
+        """
+        with self._lock:
+            my_uuid = self._my_uuid
+            pending = self._pending_entities
+            self._pending_entities = []
+
+        if my_uuid is None or not pending:
+            return
+
+        logger.debug(
+            f"Processing {len(pending)} pending entities against my_uuid={my_uuid}"
+        )
+
+        matched = 0
+        for entity_uuid, attrs in pending:
+            if self._uuid_matches(entity_uuid, my_uuid):
+                matched += 1
+                self._process_entity_attrs(attrs, "SyncNearEntities(deferred)")
+
+        logger.debug(
+            f"Pending entities processed: {matched} matched out of {len(pending)}"
+        )
 
     def _process_delta(
         self,
@@ -804,3 +886,4 @@ class PlayerTracker:
             self._position = None
             self._player_info = PlayerInfo()
             self._my_uuid = None
+            self._pending_entities = []

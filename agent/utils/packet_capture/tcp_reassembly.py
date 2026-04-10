@@ -249,8 +249,9 @@ class TcpReassembler:
             on_data: Callback invoked with reassembled contiguous byte data
                 from the server->client direction.
             local_ips: Set of local IP addresses owned by the game process.
-                If provided, packets with dst_ip in this set are treated as
-                server->client traffic (no signature detection needed).
+                If provided, used as a pre-filter: packets whose dst_ip is
+                not in this set are discarded early. Server detection always
+                relies on endpoint caching and signature-based identification.
         """
         self._streams: dict[StreamKey, TcpStream] = {}
         self._server_endpoints: set[ServerEndpoint] = set()
@@ -263,7 +264,7 @@ class TcpReassembler:
         return self._server_endpoints
 
     def set_local_ips(self, local_ips: set[str]) -> None:
-        """Update the local IPs for direction detection.
+        """Update the local IPs used for packet pre-filtering.
 
         Args:
             local_ips: Set of local IP addresses.
@@ -297,20 +298,17 @@ class TcpReassembler:
         # Determine if this is a server->client packet
         is_from_server = False
 
-        if self._local_ips:
-            # If we know local IPs, use them for direction detection
-            # Server->client: dst_ip is one of our local IPs AND src_ip is not
-            if dst_ip in self._local_ips and src_ip not in self._local_ips:
-                is_from_server = True
+        # local_ips only used as pre-filter: drop packets not destined to us
+        if self._local_ips and dst_ip not in self._local_ips:
+            return
+
+        # Always use server endpoint detection (known endpoints + signature-based)
+        ep = ServerEndpoint(ip=src_ip, port=src_port)
+        if ep in self._server_endpoints:
+            is_from_server = True
         else:
-            # Fall back to signature-based server detection
-            ep = ServerEndpoint(ip=src_ip, port=src_port)
-            if ep in self._server_endpoints:
+            if self._detect_server(src_ip, src_port, payload, seq, len(payload)):
                 is_from_server = True
-            else:
-                # Try detection
-                if self._detect_server(src_ip, src_port, payload, seq, len(payload)):
-                    is_from_server = True
 
         if not is_from_server:
             return

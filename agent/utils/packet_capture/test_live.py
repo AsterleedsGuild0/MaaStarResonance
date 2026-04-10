@@ -129,7 +129,19 @@ def main() -> None:
         default=5.0,
         help="Print interval in seconds (default: 5)",
     )
+    parser.add_argument(
+        "--debug",
+        action="store_true",
+        help="Enable DEBUG-level logging for full diagnostic output",
+    )
     args = parser.parse_args()
+
+    if args.debug:
+        # Re-configure logger to show debug output for diagnostics
+        _app_logger.remove()
+        _app_logger.add(
+            _sink_fn, level="DEBUG", enqueue=True, backtrace=True, diagnose=False
+        )
 
     print(f"{_BOLD}Star Resonance — Live Player Monitor{_RESET}")
     print(f"{_DIM}Requires admin privileges and Npcap.{_RESET}")
