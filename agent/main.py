@@ -1,9 +1,10 @@
+import hashlib
 import importlib
 import subprocess
 import sys
 from pathlib import Path
-import hashlib
-from utils import print_info, print_warning, print_error, print_debug
+
+from utils import print_info, print_error
 
 # 获取：当前目录 / 项目根目录 / wheels目录 的绝对路径
 CURRENT_DIR = Path(__file__).parent.resolve()
@@ -161,6 +162,31 @@ def main():
             logger.info(f"> 子模块 {item.name} 加载完成！")
 
     logger.info("===== MAA程序初始化完成 =====")
+
+    # 加载插件
+    plugins_dir = CURRENT_DIR / "plugins"
+    if plugins_dir.exists():
+        logger.info("===== 开始加载插件 =====")
+        from agent.plugin_loader import PluginLoader
+
+        loader = PluginLoader(plugins_dir)
+        results = loader.load_all()
+
+        # 记录加载结果
+        loaded = [name for name, status in results.items() if status == "loaded"]
+        failed = [name for name, status in results.items() if status == "failed"]
+        deps_failed = [name for name, status in results.items() if status == "deps_failed"]
+
+        if loaded:
+            logger.info(f"成功加载插件: {', '.join(loaded)}")
+        if deps_failed:
+            logger.warning(f"依赖安装失败的插件: {', '.join(deps_failed)}")
+        if failed:
+            logger.warning(f"加载失败的插件: {', '.join(failed)}")
+
+        logger.info("===== 插件加载完成 =====")
+    else:
+        logger.info("未找到插件目录，跳过插件加载")
 
     # 启动MAA主程序
     Toolkit.init_option("./")
