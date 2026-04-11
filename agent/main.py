@@ -149,7 +149,7 @@ def main():
 
     # 导入基础包
     from agent.logger import logger
-    from agent.module_loader import load_plugins
+    from agent.module_loader import load_modules
 
     logger.info("===== 开始初始化MAA程序 =====")
 
@@ -157,7 +157,7 @@ def main():
     for item in CURRENT_DIR.iterdir():
         # 跳过 __pycache__
         if item.is_dir() and item.name != "__pycache__":
-            load_plugins(str(item), f"agent.{item.name}")
+            load_modules(str(item), f"agent.{item.name}")
             logger.info(f"> 子模块 {item.name} 加载完成！")
 
     logger.info("===== MAA程序初始化完成 =====")
