@@ -236,20 +236,19 @@ class PluginLoader:
         Returns:
             bool: 是否成功安装所有依赖
         """
-        missing_deps = self.check_dependencies(metadata)
-
-        if not missing_deps:
-            logger.debug(f"插件 {metadata.name} 的所有依赖已满足")
-            return True
-
-        logger.info(f"开始安装插件 {metadata.name} 的依赖...")
-
         deps_dir = metadata.plugin_dir / "deps"
         if not deps_dir.exists():
-            logger.error(f"插件 {metadata.name} 的 deps/ 目录不存在")
-            return False
+            logger.debug(f"插件 {metadata.name} 没有 deps/ 目录，跳过依赖安装")
+            return True
 
-        wheel_paths = [str(metadata.plugin_dir / dep) for dep in missing_deps]
+        # 获取 deps/ 目录下所有 .whl 文件
+        wheel_files = list(deps_dir.glob("*.whl"))
+        
+        if not wheel_files:
+            logger.debug(f"插件 {metadata.name} 的 deps/ 目录中没有 wheel 文件")
+            return True
+
+        logger.info(f"开始安装插件 {metadata.name} 的依赖 (共 {len(wheel_files)} 个)...")
 
         try:
             cmd = [
@@ -260,7 +259,7 @@ class PluginLoader:
                 "--no-index",
                 "--find-links",
                 str(deps_dir),
-                *wheel_paths,
+                *[str(whl) for whl in wheel_files],
             ]
 
             logger.debug(f"执行命令: {' '.join(cmd)}")
