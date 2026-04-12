@@ -476,3 +476,6 @@ scripts/config.toml
 
 # docusaurus 缓存目录
 .docusaurus/
+
+# 插件目录
+agent/plugins/*
