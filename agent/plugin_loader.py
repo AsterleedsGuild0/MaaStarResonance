@@ -182,8 +182,9 @@ class PluginLoader:
 
         if "min_python_version" in sys_req:
             min_version = sys_req["min_python_version"]
+            min_major, min_minor = map(int, min_version.split("."))
             current_version = f"{sys.version_info.major}.{sys.version_info.minor}"
-            if current_version < min_version:
+            if (sys.version_info.major, sys.version_info.minor) < (min_major, min_minor):
                 logger.warning(
                     f"插件 {metadata.name} 需要 Python {min_version}+，"
                     f"当前版本: {current_version}"
