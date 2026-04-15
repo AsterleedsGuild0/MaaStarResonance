@@ -547,7 +547,7 @@ class AutoFishingAction(CustomAction):
         reel_cooldown = 0.2  # 节奏模式下每次点击收线后的冷却时间  | 向上取整至循环检测间隔的倍数
         arrow_cooldown = 0.2  # 箭头方向检测的冷却时间 | 向上取整至循环检测间隔的倍数
         max_tension = 85  # 最大张力限制
-        max_no_tension_count = 8  # 连续多少次未检测到张力后，判定不在收线状态
+        max_no_tension_count = 5  # 连续多少次未检测到张力后，判定不在收线状态
 
         # ========== 状态变量 ==========
         first_start_time = time.time()  # 循环开始时间
