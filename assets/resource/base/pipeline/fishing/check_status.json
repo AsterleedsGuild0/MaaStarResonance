@@ -32,6 +32,16 @@
             }
         }
     },
+    "检测钓鱼中图标": {
+        "recognition": {
+            "type": "TemplateMatch",
+            "param": {
+                "template": "自动钓鱼/钓鱼中图标.png",
+                "roi": [432, 580, 33, 37],
+                "green_mask": true
+            }
+        }
+    },
     "检测继续钓鱼": {
         "recognition": {
             "type": "OCR",

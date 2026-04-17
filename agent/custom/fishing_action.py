@@ -84,7 +84,7 @@ class AutoFishingAction(CustomAction):
         if fish_navigation == "不导航":
             logger.info(f"本次自动钓鱼不需要导航，即原地钓鱼")
         else:
-            teleport_or_navigate(context, None, fish_navigation, "导航", NAVIGATE_DATA)  # TODO 钓鱼点位置未录入
+            teleport_or_navigate(context, None, fish_navigation, "导航", NAVIGATE_DATA)
             # 确保到达钓鱼点入口
             has_entry = self.ensure_fish_entry(context)
             if not has_entry:
@@ -222,9 +222,9 @@ class AutoFishingAction(CustomAction):
             # 没有下一次了，说明钓鱼被强制结束了
             if not need_next:
                 break
-            time.sleep(3)
+            time.sleep(5)
 
-            # 7.1 本次钓鱼完成，检测并点击继续钓鱼按钮进行第二次钓鱼
+            # 7.1 本次钓鱼完成，检测并点击继续钓鱼按钮
             img: numpy.ndarray = context.tasker.controller.post_screencap().wait().get()
             is_continue_fishing: RecognitionDetail | None = context.run_recognition("检测继续钓鱼", img)
             if is_continue_fishing and is_continue_fishing.hit:
@@ -547,7 +547,6 @@ class AutoFishingAction(CustomAction):
         reel_cooldown = 0.2  # 节奏模式下每次点击收线后的冷却时间  | 向上取整至循环检测间隔的倍数
         arrow_cooldown = 0.2  # 箭头方向检测的冷却时间 | 向上取整至循环检测间隔的倍数
         max_tension = 85  # 最大张力限制
-        max_no_tension_count = 5  # 连续多少次未检测到张力后，判定不在收线状态
 
         # ========== 状态变量 ==========
         first_start_time = time.time()  # 循环开始时间
@@ -558,7 +557,6 @@ class AutoFishingAction(CustomAction):
         last_arrow_detect_time = 0.0  # 上次确认箭头的时间戳
         last_arrow_direction = None  # 上次箭头方向
         is_bow_pressed = False  # 当前方向键状态
-        no_tension_count = 0  # 连续未检测到张力的次数
 
         while self.check_running(context):
             loop_start_perf = time.perf_counter()
@@ -579,15 +577,26 @@ class AutoFishingAction(CustomAction):
             # ===== 获取截图 =====
             img: numpy.ndarray = context.tasker.controller.post_screencap().wait().get()
 
+            # ===== 检测本轮钓鱼是否结束 =====
+            if now - init_time > check_delay:
+                in_rolling_detail: RecognitionDetail | None = context.run_recognition("检测钓鱼中图标", img)
+                if in_rolling_detail and not in_rolling_detail.hit:
+                    self.used_bait_count += 1  # type: ignore
+                    logger.info(f"[执行钓鱼] 本轮钓鱼结束，等待一会检测'继续钓鱼'按钮...")
+                    del img
+                    if is_reel_pressed:
+                        self.stop_reel_in(context)
+                    if is_bow_pressed:
+                        self.stop_bow(context)
+                    return True
+
             # ===== 张力检测 / 收线状态判断 =====
             tension_hit: RecognitionDetail | None = context.run_recognition("检测张力百分比", img)
-            tension_num = None
             if tension_hit and tension_hit.hit and tension_hit.best_result:
                 tension_raw_text = tension_hit.best_result.text  # type: ignore
                 tension_match = re.search(r"\d+", tension_raw_text)
                 if tension_match:
                     tension_num = int(tension_match.group())
-                    no_tension_count = 0
 
                     target_rhythm_mode = tension_num >= max_tension
                     if target_rhythm_mode != is_rhythm_mode:
@@ -600,19 +609,6 @@ class AutoFishingAction(CustomAction):
                             logger.info(f"[执行钓鱼] 当前张力 {tension_num}% 超过{max_tension}% -> 收线键切换为 节奏模式")
                         else:
                             logger.info(f"[执行钓鱼] 当前张力 {tension_num}% 低于{max_tension}% -> 收线键切换为 长按模式")
-
-            # 首次开始收线后的保护时间内，不做“丢失张力即退出”的判断
-            if now - init_time > check_delay and tension_num is None:
-                no_tension_count += 1
-                if no_tension_count >= max_no_tension_count:
-                    self.used_bait_count += 1  # type: ignore
-                    logger.info(f"[执行钓鱼] 连续 {max_no_tension_count} 次未检测到张力，等待一会检测'继续钓鱼'按钮...")
-                    del img
-                    if is_reel_pressed:
-                        self.stop_reel_in(context)
-                    if is_bow_pressed:
-                        self.stop_bow(context)
-                    return True
 
             # ===== 箭头检测 =====
             confirmed_arrow = None
@@ -641,6 +637,7 @@ class AutoFishingAction(CustomAction):
                 else:
                     # 不同方向且当前已松开：切换并按住新方向
                     logger.info(f"[执行钓鱼] 方向变化 -> 切换并按住新方向: {confirmed_arrow}")
+                    assert confirmed_arrow is not None
                     if self.start_bow(context, confirmed_arrow):
                         is_bow_pressed = True
                         last_arrow_direction = confirmed_arrow
