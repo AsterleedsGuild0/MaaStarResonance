@@ -19,6 +19,14 @@
             }
         }
     },
+    "获取参数-第一次小游戏前所需切换的分线": {
+        "action": {
+            "type": "DoNothing"
+        },
+        "attach": {
+            "need_line": 0
+        }
+    },
     "获取参数-游戏等待超时时间": {
         "action": {
             "type": "DoNothing"
