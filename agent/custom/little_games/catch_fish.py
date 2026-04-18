@@ -105,7 +105,7 @@ def ensure_catch_entry(context: Context, timeout: int = 120) -> bool:
 
     # 第一次不行的话尝试向左走几步 | 可能是上一把刚结束的情况，走几步就能再次到入口
     context.tasker.controller.post_key_down(ANDROID_KEY_EVENT_DATA["KEYCODE_A"]).wait()
-    time.sleep(2)
+    time.sleep(1.5)
     context.tasker.controller.post_key_down(ANDROID_KEY_EVENT_DATA["KEYCODE_W"]).wait()
     time.sleep(0.8)
     context.tasker.controller.post_key_up(ANDROID_KEY_EVENT_DATA["KEYCODE_A"]).wait()
@@ -148,7 +148,6 @@ def check_is_entry(context: Context) -> bool:
         },
     )
     if ocr_result and ocr_result.hit:
-        logger.info(f"检测到已经到达游鱼暴走的入口！")
         return True
     else:
         return False

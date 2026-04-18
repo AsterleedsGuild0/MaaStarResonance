@@ -147,7 +147,6 @@ def check_is_entry(context: Context) -> bool:
         },
     )
     if ocr_result and ocr_result.hit:
-        logger.info(f"检测到已经到达极限落潮的入口！")
         return True
     else:
         return False
