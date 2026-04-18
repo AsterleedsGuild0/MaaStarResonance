@@ -45,15 +45,15 @@ class CliffDivingPointAction(CustomAction):
                 logger.info(f"已成功极限落潮了您所配置的{self.game_count}次，任务结束！")
                 return True
 
-            # 第一次任务需要手动切换到 1 线
-            if not check_is_entry(context) and self.is_first_time:
-                switch_line(context, ["1"])
-            self.is_first_time = False
-
             # 确保到达极限落潮的入口
             has_entry = ensure_diving_entry(context)
             if not has_entry:
                 return False
+
+            # 第一次任务需要手动切换到 1 线
+            if not check_is_entry(context) and self.is_first_time:
+                switch_line(context, ["1"])
+            self.is_first_time = False
 
             # 确保进入极限落潮
             has_next = ensure_into_diving(context)

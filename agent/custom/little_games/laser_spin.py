@@ -45,15 +45,16 @@ class LaserSpinPointAction(CustomAction):
                 logger.info(f"已成功镭射回旋了您所配置的{self.game_count}次，任务结束！")
                 return True
 
+            # 确保到达镭射回旋的入口
+            has_entry = ensure_spin_entry(context)
+            if not has_entry:
+                return False
+
             # 第一次任务需要手动切换到 1 线
             if not check_is_entry(context) and self.is_first_time:
                 switch_line(context, ["1"])
             self.is_first_time = False
 
-            # 确保到达镭射回旋的入口
-            has_entry = ensure_spin_entry(context)
-            if not has_entry:
-                return False
 
             # 确保进入镭射回旋
             has_next = ensure_into_spin(context)

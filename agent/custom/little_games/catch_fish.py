@@ -45,15 +45,15 @@ class CatchFishPointAction(CustomAction):
                 logger.info(f"已成功游鱼暴走了您所配置的{self.game_count}次，任务结束！")
                 return True
 
-            # 第一次任务需要手动切换到 1 线
-            if not check_is_entry(context) and self.is_first_time:
-                switch_line(context, ["1"])
-            self.is_first_time = False
-
             # 确保到达游鱼暴走的入口
             has_entry = ensure_catch_entry(context)
             if not has_entry:
                 return False
+
+            # 第一次任务需要手动切换到 1 线
+            if not check_is_entry(context) and self.is_first_time:
+                switch_line(context, ["1"])
+            self.is_first_time = False
 
             # 确保进入游鱼暴走
             has_next = ensure_into_catch(context)
