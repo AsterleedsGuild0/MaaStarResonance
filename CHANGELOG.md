@@ -1,5 +1,72 @@
 # 更新日志
 
+## 0.11.0 (2026-04-18)
+
+### ✨ 新功能
+
+- 合并提交 - 新增游鱼暴走 & 躲猫猫完整版 小游戏支持 (#99) @azmiao
+- 新增游星岛游鱼暴走小活动 @azmiao
+- 新增游星岛躲猫猫小游戏 @azmiao
+- 合并提交 - 新增插件系统 (#97) @azmiao
+- 新增插件侧载器 @azmiao
+
+### 🐛 Bug修复
+
+- 修复不在游星岛的分线切换逻辑 @azmiao
+- 优化视角矫正的调向 @azmiao
+- 修复钓鱼检测异常 #96 @azmiao
+- 修复插件依赖安装路径异常 @azmiao
+- 修复插件需求Python版本比较逻辑 @azmiao
+- 去除无用的结构检查，防止出现异常 @azmiao
+- 修复仓库路径 @azmiao
+
+### 🚀 性能优化
+
+- 优化进入小游戏入口移动表现 @azmiao
+- 优化小活动切线逻辑，增加可选配置 @azmiao
+
+### 📚 文档
+
+- README链接调整 @azmiao
+- 合并提交 - 重构优化文档结构和文档内容 (#93) @azmiao
+- 优化更新一版文档 @azmiao
+- 整理优化文档结构 @azmiao
+- 更新文档结构，更新新手指南 @azmiao
+- 用户文档合并功能文档 @azmiao
+- 去除不需要的文档资源 @azmiao
+- 重构文档侧边栏结构，修复编译错误和重复入口问题 @azmiao
+- 文档图片文件路径调整 @azmiao
+- 补充文档目录和梳理结构 @azmiao
+- 修复功能文档入口链接错误 @azmiao
+- 文档锚点修复大小写问题 @azmiao
+- 更新文档，更新Docusarus版本 @azmiao
+- 更新载具赛相关文档和说明 @azmiao
+
+### 🧹 日常维护
+
+- 默认关闭自动钓鱼的自动重启功能 @azmiao
+- 调整代码区分模块和插件 @azmiao
+- 更新gitignore @azmiao
+- 移动文件位置 @azmiao
+
+### 🧩 修改依赖
+
+- *(deps)* bump astral-sh/setup-uv from 6 to 7 (#95) @dependabot[bot] (Co-authored: dependabot[bot])
+- *(deps)* bump actions/setup-node from 4 to 6 (#94) @dependabot[bot] (Co-authored: dependabot[bot])
+- 更新MaaFw至v5.10.2 @azmiao
+
+### 📌 发布
+
+- v0.11.0 @azmiao
+
+### ⚙️ 持续集成
+
+- 修改自动提交的更新日志Commit @azmiao
+
+### 其他变更
+
+- Update CHANGELOG @github-actions[bot]
+
 ## 0.10.0 (2026-04-07)
 
 ### ✨ 新功能

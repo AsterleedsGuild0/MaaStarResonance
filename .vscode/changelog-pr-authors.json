@@ -1419,5 +1419,165 @@
         "github_username": "azmiao"
       }
     ]
+  },
+  "93": {
+    "docs📚:优化更新一版文档": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:整理优化文档结构": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:更新文档结构，更新新手指南": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:去除无用的结构检查，防止出现异常": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:用户文档合并功能文档": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:去除不需要的文档资源": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:重构文档侧边栏结构，修复编译错误和重复入口问题": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:文档图片文件路径调整": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:补充文档目录和梳理结构": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:修复功能文档入口链接错误": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "docs📚:文档锚点修复大小写问题": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
+  },
+  "97": {
+    "chore🔧:调整代码区分模块和插件": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增插件侧载器": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复插件依赖安装路径异常": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "git🙈:更新gitignore": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复插件需求python版本比较逻辑": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
+  },
+  "99": {
+    "feat✨:新增游星岛游鱼暴走小活动": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:修复不在游星岛的分线切换逻辑": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "fix🐛:优化视角矫正的调向": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化进入小游戏入口移动表现": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "feat✨:新增游星岛躲猫猫小游戏": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ],
+    "perf🚀:优化小活动切线逻辑，增加可选配置": [
+      {
+        "author": "azmiao",
+        "email": "2362020227@qq.com",
+        "github_username": "azmiao"
+      }
+    ]
   }
 }
