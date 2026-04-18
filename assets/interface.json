@@ -140,6 +140,14 @@
             ]
         },
         {
+            "name": "游星岛游鱼暴走小活动",
+            "entry": "游星岛游鱼暴走小活动",
+            "description": "若已到游戏入口将直接进入活动，如果不在入口处将会传送到游星岛 1 线后导航到游戏入口",
+            "option": [
+                "需要的最大游鱼暴走次数"
+            ]
+        },
+        {
             "name": "游星岛麻将小活动",
             "entry": "游星岛麻将小活动",
             "description": "单人匹配/组队队长会自动导航到目标地点进行游戏，组队队员在任意点即可",
@@ -734,6 +742,28 @@
                         "param": {
                             "custom_action_param": {
                                 "max_game_count": "{需要的最大浪花躲避球次数}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "需要的最大游鱼暴走次数": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "需要的最大游鱼暴走次数",
+                    "description": "需要的最大游鱼暴走次数，默认设置0为无限游玩，到足够次数就停止任务",
+                    "pipeline_type": "int",
+                    "default": "0"
+                }
+            ],
+            "pipeline_override": {
+                "游星岛游鱼暴走小活动": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "max_game_count": "{需要的最大游鱼暴走次数}"
                             }
                         }
                     }
