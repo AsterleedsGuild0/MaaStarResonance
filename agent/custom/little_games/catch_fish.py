@@ -105,8 +105,11 @@ def ensure_catch_entry(context: Context, timeout: int = 120) -> bool:
 
     # 第一次不行的话尝试向左走几步 | 可能是上一把刚结束的情况，走几步就能再次到入口
     context.tasker.controller.post_key_down(ANDROID_KEY_EVENT_DATA["KEYCODE_A"]).wait()
-    time.sleep(2.8)
+    time.sleep(2)
+    context.tasker.controller.post_key_down(ANDROID_KEY_EVENT_DATA["KEYCODE_W"]).wait()
+    time.sleep(0.8)
     context.tasker.controller.post_key_up(ANDROID_KEY_EVENT_DATA["KEYCODE_A"]).wait()
+    context.tasker.controller.post_key_up(ANDROID_KEY_EVENT_DATA["KEYCODE_W"]).wait()
     time.sleep(0.5)
 
     # 再次检测是否可以直接进
