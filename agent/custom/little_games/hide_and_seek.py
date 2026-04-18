@@ -83,7 +83,7 @@ class HideSeekPointAction(CustomAction):
         return True
 
 
-def ensure_into_game(context: Context, is_leader: bool, is_private: bool, timeout: int = 300) -> bool:
+def ensure_into_game(context: Context, is_leader: bool, is_private: bool, timeout: int = 0) -> bool:
     """
     确保开始游戏
     """
@@ -103,12 +103,14 @@ def ensure_into_game(context: Context, is_leader: bool, is_private: bool, timeou
         if check_in_match(context):
             return True
 
-        if not is_leader:
-            if check_is_ready(context):
-                logger.info("尝试点击进入躲猫猫对局...")
-                # 点击确认进入副本
-                time.sleep(0.5)
+        if check_is_ready(context, is_private):
+            logger.info("尝试点击进入躲猫猫对局...")
+            # 点击确认进入副本
+            time.sleep(0.5)
+            if is_private:
                 context.tasker.controller.post_click(1148, 657).wait()
+            else:
+                context.tasker.controller.post_click(1148, 617).wait()
 
         img = context.tasker.controller.post_screencap().wait().get()
         if is_private:
@@ -185,10 +187,12 @@ def ensure_for_end(context: Context, timeout: int = 1200) -> bool:
     elapsed_time = 0
     while elapsed_time <= timeout and not context.tasker.stopping:
         elapsed_time = time.time() - start_time
-        if wait_for_end(context):  # TODO 位置和点击位置
+        if wait_for_end(context):
             logger.info(f"检测到躲猫猫游戏对局结束！")
-            context.tasker.controller.post_click(0, 0).wait()
-            time.sleep(5)
+            context.tasker.controller.post_click(639, 644).wait()
+            time.sleep(3)
+            context.tasker.controller.post_click(639, 644).wait()
+            time.sleep(3)
             return True
 
         time.sleep(1.5)
@@ -210,8 +214,8 @@ def wait_for_end(context: Context):
         img,
         pipeline_override={
             "通用文字识别": {
-                "expected": "退出副本",
-                "roi": [67, 29, 90, 29],
+                "expected": "下一步",
+                "roi": [602, 629, 74, 31],
             }
         },
     )
@@ -222,21 +226,33 @@ def wait_for_end(context: Context):
         return False
 
 
-def check_is_ready(context: Context) -> bool:
+def check_is_ready(context: Context, is_private: bool) -> bool:
     """
     检测是否进入准备页面
     """
     img = context.tasker.controller.post_screencap().wait().get()
-    ocr_result: RecognitionDetail | None = context.run_recognition(
-        "通用文字识别",
-        img,
-        pipeline_override={
-            "通用文字识别": {
-                "expected": ["确认"],
-                "roi": [1128, 640, 58, 35]
-            }
-        },
-    )
+    if is_private:
+        ocr_result: RecognitionDetail | None = context.run_recognition(
+            "通用文字识别",
+            img,
+            pipeline_override={
+                "通用文字识别": {
+                    "expected": ["确认"],
+                    "roi": [1128, 640, 58, 35]
+                }
+            },
+        )
+    else:
+        ocr_result: RecognitionDetail | None = context.run_recognition(
+            "通用文字识别",
+            img,
+            pipeline_override={
+                "通用文字识别": {
+                    "expected": ["接受"],
+                    "roi": [1111, 602, 63, 31]
+                }
+            },
+        )
     if ocr_result and ocr_result.hit:
         logger.info(f"检测到准备按钮，准备进入躲猫猫...")
         return True
@@ -260,7 +276,6 @@ def check_is_entry(context: Context) -> bool:
         },
     )
     if ocr_result and ocr_result.hit:
-        logger.info(f"检测到已经到达躲猫猫的入口！")
         return True
     else:
         return False
@@ -271,7 +286,7 @@ def check_in_match(context: Context) -> bool:
     检测是否在比赛中
     """
     img = context.tasker.controller.post_screencap().wait().get()
-    reg_result: RecognitionDetail | None = context.run_recognition("检测倒计时图标", img)
+    reg_result: RecognitionDetail | None = context.run_recognition("检测躲猫猫倒计时数字0", img)
     if reg_result and reg_result.hit:
         logger.info(f"检测到已经在比赛中...")
         return True

@@ -3,6 +3,19 @@ from maa.context import Context
 from agent.logger import logger
 
 
+def get_game_need_line(context: Context) -> int:
+    """
+    获取小游戏需要切换的分线
+    """
+    need_line_node = context.get_node_data("获取参数-第一次小游戏前所需切换的分线")
+    need_line = (need_line_node
+                         .get("attach", {})
+                         .get("need_line", 0)
+                         ) if need_line_node else 0
+    logger.info("第一次小游戏前所需切换的分线: {}", need_line if need_line else '不切换')
+    return int(need_line)
+
+
 def get_game_wait_time_limit(context: Context) -> int:
     """
     获取游戏等待超时时间

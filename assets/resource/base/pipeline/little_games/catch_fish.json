@@ -1,0 +1,13 @@
+{
+    "游星岛游鱼暴走小活动": {
+        "action": {
+            "type": "Custom",
+            "param": {
+                "custom_action": "CatchFishPoint",
+                "custom_action_param": {
+                    "max_game_count": 0
+                }
+            }
+        }
+    }
+}

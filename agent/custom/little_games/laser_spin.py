@@ -4,6 +4,7 @@ from maa.agent.agent_server import AgentServer
 from maa.context import Context
 from maa.custom_action import CustomAction, RecognitionDetail
 
+from agent.attach.little_game_attach import get_game_need_line
 from agent.constant.key_event import ANDROID_KEY_EVENT_DATA
 from agent.constant.map_point import NAVIGATE_DATA
 from agent.custom.general.general import ensure_main_page
@@ -38,6 +39,9 @@ class LaserSpinPointAction(CustomAction):
         max_game_count = int(params.data["max_game_count"]) if params.data["max_game_count"] else 0
         logger.info(f"本次任务设置的最大镭射回旋次数: {max_game_count if max_game_count != 0 else '无限'}")
 
+        # 第一次小游戏前所需切换的分线
+        need_line = get_game_need_line(context)
+
         while not context.tasker.stopping:
             logger.info(f"=== 已成功镭射回旋 {self.game_count} 次 ===")
             # 检查是否已经游戏足够次数了
@@ -45,15 +49,16 @@ class LaserSpinPointAction(CustomAction):
                 logger.info(f"已成功镭射回旋了您所配置的{self.game_count}次，任务结束！")
                 return True
 
-            # 第一次任务需要手动切换到 1 线
-            if not check_is_entry(context) and self.is_first_time:
-                switch_line(context, ["1"])
-            self.is_first_time = False
-
             # 确保到达镭射回旋的入口
             has_entry = ensure_spin_entry(context)
             if not has_entry:
                 return False
+
+            if need_line and self.is_first_time:
+                switch_line(context, [str(need_line)])
+                time.sleep(1)
+            self.is_first_time = False
+
 
             # 确保进入镭射回旋
             has_next = ensure_into_spin(context)
