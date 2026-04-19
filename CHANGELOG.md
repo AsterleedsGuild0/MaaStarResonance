@@ -1,5 +1,27 @@
 # 更新日志
 
+## 0.11.1 (2026-04-19)
+
+### 🚀 性能优化
+
+- 优化载具赛的稳定性，更新载具赛文档说明 @azmiao
+
+### 📚 文档
+
+- 更新文档关于插件的说明 @azmiao
+
+### 🧹 日常维护
+
+- Update CHANGELOG @github-actions[bot]
+
+### 🧩 修改依赖
+
+- *(deps)* bump softprops/action-gh-release from 2 to 3 (#98) @dependabot[bot] (Co-authored: dependabot[bot])
+
+### 📌 发布
+
+- v0.11.1 @azmiao
+
 ## 0.11.0 (2026-04-18)
 
 ### ✨ 新功能
@@ -1058,11 +1080,11 @@
 
 ### 🔧 配置文件
 
-- 修改包体名称 @233PC
+- 修改包体名称 @233Official
 
 ## 0.0.1 (2025-09-08)
 
 ### 🧹 日常维护
 
-- 📝 更新开发随笔 @233PC
+- 📝 更新开发随笔 @233Official
 - Initial commit @233Official
