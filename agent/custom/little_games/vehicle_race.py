@@ -51,6 +51,8 @@ class VehicleRacePointAction(CustomAction):
         # 是否是队长：队长要去NPC那边开本，队员不用干活
         is_leader = team_type in ["单人匹配游戏", "组队匹配游戏（队长）"]
 
+        logger.warning("!!! 请确保使用初始的普通小猪坐骑 !!!")
+
         while not context.tasker.stopping:
             logger.info(f"=== 已成功环城载具赛 {self.game_count} 次 ===")
             # 检查是否已经游戏足够次数了
@@ -75,9 +77,9 @@ class VehicleRacePointAction(CustomAction):
             time.sleep(2)
             success = game_content_cycle(context)
             if success:
-                # 结束了，准备 P 出副本
-                logger.info("本轮游戏结束，准备 P 出副本...")
-                time.sleep(2)
+                # 结束了，准备退出副本
+                logger.info("本轮游戏结束，准备退出副本...")
+                time.sleep(3)
                 context.tasker.controller.post_key_down(ANDROID_KEY_EVENT_DATA["KEYCODE_P"]).wait()
                 time.sleep(2)
                 context.tasker.controller.post_click(798, 535).wait()
@@ -170,50 +172,69 @@ def game_content_cycle(context: Context) -> bool:
         # 不在比赛中了：超时 或者 异常情况
         if not check_in_match(context):
             return False
-
-        # 按键实现
+        
         logger.info(f"环城载具赛比赛检查点ID：{check_id}")
-        has_next = check_key_service(context, check_id)
-        if not has_next:
+
+        if not check_key_service(context, check_id):
             return False
+        
+        # 最后一轮完成后直接退本 | 暂时不管最后一轮是否成功，讲道理应该没问题
+        if check_id == 15:
+            logger.info(f"执行完最终检查点ID：{check_id}")
+            return True
 
-        if check_id != 1 and check_id != 15:
-            # 最多 3 次检测检查点
-            time.sleep(1)
-            check_point = get_check_point(context)
-            if not check_point:
-                # 旋转视角再次检测
-                attack_rotate_view(context, 1)
-                check_point = get_check_point(context)
-            if not check_point:
-                # 旋转视角再次检测
-                attack_rotate_view(context, 1)
-                check_point = get_check_point(context)
-        else:
-            # 为 1 或者 15 的时候，就直接放行
-            check_point = check_id + 1
+        check_point = get_current_checkpoint(context, check_id)
 
-        if not check_point or check_point == check_id + 1:
+        if check_point in (None, check_id + 1):
             logger.info(f"成功执行完检查点ID：{check_id}")
-            # 任务 ID + 1
+            # 任务 ID + 1 
             check_id += 1
         else:
             logger.warning(f"检查点ID：{check_id} 执行失败，再次尝试该检查点任务")
 
-        if check_id != 15:
-            # 回检查点
-            time.sleep(1)
-            context.tasker.controller.post_click(868, 522, 1, 1).wait()
-            time.sleep(3)
-            start_time = time.time()
-            elapsed_time = 0
-            while elapsed_time <= 45 and not context.tasker.stopping:
-                elapsed_time = time.time() - start_time
-                if check_in_match(context):
-                    break
-                time.sleep(2)
+        # 回检查点
+        if not return_to_checkpoint_and_wait(context):
+            return False
 
     return True
+
+
+def get_current_checkpoint(context: Context, current_check_id: int, roll_times:int = 4) -> int | None:
+    """
+    获取当前检查点 | 对应下一次任务执行的检查点ID
+    其中：第一个检查点直接放行
+    每次失败后旋转视角再重试
+    """
+    if current_check_id == 1:
+        return current_check_id + 1
+
+    for attempt in range(roll_times):
+        if attempt > 0:
+            attack_rotate_view(context, 1)
+
+        time.sleep(1)
+        check_point = get_check_point(context)
+        if check_point:
+            return check_point
+
+    return None
+
+
+def return_to_checkpoint_and_wait(context: Context) -> bool:
+    """
+    点击回检查点，并等待重新进入比赛状态。
+    """
+    time.sleep(1.5)
+    context.tasker.controller.post_click(868, 522, 1, 1).wait()
+    time.sleep(3.5)
+
+    start_time = time.time()
+    while time.time() - start_time <= 45 and not context.tasker.stopping:
+        if check_in_match(context):
+            return True
+        time.sleep(2)
+
+    return False
 
 
 def check_key_service(context: Context, check_id: int) -> bool:
