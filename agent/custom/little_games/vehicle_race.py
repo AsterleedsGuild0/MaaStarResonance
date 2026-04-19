@@ -80,7 +80,7 @@ class VehicleRacePointAction(CustomAction):
                 # 结束了，准备退出副本
                 logger.info("本轮游戏结束，准备退出副本...")
                 time.sleep(3)
-                context.tasker.controller.post_key_down(ANDROID_KEY_EVENT_DATA["KEYCODE_P"]).wait()
+                context.tasker.controller.post_click_key(ANDROID_KEY_EVENT_DATA["KEYCODE_P"]).wait()
                 time.sleep(2)
                 context.tasker.controller.post_click(798, 535).wait()
                 time.sleep(2)
