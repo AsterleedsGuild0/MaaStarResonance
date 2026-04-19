@@ -40,6 +40,7 @@ const sidebars = {
             label: "功能文档",
             items: [
                 "功能文档/功能文档入口",
+                "功能文档/插件使用/插件使用",
                 {
                     type: "category",
                     label: "功能列表",

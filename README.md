@@ -77,6 +77,12 @@
 
 ---
 
+## 插件
+
+> 自 `v0.11.0` 之后版本已支持插件侧载，可以实现一些拓展能力，插件安装请参考文档：[插件安装与使用](https://maa-star-resonance.ayusummer233.top/docs/功能文档/插件使用/)
+
+---
+
 ## 鸣谢
 
 - 本项目由 **[MaaFramework](https://github.com/MaaXYZ/MaaFramework)** 强力驱动！  
