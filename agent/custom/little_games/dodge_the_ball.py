@@ -64,15 +64,8 @@ class DodgeTheBallPointAction(CustomAction):
             if not has_next:
                 return False
 
-            # 已经在游戏中了，移动到右上角保证第一轮尽量安全
+            # 已经在游戏中了，等待一会
             time.sleep(5)
-            logger.info("移动到右上角保证第一轮尽量安全")
-            context.tasker.controller.post_key_down(ANDROID_KEY_EVENT_DATA["KEYCODE_W"]).wait()
-            context.tasker.controller.post_key_down(ANDROID_KEY_EVENT_DATA["KEYCODE_D"]).wait()
-            time.sleep(10)
-            context.tasker.controller.post_key_up(ANDROID_KEY_EVENT_DATA["KEYCODE_W"]).wait()
-            context.tasker.controller.post_key_up(ANDROID_KEY_EVENT_DATA["KEYCODE_D"]).wait()
-            time.sleep(0.5)
 
             # 已经在游戏中了，等待游戏结束
             logger.info("等待游戏结束后开启下一轮...")
