@@ -57,9 +57,14 @@
             ]
         },
         {
-            "name": "完成一次不稳定空间",
-            "entry": "完成一次不稳定空间",
-            "description": "会自动导航刀不稳定空间门口，完成一次不稳定挑战，可复制任务多次完成"
+            "name": "挑战不稳定空间",
+            "entry": "挑战不稳定空间",
+            "description": "会自动导航刀不稳定空间门口，完成一次不稳定挑战，可复制任务多次完成",
+            "option": [
+                "不稳定空间队伍类型",
+                "需要的最大不稳定次数",
+                "是否开启自动战斗"
+            ]
         },
         {
             "name": "领取今日活跃度奖励",
@@ -439,6 +444,100 @@
                         },
                         "普通采集": {
                             "enabled": true
+                        }
+                    }
+                }
+            ]
+        },
+        "不稳定空间队伍类型": {
+            "type": "select",
+            "default_case": "无",
+            "description": "请根据实际情况选择，请务必选择正确，组队情况下需要队长和队员各自选择不同的选项",
+            "cases": [
+                {
+                    "name": "无",
+                    "pipeline_override": {
+                        "获取参数-不稳定空间队伍类型": {
+                            "attach": {
+                                "unstable_space_type": "无"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "单人匹配游戏",
+                    "pipeline_override": {
+                        "获取参数-不稳定空间队伍类型": {
+                            "attach": {
+                                "unstable_space_type": "单人匹配游戏"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "组队匹配游戏（队长）",
+                    "pipeline_override": {
+                        "获取参数-不稳定空间队伍类型": {
+                            "attach": {
+                                "unstable_space_type": "组队匹配游戏（队长）"
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "组队匹配游戏（队员）",
+                    "pipeline_override": {
+                        "获取参数-不稳定空间队伍类型": {
+                            "attach": {
+                                "unstable_space_type": "组队匹配游戏（队员）"
+                            }
+                        }
+                    }
+                }
+            ]
+        },
+        "需要的最大不稳定次数": {
+            "type": "input",
+            "inputs": [
+                {
+                    "name": "需要的最大不稳定次数",
+                    "description": "需要的最大不稳定次数，默认2，设置0为无限次数，到足够次数就停止任务",
+                    "pipeline_type": "int",
+                    "default": "2"
+                }
+            ],
+            "pipeline_override": {
+                "挑战不稳定空间": {
+                    "action": {
+                        "param": {
+                            "custom_action_param": {
+                                "max_game_count": "{需要的最大不稳定次数}"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "是否开启自动战斗": {
+            "type": "select",
+            "cases": [
+                {
+                    "name": "是",
+                    "pipeline_override": {
+                        "获取参数-是否开启自动战斗": {
+                            "attach": {
+                                "use_auto_attack": true
+                            }
+                        }
+                    }
+                },
+                {
+                    "name": "否",
+                    "pipeline_override": {
+                        "获取参数-是否开启自动战斗": {
+                            "attach": {
+                                "use_auto_attack": false
+                            }
                         }
                     }
                 }

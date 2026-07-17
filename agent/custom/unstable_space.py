@@ -4,25 +4,71 @@ from maa.agent.agent_server import AgentServer
 from maa.context import Context
 from maa.custom_action import CustomAction, RecognitionDetail
 
+from agent.attach.battle_attach import get_unstable_space_type, get_use_auto_attack
 from agent.constant.map_point import NAVIGATE_DATA
 from agent.custom.app_manage_action import wait_for_switch
 from agent.custom.general.general import ensure_main_page
-from agent.custom.general.move_battle import ensure_into_instance, auto_attack, attack_rotate_view, check_alive
+from agent.custom.general.move_battle import auto_attack, check_alive
 from agent.custom.general.power_saving_mode import exit_power_saving_mode
 from agent.custom.teleport_action import teleport_or_navigate
 from agent.logger import logger
+from agent.utils.param_utils import CustomActionParam
 
 
 @AgentServer.custom_action("UnstableSpacePoint")
 class UnstableSpacePointAction(CustomAction):
+
+    def __init__(self):
+        super().__init__()
+        self.game_count = None
 
     @exit_power_saving_mode()
     @ensure_main_page()
     def run(
         self,
         context: Context,
-        _,
+        argv: CustomAction.RunArg,
     ) -> bool:
+        
+        self.game_count = 0
+    
+        # 队伍类型
+        team_type = get_unstable_space_type(context)
+        if team_type == "无":
+            logger.error("请先选择队伍类型！")
+            return False
+        
+        # 获取参数
+        params = CustomActionParam(argv.custom_action_param)
+        max_game_count = int(params.data["max_game_count"]) if params.data["max_game_count"] else 0
+        logger.info(f"本次任务设置的最大不稳定空间战斗次数: {max_game_count if max_game_count != 0 else '无限'}")
+        
+        # 自动战斗是否开启
+        use_auto_attack = get_use_auto_attack(context)
+
+        # 是否是队长：队长要去NPC那边开本，队员不用干活
+        is_leader = team_type in ["单人匹配游戏", "组队匹配游戏（队长）"]
+
+        while not context.tasker.stopping:
+            logger.info(f"=== 已成功挑战不稳定空间 {self.game_count} 次 ===")
+            # 检查是否已经游戏足够次数了
+            if max_game_count != 0 and max_game_count <= self.game_count:
+                logger.info(f"已成功挑战了您所配置的{self.game_count}次不稳定空间，任务结束！")
+                return True
+
+            # 主战斗循环
+            has_next = mian_unstable_space(context, is_leader, use_auto_attack)
+            if not has_next:
+                break
+            
+            self.game_count += 1
+    
+        return False
+
+
+# 主战斗循环
+def mian_unstable_space(context: Context, is_leader: bool, use_auto_attack: bool):
+    if is_leader:
         # 先导航过去
         teleport_or_navigate(context, "阿斯特里斯", "不稳定空间", "导航", NAVIGATE_DATA)
         # 循环检测进入不稳定空间的按钮
@@ -41,35 +87,61 @@ class UnstableSpacePointAction(CustomAction):
 
         # 等待加载完成
         time.sleep(2)
-        ensure_into_instance(context)
 
+    # 确保进入不稳定空间战斗
+    ensure_into_battle(context, is_leader)
+    logger.info("已进入副本，等待副本完成...")
+
+    if use_auto_attack:
         # 开始自动战斗
         logger.info("打开自动战斗...")
         auto_attack(context, 1)
 
-        # 旋转3次视角防止脱仇
-        logger.info("旋转3次视角防止脱仇然后继续战斗...")
-        attack_rotate_view(context, 3, 1)
+    # 开始检测副本状态和角色存活状态
+    while not context.tasker.stopping:
+        # 检测是否还在副本内
+        img = context.tasker.controller.post_screencap().wait().get()
 
-        # 开始检测副本状态和角色存活状态
-        while not context.tasker.stopping:
-            # 检测是否还在副本内
-            img = context.tasker.controller.post_screencap().wait().get()
-            is_into_instance = context.run_recognition("图片识别副本退出按钮", img)
+        # 检测下一步按钮
+        ocr_result: RecognitionDetail | None = context.run_recognition(
+            "通用文字识别",
+            img,
+            pipeline_override={
+                "通用文字识别": {
+                    "expected": "下一步",
+                    "roi": [598, 626, 69, 33],
+                }
+            },
+        )
+        if ocr_result and ocr_result.hit:
+            context.tasker.controller.post_click(632, 644).wait()
+            time.sleep(0.5)
 
-            if is_into_instance and not is_into_instance.hit:  # 不在副本内
-                # 等待场景切换完成
-                logger.info("战斗完成，等待返回主界面...")
-                wait_for_switch(context)
-                return True  # 结束任务
+        # 检测离开按钮并离开副本
+        ocr_result: RecognitionDetail | None = context.run_recognition(
+            "通用文字识别",
+            img,
+            pipeline_override={
+                "通用文字识别": {
+                    "expected": "离开",
+                    "roi": [1139, 661, 50, 29],
+                }
+            },
+        )
+        if ocr_result and ocr_result.hit:
+            context.tasker.controller.post_click(1165, 678).wait()
+            time.sleep(0.5)
+            logger.info("战斗完成，等待返回主界面...")
+            wait_for_switch(context)
+            return True
 
-            # 检测是否存活并复活
-            check_alive(context)
+        # 检测是否存活并复活
+        check_alive(context)
 
-            time.sleep(5)
+        time.sleep(2)
 
-        logger.error("不稳定空间战斗被手动终止或者出现异常！")
-        return False
+    logger.error("不稳定空间战斗被手动终止或者出现异常！")
+    return False
 
 
 def ensure_space_entry(context: Context, timeout: int = 120) -> bool:
@@ -99,3 +171,45 @@ def ensure_space_entry(context: Context, timeout: int = 120) -> bool:
     logger.error("超 120 秒未到达不稳定空间的入口！")
     return False
 
+
+
+def ensure_into_battle(context: Context, is_leader: bool, timeout: int = 0) -> bool:
+    """
+    确保进入不稳定空间战斗
+    """
+    # 循环检测是否到准备页面
+    start_time = time.time()
+    elapsed_time = 0
+
+    # 循环等待游戏开始
+    while (timeout == 0 or elapsed_time <= timeout) and not context.tasker.stopping:
+        elapsed_time = time.time() - start_time
+        time.sleep(1.5)
+        # 随便点击个位置防止月卡或者锁屏
+        context.tasker.controller.post_click(638, 343).wait()
+        time.sleep(0.5)
+
+        # 如果在对局中就返回
+        img = context.tasker.controller.post_screencap().wait().get()
+        is_into_instance = context.run_recognition("图片识别副本退出按钮", img)
+        if is_into_instance and is_into_instance.hit:
+            return True
+
+        # 检测是否有确认按钮并点击
+        if not is_leader:
+            ocr_result: RecognitionDetail | None = context.run_recognition(
+                "通用文字识别",
+                img,
+                pipeline_override={
+                    "通用文字识别": {
+                        "expected": "确认",
+                        "roi": [1130, 649, 51, 30],
+                    }
+                },
+            )
+            if ocr_result and ocr_result.hit:
+                context.tasker.controller.post_click(1156, 664).wait()
+                time.sleep(0.5)
+
+    logger.error(f"确保进入不稳定空间战斗超时或被手动停止：{timeout}")
+    return False
