@@ -20,8 +20,8 @@ on:
   workflow_dispatch:
 
 env:
-  MAA_FRAMEWORK_VERSION: "v5.11.1"
-  MFAA_VERSION: "v2.12.1"
+  MAA_FRAMEWORK_VERSION: "v5.12.1"
+  MFAA_VERSION: "v2.12.2"
 
 jobs:
   meta:
