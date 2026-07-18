@@ -1,16 +1,15 @@
 import time
 
+import numpy
 from maa.agent.agent_server import AgentServer
 from maa.context import Context
 from maa.custom_action import CustomAction, RecognitionDetail
 
 from agent.attach.battle_attach import get_unstable_space_type, get_use_auto_attack
-from agent.constant.map_point import NAVIGATE_DATA
-from agent.custom.app_manage_action import wait_for_switch
+from agent.attach.common_attach import get_area_change_timeout
 from agent.custom.general.general import ensure_main_page
 from agent.custom.general.move_battle import auto_attack, check_alive
 from agent.custom.general.power_saving_mode import exit_power_saving_mode
-from agent.custom.teleport_action import teleport_or_navigate
 from agent.logger import logger
 from agent.utils.param_utils import CustomActionParam
 
@@ -69,24 +68,10 @@ class UnstableSpacePointAction(CustomAction):
 # 主战斗循环
 def mian_unstable_space(context: Context, is_leader: bool, use_auto_attack: bool):
     if is_leader:
-        # 先导航过去
-        teleport_or_navigate(context, "阿斯特里斯", "不稳定空间", "导航", NAVIGATE_DATA)
         # 循环检测进入不稳定空间的按钮
         has_entry = ensure_space_entry(context)
         if not has_entry:
             return False
-
-        # 点击进入不稳定空间
-        context.tasker.controller.post_click(916, 345).wait()
-        # 选择单双人挑战
-        time.sleep(2)
-        context.tasker.controller.post_click(915, 591).wait()
-        # 开始挑战
-        time.sleep(2)
-        context.tasker.controller.post_click(1170, 657).wait()
-
-        # 等待加载完成
-        time.sleep(2)
 
     # 确保进入不稳定空间战斗
     ensure_into_battle(context, is_leader)
@@ -132,7 +117,7 @@ def mian_unstable_space(context: Context, is_leader: bool, use_auto_attack: bool
             context.tasker.controller.post_click(1165, 678).wait()
             time.sleep(0.5)
             logger.info("战斗完成，等待返回主界面...")
-            wait_for_switch(context)
+            wait_for_switch_or_next(context)
             return True
 
         # 检测是否存活并复活
@@ -157,8 +142,8 @@ def ensure_space_entry(context: Context, timeout: int = 120) -> bool:
             img,
             pipeline_override={
                 "通用文字识别": {
-                    "expected": "不稳定",
-                    "roi": [875, 330, 61, 30],
+                    "expected": "不稳",
+                    "roi": [878, 333, 39, 24],
                 }
             },
         )
@@ -195,8 +180,54 @@ def ensure_into_battle(context: Context, is_leader: bool, timeout: int = 0) -> b
         if is_into_instance and is_into_instance.hit:
             return True
 
-        # 检测是否有确认按钮并点击
-        if not is_leader:
+        if is_leader:
+            # 检测到不稳定入口按钮就点击
+            ocr_result: RecognitionDetail | None = context.run_recognition(
+                "通用文字识别",
+                img,
+                pipeline_override={
+                    "通用文字识别": {
+                        "expected": "不稳",
+                        "roi": [878, 333, 39, 24],
+                    }
+                },
+            )
+            if ocr_result and ocr_result.hit:
+                context.tasker.controller.post_click(916, 345).wait()
+                time.sleep(2)
+
+            # 检测到单双人按钮就点击
+            ocr_result: RecognitionDetail | None = context.run_recognition(
+                "通用文字识别",
+                img,
+                pipeline_override={
+                    "通用文字识别": {
+                        "expected": "双人",
+                        "roi": [963, 582, 37, 20],
+                    }
+                },
+            )
+            if ocr_result and ocr_result.hit:
+                context.tasker.controller.post_click(915, 591).wait()
+                time.sleep(1)
+
+                # 检测到进入副本按钮就点击
+                ocr_result: RecognitionDetail | None = context.run_recognition(
+                    "通用文字识别",
+                    img,
+                    pipeline_override={
+                        "通用文字识别": {
+                            "expected": "进入副本",
+                            "roi": [1129, 645, 87, 23],
+                        }
+                    },
+                )
+                if ocr_result and ocr_result.hit:
+                    context.tasker.controller.post_click(1170, 657).wait()
+                    time.sleep(1)
+
+        else:
+            # 检测是否有确认按钮并点击
             ocr_result: RecognitionDetail | None = context.run_recognition(
                 "通用文字识别",
                 img,
@@ -210,6 +241,56 @@ def ensure_into_battle(context: Context, is_leader: bool, timeout: int = 0) -> b
             if ocr_result and ocr_result.hit:
                 context.tasker.controller.post_click(1156, 664).wait()
                 time.sleep(0.5)
+        
+        # 保底措施：检测下一步按钮就是已经结算 | 目的是可能有部分设备加载慢，跳过了战斗阶段
+        ocr_result: RecognitionDetail | None = context.run_recognition(
+            "通用文字识别",
+            img,
+            pipeline_override={
+                "通用文字识别": {
+                    "expected": "下一步",
+                    "roi": [598, 626, 69, 33],
+                }
+            },
+        )
+        if ocr_result and ocr_result.hit:
+            context.tasker.controller.post_click(1156, 664).wait()
+            time.sleep(0.5)
+            return True
 
     logger.error(f"确保进入不稳定空间战斗超时或被手动停止：{timeout}")
+    return False
+
+
+def wait_for_switch_or_next(context: Context) -> bool:
+    """等待场景切换或开始下一把"""
+    area_change_timeout = get_area_change_timeout(context)
+    start_time = time.time()
+    elapsed_time = 0
+    while elapsed_time <= area_change_timeout and not context.tasker.stopping:
+        elapsed_time = time.time() - start_time
+        img: numpy.ndarray = context.tasker.controller.post_screencap().wait().get()
+
+        area_change_result: RecognitionDetail | None = context.run_recognition("图片识别是否在主页面", img)
+        if area_change_result and area_change_result.hit:
+            logger.info("检测到星痕共鸣已经成功切换场景！")
+            return True
+        
+        ocr_result: RecognitionDetail | None = context.run_recognition(
+            "通用文字识别",
+            img,
+            pipeline_override={
+                "通用文字识别": {
+                    "expected": "确认",
+                    "roi": [1130, 649, 51, 30],
+                }
+            },
+        )
+        if ocr_result and ocr_result.hit:
+            logger.info("检测到不稳定空间已开始下一把")
+            return True
+
+        time.sleep(2)
+    # 超时未进入游戏主页面
+    logger.error(f"星痕共鸣切换场景超过{area_change_timeout}秒限制 或者 被手动停止，请检查游戏状态！")
     return False
