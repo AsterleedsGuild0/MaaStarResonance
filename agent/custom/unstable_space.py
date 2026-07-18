@@ -269,6 +269,11 @@ def wait_for_switch_or_next(context: Context) -> bool:
     elapsed_time = 0
     while elapsed_time <= area_change_timeout and not context.tasker.stopping:
         elapsed_time = time.time() - start_time
+        time.sleep(1.5)
+        # 随便点击个位置防止月卡或者锁屏
+        context.tasker.controller.post_click(638, 343).wait()
+        time.sleep(0.5)
+
         img: numpy.ndarray = context.tasker.controller.post_screencap().wait().get()
 
         area_change_result: RecognitionDetail | None = context.run_recognition("图片识别是否在主页面", img)
@@ -290,7 +295,6 @@ def wait_for_switch_or_next(context: Context) -> bool:
             logger.info("检测到不稳定空间已开始下一把")
             return True
 
-        time.sleep(2)
     # 超时未进入游戏主页面
     logger.error(f"星痕共鸣切换场景超过{area_change_timeout}秒限制 或者 被手动停止，请检查游戏状态！")
     return False
