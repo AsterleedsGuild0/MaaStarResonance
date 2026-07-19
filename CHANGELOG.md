@@ -1,5 +1,40 @@
 # 更新日志
 
+## 0.12.0 (2026-07-18)
+
+### ✨ 新功能
+
+- 重构不稳定空间战斗逻辑，并新增战斗次数、自动战斗、组队战斗功能配置 @azmiao
+
+### 🚀 性能优化
+
+- 优化战斗场景逻辑避免省电模式影响 @azmiao
+- 优化不稳定逻辑，方便双人组队刷赛季奖杯 @azmiao
+
+### 📚 文档
+
+- 更新README @azmiao
+
+### 🧹 日常维护
+
+- 浪花躲避球去除进入游戏后的移动 @azmiao
+- Update CHANGELOG @github-actions[bot]
+
+### 🧩 修改依赖
+
+- *(deps)* bump actions/setup-node from 6 to 7 (#103) @dependabot[bot] (Co-authored: dependabot[bot])
+- *(deps)* bump actions/setup-dotnet from 5 to 6 (#102) @dependabot[bot] (Co-authored: dependabot[bot])
+- *(deps)* bump actions/cache from 5 to 6 (#101) @dependabot[bot] (Co-authored: dependabot[bot])
+- *(deps)* bump actions/checkout from 6 to 7 (#100) @dependabot[bot] (Co-authored: dependabot[bot])
+- MaaFw更新至v5.12.1，MFAA更新至v2.12.2 @azmiao
+- MaaFw更新至5.11.1 @azmiao
+- MaaFw更新至5.10.5，MFAA更新至2.12.1 @azmiao
+- MaaFw更新至v5.10.3，MFAA更新至v2.12.0 @azmiao
+
+### 📌 发布
+
+- v0.12.0 @azmiao
+
 ## 0.11.2 (2026-04-19)
 
 ### 🐛 Bug修复
