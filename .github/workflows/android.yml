@@ -18,7 +18,8 @@ env:
   LAUNCHER_LABEL: 星痕共鸣MAA小助手
   LAUNCHER_ICON: static/img/logo_transparent.png
   MFA_REPOSITORY: MaaXYZ/MFAAvalonia
-  MFA_REF: v2.15.2
+  # Android 支持自 v2.16.0 起引入，与桌面 install.yml 的 MFAA_VERSION(v2.15.2) 相互独立
+  MFA_REF: v2.16.0-beta.3
   P4A_ENTRYPOINT: agent/main.py
   P4A_REF: v2026.05.09
   P4A_NDK_VERSION: 28.2.13676358
