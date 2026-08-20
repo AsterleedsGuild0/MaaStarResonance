@@ -7,6 +7,8 @@ on:
     paths:
       - ".github/workflows/android.yml"
       - "requirements-android.txt"
+      - "agent/**"
+      - "assets/**"
   workflow_dispatch:
 
 permissions:
@@ -350,8 +352,10 @@ jobs:
           cp -a maafw-python-source/source/binding/Python/maa "$payload_root/python/maa"
 
           # 7) 改写 interface.json：agent 字段改为 Android 形式，version 注入 ci 版本
+          export PAYLOAD_VERSION="ci.${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}"
           python3 - "$payload_root/interface.json" <<'PY'
           import json
+          import os
           import sys
 
           path = sys.argv[1]
@@ -393,7 +397,7 @@ jobs:
               "child_exec": "python",
               "child_args": ["agent/main.py"],
           }
-          interface["version"] = "ci.${GITHUB_RUN_NUMBER}-${GITHUB_SHA::7}"
+          interface["version"] = os.environ["PAYLOAD_VERSION"]
           with open(path, "w", encoding="utf-8") as f:
               json.dump(interface, f, ensure_ascii=False, indent=4)
           PY
@@ -529,6 +533,31 @@ jobs:
             -r "${{ matrix.rid }}" \
             -p:AndroidSdkDirectory="$ANDROID_HOME"
 
+      - name: Prepare Android signing keystore
+        id: signing
+        shell: bash
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [[ -n "$ANDROID_KEYSTORE_BASE64" ]]; then
+            keystore="$RUNNER_TEMP/mfa-release.keystore"
+            echo "$ANDROID_KEYSTORE_BASE64" | base64 -d > "$keystore"
+            {
+              echo "enabled=true"
+              echo "keystore=$keystore"
+              echo "store_password=$ANDROID_KEYSTORE_PASSWORD"
+              echo "alias=$ANDROID_KEY_ALIAS"
+              echo "key_password=$ANDROID_KEY_PASSWORD"
+            } >> "$GITHUB_OUTPUT"
+            echo "使用固定 release keystore 签名"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "未配置签名 secrets，退回 debug 临时签名（每次构建签名不同，无法覆盖安装）"
+          fi
+
       - name: Build APK with project resources
         shell: bash
         env:
@@ -539,8 +568,23 @@ jobs:
           PYTHON_AAR: ${{ steps.python_runtime.outputs.aar }}
           APPLICATION_ID: ${{ steps.metadata.outputs.application_id }}
           DISPLAY_VERSION: ${{ steps.metadata.outputs.display_version }}
+          SIGNING_ENABLED: ${{ steps.signing.outputs.enabled }}
+          SIGNING_KEYSTORE: ${{ steps.signing.outputs.keystore }}
+          SIGNING_STORE_PASSWORD: ${{ steps.signing.outputs.store_password }}
+          SIGNING_ALIAS: ${{ steps.signing.outputs.alias }}
+          SIGNING_KEY_PASSWORD: ${{ steps.signing.outputs.key_password }}
         working-directory: mfa-source
         run: |
+          sign_args=()
+          if [[ "$SIGNING_ENABLED" == "true" ]]; then
+            sign_args+=(
+              "-p:AndroidSigningKeyStore=$SIGNING_KEYSTORE"
+              "-p:AndroidSigningStorePass=$SIGNING_STORE_PASSWORD"
+              "-p:AndroidSigningKeyAlias=$SIGNING_ALIAS"
+              "-p:AndroidSigningKeyPass=$SIGNING_KEY_PASSWORD"
+            )
+          fi
+
           dotnet publish MFAAvalonia.Android/MFAAvalonia.Android.csproj \
             -c Release \
             -f net10.0-android \
@@ -555,7 +599,8 @@ jobs:
             "-p:AndroidLauncherLabel=$LAUNCHER_LABEL" \
             "-p:AndroidLauncherIcon=$LAUNCHER_ICON" \
             "-p:AndroidPythonRuntimeAar=$PYTHON_AAR" \
-            "-p:AndroidPythonAgentEntryPoint=$P4A_ENTRYPOINT"
+            "-p:AndroidPythonAgentEntryPoint=$P4A_ENTRYPOINT" \
+            "${sign_args[@]}"
 
           grep -Rqs 'windowSplashScreenAnimatedIcon.*@drawable/Icon' MFAAvalonia.Android/Resources
 
