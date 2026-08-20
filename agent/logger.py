@@ -24,12 +24,15 @@ def sink_function(message) -> None:
         sys.stderr.write(f"error: [LOG SINK ERROR] {e}\n")
 
 # 重新配置默认输出，确保格式统一且线程安全。
+# 注意：enqueue=True 会让 loguru 使用 multiprocessing.SimpleQueue，
+# 而 Android (python-for-android) 的 Python 缺少 _multiprocessing C 扩展会导致崩溃；
+# 本 agent 为单进程模型，enqueue 非必需，故关闭以兼容 Android。
 _logger.remove()
 _logger.add(
     sink_function,
     # level="INFO",
     level="DEBUG",
-    enqueue=True,
+    enqueue=False,
     backtrace=True,
     diagnose=False,
 )
