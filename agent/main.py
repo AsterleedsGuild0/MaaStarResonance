@@ -4,13 +4,18 @@ import subprocess
 import sys
 from pathlib import Path
 
-from utils import print_info, print_error
-
 # 获取：当前目录 / 项目根目录 / wheels目录 的绝对路径
 CURRENT_DIR = Path(__file__).parent.resolve()
 PROJECT_ROOT = CURRENT_DIR.parent
 WHEELS_DIR = PROJECT_ROOT / "deps" / "wheels"
 PYPROJECT_TOML_FILEPATH = PROJECT_ROOT / "pyproject.toml"
+
+# 提前把项目根目录加入 sys.path，保证 agent 包可被导入
+# （Android adapter 以文件路径加载本模块时，工作目录/agent 目录不在 sys.path）
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from agent.utils import print_info, print_error
 
 
 # 计算 pyproject.toml 的 hash 值，用于判断依赖是否变更

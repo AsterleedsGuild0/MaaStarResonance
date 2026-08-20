@@ -4,7 +4,7 @@ import os
 import re
 from typing import Set, Optional
 
-from logger import logger
+from .logger import logger
 
 
 class Module:
