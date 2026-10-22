@@ -1,6 +1,10 @@
+---
+sidebar_label: 修改功能
+---
+
 # 如何修改现有功能
 
-> 本文档指导 AI 开发者如何安全地修改 MaaStarResonance 的现有功能。
+本页说明如何定位现有功能的影响范围并修改相关资源和代码。新增任务与参数读取方式见[如何添加新功能](./add-feature.md)。
 
 ---
 
@@ -10,27 +14,21 @@
 
 修改任何代码前，先确定影响范围：
 
-```bash
-# 搜索符号在项目中的所有引用
-# 在 VSCode 中使用全局搜索（Ctrl+Shift+F）
+- Python 符号先使用编辑器或语言服务器的“查找引用”；跨 JSON/Python 的名称还要检查文本引用。
+- 例如修改 `AutoFishing` 时，核对 `agent/` 中的注册与调用、`assets/` 中的 `custom_action`，以及 `assets/interface.json` 中的任务入口。
 
-# 例如要修改 custom_action "AutoFishing"：
-# 1. 搜索 "AutoFishing" 在 agent/ 中的定义和使用
-# 2. 搜索 "AutoFishing" 在 assets/ 中的 pipeline 引用
-# 3. 搜索 "启动自动钓鱼入口" 在 interface.json 中的 task 引用
-```
+### 跨文件引用检查
 
-### 三层联动检查
+按实际依赖检查联动文件，不要求每个功能都有 Python 和 Attach 层：
 
-任何功能都涉及三层文件的联动，修改时必须同步检查：
+| 修改对象 | 需要核对的引用 |
+| --- | --- |
+| Pipeline 节点名 | `task.entry`、`next`、`on_error`、`pipeline_override`、Python 中的节点字符串 |
+| 自定义动作或识别器注册名 | Pipeline 中的 `custom_action` / `custom_recognition` 与 Python 装饰器 |
+| 用户选项 | `task.option`、选项定义、被覆盖节点与读取该参数的代码 |
+| `attach` 参数 | 参数节点名、key、`agent/attach/` 读取函数及其调用处 |
 
-```
-interface.json (task/option)
-    ↕ entry 名称匹配
-pipeline JSON (节点定义)
-    ↕ custom_action 名称匹配
-agent/custom/*.py (Python 实现)
-```
+纯 Pipeline 任务不需要为了满足目录结构而增加 CustomAction 或 Attach 文件。
 
 ---
 
@@ -71,6 +69,7 @@ agent/custom/*.py (Python 实现)
 ```
 
 **注意**：
+
 - ROI 格式为 `[x, y, width, height]`（左上角坐标 + 宽高）
 - 修改后用 VSCode 插件验证识别是否命中
 - 如果同一个识别节点被多处引用，只需改一处
@@ -84,7 +83,7 @@ agent/custom/*.py (Python 实现)
 1. 截取新的模板图片，替换 `assets/resource/base/image/` 下的对应文件
 2. 保持文件名不变（避免修改 pipeline JSON）
 3. 如果文件名变了，同步修改 pipeline JSON 中的 `template` 路径
-4. 运行 `python scripts/check_resource.py assets/resource/base` 验证
+4. 运行 `uv run python scripts/check_resource.py assets/resource/base` 检查资源加载，再用实际截图确认匹配结果。
 
 ### 场景 3: 修改点击位置
 
@@ -119,7 +118,7 @@ agent/custom/*.py (Python 实现)
 3. 确保不改变 `@AgentServer.custom_action("名称")` 中的名称
 4. 确保 `run()` 方法签名不变
 
-**示例：修改钓鱼张力阈值**
+示例：修改钓鱼张力阈值。
 
 ```python
 # agent/custom/fishing_action.py
@@ -133,6 +132,7 @@ max_tension = 90  # 提高张力阈值
 ```
 
 **注意事项**：
+
 - 不要修改 custom_action 注册名称，否则 pipeline JSON 也要同步改
 - 不要修改 `run()` 方法的参数签名
 - 保持返回值语义：`True` 成功，`False` 失败
@@ -144,7 +144,9 @@ max_tension = 90  # 提高张力阈值
 
 **步骤**：
 
-1. **pipeline JSON**：添加参数节点（如果还没有）
+以下示例采用共享 `attach` 参数；仅供单个动作使用的参数可直接通过 `custom_action_param` 传入，选择依据见[参数传递](./add-feature.md#参数传递)。
+
+- **pipeline JSON**：添加参数节点（如果还没有）
 
 ```json
 "获取参数-我的新参数": {
@@ -155,7 +157,7 @@ max_tension = 90  # 提高张力阈值
 }
 ```
 
-2. **attach 辅助函数**：添加读取函数（使用装饰器）
+- **attach 辅助函数**：添加读取函数（使用装饰器）
 
 ```python
 # agent/attach/my_attach.py
@@ -169,13 +171,13 @@ def get_my_new_param(context: Context) -> str:
     ...
 ```
 
-3. **CustomAction**：在 `run()` 中读取并使用参数
+- **CustomAction**：在 `run()` 中读取并使用参数
 
 ```python
 my_param = get_my_new_param(context)
 ```
 
-4. **interface.json**：在 option 中添加选项定义，在 task 的 option 列表中引用
+- **interface.json**：在 option 中添加选项定义，在 task 的 option 列表中引用
 
 ```json
 // option 中添加
@@ -209,10 +211,10 @@ my_param = get_my_new_param(context)
 
 1. 修改 pipeline JSON 中节点的 `next` 字段
 2. 确保所有 `next` 引用的节点都存在
-3. 确保没有死循环（除非是有意的循环设计）
-4. 运行 `python scripts/check_resource.py assets/resource/base` 验证
+3. 为有意设计的循环设置实际退出条件，并验证用户停止响应；`timeout` 不是整个任务的总时长上限。
+4. 运行 `uv run python scripts/check_resource.py assets/resource/base` 检查资源加载，再实际运行受影响的节点链。
 
-**示例：在流程中插入一个等待节点**
+示例：在流程中插入一个等待节点。
 
 ```json
 // 修改前
@@ -237,6 +239,7 @@ my_param = get_my_new_param(context)
 **需求**：修改任务名称、描述、选项等。
 
 **注意**：
+
 - `entry` 字段值必须与 pipeline JSON 中的节点 key 一致，修改 entry 时必须同步修改 pipeline
 - `name` 字段是用户看到的显示名，可以自由修改
 - `option` 引用的选项名必须在 `option` 对象中存在
@@ -245,22 +248,13 @@ my_param = get_my_new_param(context)
 
 ## 修改后的验证流程
 
-```
-1. 语法检查
-   └── python scripts/check_resource.py assets/resource/base
+按[测试与验收](./test-feature.md)选择适用检查，区分三个层次：
 
-2. 格式检查
-   └── pre-commit run --all-files
+1. 资源加载与格式检查：确认框架能加载资源；不能据此证明 Python 注册名称匹配。
+2. 节点调试：用实际截图验证识别、ROI 和动作。
+3. 任务验收：从入口运行受影响功能，验证选项、完成条件、停止和异常分支；共享节点的调用方也要覆盖。
 
-3. 节点级验证（VSCode Maa 插件）
-   └── 调试修改过的识别节点，确认能正确命中
-
-4. 功能级验证
-   └── 手动运行修改过的功能，确认端到端流程正常
-
-5. 回归验证
-   └── 确认修改没有影响其他功能
-```
+没有模拟器或对应游戏场景时，明确记录尚未验证的范围。
 
 ---
 
@@ -269,10 +263,10 @@ my_param = get_my_new_param(context)
 ### DO（推荐做法）
 
 - **最小修改**：只改需要改的部分，不做无关重构
-- **保持命名**：不改变 custom_action 名称、pipeline 节点名、entry 名称
-- **向后兼容**：新增参数时使用默认值，确保不配置时行为不变
-- **同步修改**：pipeline 和 Python 代码的修改保持同步
-- **验证资源**：修改后运行 check_resource.py 验证
+- **保持命名**：不做无关重命名；确需改名时同步更新全部跨文件引用。
+- **保持参数契约**：更改默认值或删除参数前，核对选项覆盖、读取函数和调用方。
+- **按依赖修改**：只更新实际受影响的 Pipeline、Python 和界面声明，不强制凑齐固定层数。
+- **分层验证**：资源加载检查之外，还要验证受影响的节点和任务。
 
 ### DON'T（避免做法）
 
@@ -305,7 +299,7 @@ my_param = get_my_new_param(context)
 
 ### 插件结构
 
-```
+```text
 agent/plugins/
 └── my_plugin/
     ├── plugin.json          # 插件元数据
@@ -369,8 +363,8 @@ else:
 | 点击坐标 | `assets/resource/base/pipeline/*.json` |
 | 业务逻辑 | `agent/custom/*.py` |
 | 参数读取 | `agent/attach/*.py` |
-| 新增用户选项 | `assets/interface.json` + pipeline + attach |
+| 新增用户选项 | `assets/interface.json` + 被覆盖的 Pipeline 节点；按读取方式更新 Python |
 | 任务入口 | `assets/interface.json` + `assets/resource/base/pipeline/*.json` |
 | 常量数据 | `agent/constant/` |
 | 工具函数 | `agent/utils/*.py` |
-| 新增功能 | interface.json + pipeline + custom + attach（四个文件） |
+| 新增功能 | 按需修改 interface.json、Pipeline、Python 扩展和参数读取；见[添加功能](./add-feature.md) |

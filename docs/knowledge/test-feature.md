@@ -1,126 +1,118 @@
+---
+sidebar_label: 测试与验收
+---
+
 # 如何测试功能
 
-> 本文档介绍 MaaStarResonance 的测试方法，包括 VSCode 插件调试、脚本化测试、以及手动验证流程。
+> 本文档区分编辑器检查、资源加载、文档构建和模拟器端到端验收。各项检查覆盖的范围不同，资源加载成功不代表任务可用。
 
 ---
 
 ## 测试方式总览
 
-| 方式 | 适用场景 | 工具 |
-|------|---------|------|
-| **VSCode Maa 插件调试** | Pipeline 节点调试、识别验证、ROI 调整 | Maa Pipeline Support |
-| **资源校验脚本** | Pipeline JSON 语法和资源完整性检查 | check_resource.py |
-| **MaaDebugger** | 独立调试、截图分析、节点测试 | MaaDebugger |
-| **手动运行验证** | 端到端功能测试 | MFAAvalonia UI |
-| **Python 单元测试** | CustomAction 逻辑测试（需 mock） | pytest（待建设） |
+| 方式 | 适用场景 | 边界 |
+| --- | --- | --- |
+| **编辑器静态检查** | JSON 语法、已配置 Schema 的字段诊断 | 不连接游戏，不验证识别或动作 |
+| **VSCode Maa 插件调试** | 单节点识别、截图、ROI 和取色 | 需配置工具及设备，不能替代完整任务验收 |
+| **资源校验脚本** | 调用 MaaFramework 加载资源包 | 不导入 Python 自定义扩展，不启动任务 |
+| **文档构建** | Markdown/MDX、文档路由及构建期诊断 | 不测试游戏功能 |
+| **MaaDebugger** | 可选的独立调试工具 | 不在项目依赖中，需另行准备兼容版本 |
+| **手动运行验证** | 在 MFAAvalonia 和真实模拟器中验证任务 | 覆盖正常流程、停止与异常场景 |
+
+当前没有正式的 pytest/unittest 测试套件、覆盖率门禁或 `npm test` 命令。不要将后文的手动验收和资源加载称为单元测试通过。
 
 ---
 
 ## 方式一：VSCode Maa Pipeline Support 插件（推荐）
 
-这是项目**最主要的调试方式**，VSCode 插件 `nekosu.maa-support` 提供了 Pipeline 的可视化调试能力。
+项目开发文档推荐使用 VSCode 插件 `nekosu.maa-support` 进行 Pipeline 调试。插件能力与操作入口以所安装版本的说明为准。
 
 ### 安装
 
-在 VSCode 扩展市场搜索 `maa-support` 或访问：
-https://marketplace.visualstudio.com/items?itemName=nekosu.maa-support
+在 VSCode 扩展市场安装 [Maa Pipeline Support](https://marketplace.visualstudio.com/items?itemName=nekosu.maa-support)。
 
 ### 配置
 
-插件需要配置 MaaFramework 的路径。在项目根目录创建 `.maafw/` 目录（插件会自动检测）：
+按照插件文档配置 MaaFramework、资源目录和 ADB 控制器，资源目录使用 `assets/resource/base`。本文不约定插件配置文件的名称或格式，避免把特定版本的配置当成项目接口。
 
-```json
-// .maafw/config.json（插件自动生成或手动创建）
-{
-    "resource": "assets/resource/base",
-    "controller": "adb"
-}
-```
+先处理编辑器报告的 JSON 语法错误；若已配置匹配当前 MaaFramework 版本的 Schema，再检查字段诊断。静态检查不会运行识别、自定义动作或游戏任务。
 
 ### 调试 Pipeline 节点
 
-1. **打开任意 pipeline JSON 文件**（如 `assets/resource/base/pipeline/fishing/main_action.json`）
-2. 插件会自动解析 JSON 中的节点
-3. 点击节点名称旁边的 **调试图标**（或右键选择调试）
-4. 插件会连接模拟器，截取当前画面，运行该节点的 recognition
-5. 显示识别结果：是否命中、识别框位置、匹配置信度
+1. 打开要修改的 Pipeline JSON 文件，确认插件已载入对应资源。
+2. 连接模拟器，将游戏停在待验证的画面。
+3. 使用插件当前版本提供的节点调试入口，先验证 recognition。
+4. 对照截图查看是否命中、识别框位置及工具提供的识别详情。
+5. 需要执行动作时，先确认当前账号、画面和操作后果；节点调试也可能产生真实点击。
 
 ### 截图与 ROI 获取
 
-1. 使用插件的截图功能获取模拟器当前画面
-2. 在截图上框选需要识别的区域
-3. 插件自动生成 ROI 坐标 `[x, y, width, height]`
-4. 直接粘贴到 pipeline JSON 的 `roi` 字段
+1. 使用插件的截图功能获取模拟器当前画面。
+2. 在截图上框选需要识别的区域。
+3. 获取 ROI 坐标 `[x, y, width, height]`，核对截图尺寸与资源使用的坐标基准。
+4. 写入 Pipeline 的 `roi` 字段，并在目标画面和相似的非目标画面上复测。
 
 ### 取色
 
-1. 使用插件的取色功能
-2. 在截图上点击需要匹配的颜色
-3. 插件自动生成 HSV 颜色范围 `lower` 和 `upper`
-4. 用于 `ColorMatch` 类型的 recognition
+1. 使用插件的取色功能查看目标区域颜色。
+2. 根据 `ColorMatch` 使用的颜色空间设置 `lower` 和 `upper`，不要直接将 RGB 数值当作 HSV 范围。
+3. 在亮度、动画或背景变化时复测，确认颜色范围没有误命中。
 
 ### 调试验证流程
 
-```
-编写/修改 pipeline 节点
-    ↓
-VSCode 插件调试该节点
-    ↓
-确认识别命中、ROI 正确、置信度足够
-    ↓
-调试动作节点确认点击位置正确
-    ↓
-手动运行完整任务验证端到端流程
-```
+1. 修改 Pipeline 后，先处理编辑器静态诊断。
+2. 调试单个识别节点，确认目标命中、非目标不命中、ROI 合适。
+3. 在可控画面验证动作位置和效果。
+4. 手动运行完整任务，验证节点衔接、停止和异常分支。
 
 ---
 
 ## 方式二：资源校验脚本
 
-项目提供了 `scripts/check_resource.py` 用于校验 pipeline 资源文件的完整性和语法正确性。
+`scripts/check_resource.py` 调用 MaaFramework 加载指定资源目录，以加载状态判断是否成功。它不是完整的静态分析器，也不是任务测试程序。
 
 ### 使用方法
 
 ```bash
-# 校验整个资源目录
-python scripts/check_resource.py assets/resource/base
+# 在仓库根目录同步锁定的项目环境
+uv sync
 
-# 校验多个目录
-python scripts/check_resource.py assets/resource/base assets/resource/jp
+# 加载当前项目的基础资源包
+uv run scripts/check_resource.py assets/resource/base
 ```
 
 ### 校验内容
 
-- Pipeline JSON 语法是否正确
-- 引用的模板图片文件是否存在
-- 引用的 OCR 模型是否存在
-- 节点间的 `next` 引用是否指向存在的节点
-- `custom_action` / `custom_recognition` 名称是否与 Python 代码匹配
+- 脚本创建一个 `Resource`，按命令行参数顺序调用 `resource.post_bundle(dir).wait()`，检查返回状态是否成功。
+- 多个目录会连续加载到同一个 `Resource`，后续加载可受到前面资源的影响；这不是各目录独立、隔离的验证。要单独验证某个资源包，应单独运行一次命令。
+- 任一目录加载失败，立即返回失败并以退出码 `1` 结束；未提供目录参数也退出 `1`。全部加载成功才输出 `All directories checked.`。
+- JSON、资源路径等问题是否在加载阶段报错，由所用 MaaFramework 版本决定。不能把脚本成功等同于所有模板、OCR 模型或 `next` 引用都已逐项验证。
+- 脚本不导入 `agent` 的自定义动作/识别器，不检查 `custom_action` / `custom_recognition` 是否与 Python 注册名称匹配，也不连接控制器、启动任务或运行图像识别。注册和运行问题需在实际宿主与 Agent 配合时验证。
 
-**注意**：此脚本只校验资源文件的静态完整性，不运行实际的图像识别。
+### 本地与 CI 的区别
+
+本地 `uv run` 使用项目环境，`pyproject.toml` 固定 `maafw==5.12.3`，依赖由 `uv.lock` 管理。
+
+当前 `.github/workflows/check.yml` 在 `macos-latest` 上执行 `python -m pip install --upgrade maafw --pre`，再用该 Python 运行资源检查；虽然安装了 uv，但没有通过 `uv sync` 使用项目锁定环境。因此 CI 可能使用不同的 MaaFramework 版本，其结果不能视为本地锁定版本或 Windows 模拟器运行结果。
 
 ---
 
 ## 方式三：MaaDebugger 独立调试
 
-MaaDebugger 是一个独立的调试工具，可以不依赖 VSCode 使用。
+MaaDebugger 是可脱离 VSCode 使用的独立调试工具，但不在本项目 `pyproject.toml` 或 `package.json` 的依赖中。
 
 ### 安装与启动
 
-```bash
-pip install MaaDebugger
-python -m MaaDebugger
-# 指定端口
-python -m MaaDebugger --port 8080
-```
+按 [MaaDebugger 官方仓库](https://github.com/MaaXYZ/MaaDebugger) 的当前说明选择与资源兼容的版本、安装方式和启动命令。建议使用独立环境，不要为了安装调试工具而升级项目锁定的 `maafw`。
+
+项目的 [开发随笔](/docs/开发者文档/content/开发随笔) 保留了历史安装和启动记录；其中的命令、端口参数不代表当前工具版本或项目环境一定支持。
 
 ### 使用
 
-1. 启动 MaaDebugger
-2. 连接模拟器（ADB）
-3. 加载项目的 resource 目录
-4. 可以逐节点调试 pipeline
-5. 查看识别结果、截图、日志
+1. 按所选版本说明启动工具并连接模拟器。
+2. 加载 `assets/resource/base`。
+3. 使用工具实际提供的节点调试、截图和日志功能定位问题。
+4. 涉及 Python 自定义扩展时，先确认工具是否支持所需 Agent 接入；不能因资源可加载就认为自定义动作可以执行。
 
 ---
 
@@ -128,28 +120,31 @@ python -m MaaDebugger --port 8080
 
 ### 前置条件
 
-1. MuMu 模拟器已启动，星痕共鸣已安装
-2. ADB 连接正常
-3. 项目依赖已安装 (`uv sync`)
-4. MaaFramework 已放入 `deps/` 目录
+1. 按 [快速开始](/docs/开发者文档/content/快速开始) 准备环境；本地 Python 依赖通过 `uv sync` 同步。
+2. MuMu 模拟器和星痕共鸣已启动，ADB 连接正常，游戏处于待测任务要求的起始页面。
+3. 已准备能加载本次修改资源的 MFAAvalonia 运行环境；涉及 Python 自定义扩展时，也要确认宿主实际启动的是本次修改的 Agent，而非旧安装目录中的副本。
+4. 使用允许测试的账号，明确哪些操作可能消耗道具、货币或改变游戏状态。
 
 ### 运行步骤
 
-```bash
-# 方式1: 通过 MFAAvalonia UI（用户正常使用的方式）
-# 启动 MFAAvalonia，加载 assets/interface.json，选择任务运行
+1. 启动 MFAAvalonia，加载对应资源与 `assets/interface.json` 定义的任务、选项。
+2. 只选择本次需要验证的任务，记录选项值和起始画面，再开始运行。
+3. 结合界面、框架日志和 Agent 日志观察识别、动作与流程结果。
+4. 修改了共享节点或自定义扩展时，补测使用它们的相关任务。
 
-# 方式2: 直接运行 agent（开发者调试）
-# 需要先启动 MFAAvalonia，它会通过 AgentServer 与 agent/main.py 通信
-```
+`.vscode/launch.json` 提供了“启动agent”调试配置，但启动 Agent 不等于启动完整任务。其连接标识必须与当前宿主会话匹配，不能把示例参数当成通用启动参数。普通端到端验收优先沿用 MFAAvalonia 的宿主启动流程。
 
 ### 验证要点
 
-1. **日志检查**：观察 `agent/logger.py` 输出的日志，确认参数读取正确、识别命中、动作执行
-2. **识别验证**：确认识别节点能正确命中目标
-3. **动作验证**：确认点击/按键位置正确
-4. **流程验证**：确认整个任务流程能正常完成
-5. **边界情况**：测试异常处理（掉线、弹窗、超时等）
+| 场景 | 操作 | 验收内容 |
+| --- | --- | --- |
+| 正常完成 | 从约定起始画面执行任务，覆盖本次修改的选项 | 参数生效、识别和点击正确、任务到达预期结束状态 |
+| 用户停止 | 在循环、等待识别和自定义动作执行期间分别点击停止 | 当前操作收尾后不再发起新一轮点击或按键；若动作按住了按键/触摸，应确认已释放，任务状态可恢复 |
+| 识别失败 | 使用目标不存在或被遮挡的可控画面 | 按既定失败路径、超时或退出逻辑结束，不无限空转、不误点其他控件 |
+| 弹窗或非预期页面 | 在可复现、可恢复的条件下引入弹窗或切换页面 | 按功能设计恢复或明确失败；没有处理该场景时记录限制，不能写成已自动恢复 |
+| 设备或网络异常 | 在可恢复的条件下断开 ADB 或触发网络异常 | 日志能定位失败，任务不继续错误操作；恢复连接后可按规定重新启动 |
+
+记录所用资源、框架和 UI 版本、模拟器分辨率、任务选项、实际结果以及必要的日志/截图。不能复现的维护、掉线等场景应标为未验证，不能以推测代替验收。
 
 ---
 
@@ -157,113 +152,43 @@ python -m MaaDebugger --port 8080
 
 ### 当前状态
 
-项目目前没有完整的自动化测试体系。以下是可行性分析：
+项目目前没有正式的 pytest/unittest 测试套件、coverage gate 或 `npm test`。资源检查、pre-commit hook 和文档构建是现有可执行检查，不包含 Python 业务逻辑的自动化断言。
 
 ### 可行的脚本化测试
 
-**1. Pipeline JSON 语法校验（已有）**
+以下命令均在仓库根目录执行，按修改范围选择，不需要把所有命令重复运行：
 
-```bash
-python scripts/check_resource.py assets/resource/base
-```
+| 修改内容 | 现有命令 | 检查范围 |
+| --- | --- | --- |
+| Pipeline、图片或其他资源 | `uv run scripts/check_resource.py assets/resource/base` | MaaFramework 资源加载状态 |
+| 文档、侧栏或站点配置 | 首次安装依赖执行 `npm ci`，然后 `npm run docs:check` | Docusaurus 构建及其诊断 |
+| 提交前的文件规范检查 | `uv run pre-commit run --all-files` | 当前配置的文件筛选和 hook |
 
-**2. CustomAction 参数解析测试**
+文档工具要求 Node.js `>=20`。`npm run docs:check` 和 `npm run build` 都执行 `docusaurus build`，不是两套独立测试。构建成功后，仍需在浏览器中检查受影响页面的导航、链接和显示效果。
 
-可以为 `CustomActionParam` 等工具类编写单元测试：
+当前 `.pre-commit-config.yaml` 配置了 oxipng、Prettier 和 markdownlint-cli2：
 
-```python
-# tests/test_param_utils.py
-import pytest
-from agent.utils.param_utils import CustomActionParam, CustomActionParamError
+- oxipng 按配置中的 `files` 规则筛选图片，并带有压缩、剥离元数据参数；不要把它当成图片识别正确性检查。
+- Prettier 仅处理 YAML/JSON，不负责 Python、JavaScript 或 Markdown 格式检查。
+- markdownlint-cli2 仅处理 `docs/**` 和根 `README.md` 中匹配的 Markdown，带有 `--fix`，不覆盖所有根目录 Markdown 文件。
 
-def test_valid_param():
-    param = CustomActionParam('{"key": "value"}')
-    assert param.data["key"] == "value"
-
-def test_empty_param():
-    with pytest.raises(CustomActionParamError):
-        CustomActionParam("")
-
-def test_invalid_json():
-    with pytest.raises(CustomActionParamError):
-        CustomActionParam("not json")
-
-def test_require_keys():
-    param = CustomActionParam('{"a": 1, "b": 2}')
-    result = param.require(["a", "b"])
-    assert result == {"a": 1, "b": 2}
-
-def test_require_missing():
-    param = CustomActionParam('{"a": 1}')
-    with pytest.raises(CustomActionParamError):
-        param.require(["a", "b"])
-```
-
-**3. Attach 函数测试（需 mock Context）**
-
-```python
-# tests/test_attach.py
-from unittest.mock import MagicMock
-from agent.attach.common_attach import get_login_timeout
-
-def test_get_login_timeout():
-    context = MagicMock()
-    context.get_node_data.return_value = {
-        "attach": {"login_timeout": 240}
-    }
-    assert get_login_timeout(context) == 240
-
-def test_get_login_timeout_default():
-    context = MagicMock()
-    context.get_node_data.return_value = None
-    assert get_login_timeout(context) == 300
-```
-
-**4. Pipeline 节点结构校验（可扩展）**
-
-可以编写脚本检查 pipeline JSON 的额外约束：
-
-```python
-# scripts/validate_pipeline.py
-"""自定义 pipeline 校验脚本"""
-import json
-from pathlib import Path
-
-def check_node_names(pipeline_dir: Path):
-    """检查节点命名规范"""
-    for json_file in pipeline_dir.rglob("*.json"):
-        with open(json_file, encoding="utf-8") as f:
-            data = json.load(f)
-        for node_name in data:
-            # 检查命名规范
-            if node_name.startswith("获取参数-"):
-                assert "attach" in data[node_name], f"{json_file}: {node_name} 缺少 attach"
-            # ... 更多检查
-```
+这些 hook 可能改写文件，首次运行还可能下载工具环境。运行后需检查实际修改；`--all-files` 表示扩大候选文件集合，不会绕过各 hook 的文件类型和路径限制。它们不执行资源加载、Python 单元测试或模拟器任务。
 
 ### 不可完全脚本化的部分
 
-以下部分**必须依赖实际游戏画面**，无法完全脚本化：
+以下项目不能只凭当前的资源检查或文档构建判定通过，仍需实际游戏画面和运行记录：
 
-- **图像识别准确性**：模板匹配的置信度、OCR 识别率需要在实际游戏画面上验证
-- **坐标点击精度**：不同分辨率、不同 UI 状态下点击位置可能偏移
-- **时序和延迟**：游戏加载时间、动画效果影响自动化流程
-- **异常处理**：掉线、弹窗、服务器维护等无法预测的场景
+- **图像识别准确性**：目标与相似非目标画面上的模板匹配、OCR 结果。
+- **坐标点击精度**：当前分辨率和 UI 状态下的实际点击效果。
+- **时序和延迟**：加载、动画、等待及节点切换是否符合预期。
+- **停止与异常处理**：循环是否响应停止，掉线、弹窗和识别失败时是否按设计退出或恢复。
 
 ### 建议的测试策略
 
-```
-开发阶段：
-  VSCode 插件调试单个节点 ←→ 修改 pipeline/代码
-  
-提交前：
-  1. python scripts/check_resource.py assets/resource/base
-  2. pre-commit run --all-files
-  3. 手动运行关键功能验证
-  
-发布前：
-  完整跑一遍所有功能，确认无回归
-```
+1. 开发时先处理编辑器静态诊断，再用插件或可选调试工具验证单个节点。
+2. 资源修改后执行项目资源加载检查；文档修改后执行 `npm run docs:check`。
+3. 提交前按需执行 pre-commit，查看自动修复内容，再完成受影响任务的模拟器验收。
+4. 发布前回归关键任务与共享节点调用方，记录通过、失败和未验证项。没有运行的场景不写“无回归”。
 
 ---
 
@@ -271,55 +196,25 @@ def check_node_names(pipeline_dir: Path):
 
 ### 1. 日志调试
 
-项目使用 loguru，日志级别为 DEBUG。关键日志：
+项目依赖包含 loguru。调试时同时查看框架日志和 Agent 日志，记录参数、当前节点、实际识别结果和异常上下文；日志级别与输出位置以实际运行配置为准。
 
-```python
-logger.info("参数值: {}", value)       # 参数读取
-logger.info("识别结果: {}", result.hit) # 识别命中
-logger.warning("异常情况")              # 异常
-logger.error("错误信息")                # 错误
-```
+不要只凭一条“任务结束”日志判断业务成功，应与预期结束画面和任务状态核对。共享日志前清除账号信息、设备标识及其他敏感内容。
 
 ### 2. 识别调试
 
-在 CustomAction 中临时添加调试代码：
+保留目标画面和相似的非目标画面，记录 ROI、识别参数与实际结果。优先使用插件或调试工具已有的截图和识别详情功能。
 
-```python
-# 保存截图用于离线分析
-import cv2
-img = context.tasker.controller.post_screencap().wait().get()
-cv2.imwrite("debug_screenshot.png", img)
-
-# 打印识别详情
-result = context.run_recognition("节点名", img)
-if result:
-    logger.debug(f"hit: {result.hit}, box: {result.box}")
-    if result.best_result:
-        logger.debug(f"best: {result.best_result.text}, score: {result.best_result.score}")
-    if result.all_results:
-        for r in result.all_results:
-            logger.debug(f"  all: {r.text}, score: {r.score}")
-```
+若需要在 Python 中临时采集数据，应按当前 `maafw` 版本的 API 和项目现有调用方式处理截图失败、空识别结果及不同识别算法的返回字段，不假定所有结果都有 `text`、`score` 或 `hit`。定位结束后移除临时采集逻辑和截图文件。
 
 ### 3. Pipeline 调试
 
-在 pipeline JSON 中临时添加调试节点：
+先缩小到失败节点和它的候选后继，核对当前画面与候选节点各自的识别条件。`next` 按候选顺序选择首个识别命中的节点，不是按当前节点成功/失败选择两个固定分支。
 
-```json
-"调试截图": {
-    "recognition": "DirectHit",
-    "action": {
-        "type": "Custom",
-        "param": {
-            "custom_action": "debug_screenshot"
-        }
-    }
-}
-```
+不要直接添加引用未注册动作的调试节点；资源加载检查不会替你验证 Python 注册。需要临时节点时，应复用已确认可用的动作，并在定位后移除，避免改变正常流程。
 
 ### 4. 通用文字识别节点
 
-项目提供了 `通用文字识别` 节点，可以通过 `pipeline_override` 动态指定识别内容：
+项目的 `通用文字识别` 节点可通过 `pipeline_override` 指定识别内容。以下仅是已有 CustomAction 上下文中的调用片段；`context`、截图 `img` 和 ROI 坐标需要由调用方提供，不能作为独立测试直接运行：
 
 ```python
 result = context.run_recognition(
@@ -342,25 +237,27 @@ result = context.run_recognition(
 
 1. 检查 ROI 是否正确（用 VSCode 插件截图验证）
 2. 检查模板图片是否清晰、是否包含足够特征
-3. 尝试调整 `threshold`（降低阈值，如 0.7 → 0.6）
-4. 尝试添加 `green_mask: true` 过滤背景
+3. 对照目标与非目标样本调整 `threshold`，不要只通过降低阈值让单张截图命中
+4. 需要模板遮罩时，按当前 MaaFramework 版本支持的字段配置，不套用旧版本字段
 5. 对于 OCR，检查 `expected` 文字是否与实际显示一致
 
 ### Q: 点击位置偏移怎么办？
 
-1. 确认模拟器分辨率是 1280x720
-2. 使用 `"target": true` 点击识别到的位置而非固定坐标
-3. 检查 ROI 是否包含了正确的可点击区域
+1. 核对模拟器分辨率、截图尺寸和 Pipeline 坐标基准是否一致
+2. 需要相对识别结果点击时，检查动作的 `target` 和偏移配置，避免沿用失效的固定坐标
+3. 检查 ROI 与实际可点击区域，并确认动画结束后的位置
 
 ### Q: 任务运行中断了怎么办？
 
-1. 检查日志中是否有 `context.tasker.stopping` 相关输出
-2. 确认是否有超时设置过短
-3. 检查是否有未处理的异常导致 return False
+1. 从框架与 Agent 日志区分用户停止、识别等待超时和业务失败
+2. 对照游戏画面确认是否因弹窗、页面变化或设备异常无法继续
+3. 检查自定义扩展是否注册、异常是否被记录，以及返回失败后是否进入预期路径
 
 ### Q: 如何调试循环任务？
 
-循环任务（如 `挂机自动批复入队申请`）使用 `next` 指向自身实现循环。调试时：
-1. 先单独调试循环体内的识别节点
-2. 确认识别能命中后，再调试完整循环
-3. 注意 `rate_limit` 和 `timeout` 的设置
+对于通过 `next` 回到自身或上游节点的循环：
+
+1. 先单独调试循环体内的识别与动作，再验证节点衔接。
+2. 使用可控运行时长观察重复执行，确认没有空转或误点。
+3. 在识别等待和自定义动作期间分别手动停止，检查是否及时结束并释放输入状态。
+4. 核对 `rate_limit`、识别等待 `timeout` 与业务退出条件。`timeout` 不是整个任务的总时限，不能据此断言循环总会自动停止；没有自然终点的任务必须验证用户停止路径。

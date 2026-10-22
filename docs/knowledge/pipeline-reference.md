@@ -1,23 +1,30 @@
+---
+sidebar_label: Pipeline 参考
+---
+
 # Pipeline 参考手册
 
-> MaaFramework Pipeline 语法快速参考，供 AI 开发时查阅。
+本文面向本项目开发者，列出常用 Pipeline 配置和项目内可复用节点，不替代完整协议。项目依赖 MaaFramework 5.12.3；字段与执行语义以[对应版本的任务流水线协议](https://github.com/MaaXYZ/MaaFramework/blob/v5.12.3/docs/zh_cn/3.1-任务流水线协议.md)及实际安装的 API 为准。仓库 `MaaFWDocs/` 保留了较早版本的文档，其中旧字段不能直接作为当前版本的配置依据。
 
 ---
 
 ## Pipeline 节点完整字段
 
+以下列出本页涉及的常用字段；示例值不等于框架默认值，完整字段和默认值请查阅对应版本协议。
+
 ```json
 {
     "节点名称": {
         "recognition": {
-            "type": "识别类型",
-            "param": { ... }
+            "type": "DirectHit",
+            "param": {}
         },
         "action": {
-            "type": "动作类型",
-            "param": { ... }
+            "type": "DoNothing",
+            "param": {}
         },
         "next": ["后继节点"],
+        "on_error": ["错误处理节点"],
         "attach": { "key": "value" },
         "pre_delay": 0,
         "post_delay": 0,
@@ -25,24 +32,25 @@
         "timeout": 20000,
         "enabled": true,
         "inverse": false,
-        "focus": "提示信息"
+        "focus": {}
     }
 }
 ```
 
 | 字段 | 类型 | 必填 | 说明 |
 |------|------|------|------|
-| `recognition` | object | 否 | 识别配置，不填默认 DirectHit |
-| `action` | object | 否 | 动作配置，不填默认 DoNothing |
-| `next` | string\|array | 否 | 后继节点，支持 `[JumpBack]` 前缀 |
+| `recognition` | string\|object | 否 | 识别配置，不填默认 DirectHit |
+| `action` | string\|object | 否 | 动作配置，不填默认 DoNothing |
+| `next` | string\|array | 否 | 按顺序识别候选节点，只执行首个命中节点；支持 `[JumpBack]` 前缀 |
+| `on_error` | string\|array | 否 | 当前节点动作失败，或其后继识别超时时，转入的候选节点列表 |
 | `attach` | object | 否 | 附加数据，供 CustomAction 通过 `context.get_node_data()` 读取 |
-| `pre_delay` | int | 否 | 执行前延迟（毫秒），默认 0 |
-| `post_delay` | int | 否 | 执行后延迟（毫秒），默认 0 |
+| `pre_delay` | int | 否 | 识别命中后、动作执行前的延迟（毫秒），默认 200 |
+| `post_delay` | int | 否 | 动作执行后、开始识别后继节点前的延迟（毫秒），默认 200 |
 | `rate_limit` | int | 否 | 识别频率限制（毫秒），防止过快轮询 |
-| `timeout` | int | 否 | 节点超时时间（毫秒），默认 20000 |
+| `timeout` | int | 否 | 等待后继候选节点命中的识别超时时间（毫秒），默认 20000；不是整个任务的总时限 |
 | `enabled` | bool | 否 | 是否启用，默认 true，可通过 pipeline_override 控制 |
 | `inverse` | bool | 否 | 识别结果取反（识别不到才算命中），默认 false |
-| `focus` | string | 否 | 提示信息，识别失败时显示 |
+| `focus` | object | 否 | 关注节点的通知配置，供节点回调使用；消息值可以是 string 或 object，不是识别失败时自动显示的提示文本 |
 
 ---
 
@@ -87,7 +95,7 @@
 | `roi` | [x,y,w,h] | 识别区域，[0,0,0,0] 表示全屏 |
 | `threshold` | float | 匹配阈值 0-1，默认 0.7，越高越严格 |
 | `green_mask` | bool | 绿色掩码，过滤模板中的绿色背景 |
-| `method` | int | 匹配算法，1/3/5（TM_SQDIFF/CCOEFF/CCORR），默认 5 |
+| `method` | int | 匹配算法，1=`TM_SQDIFF_NORMED`、3=`TM_CCORR_NORMED`、5=`TM_CCOEFF_NORMED`，默认 5；枚举见 [OpenCV 文档](https://docs.opencv.org/4.x/df/dfb/group__imgproc__object.html) |
 
 ### OCR — 文字识别
 
@@ -111,7 +119,7 @@
 |------|------|------|
 | `expected` | string\|array | 期望的文字，支持正则表达式 |
 | `roi` | [x,y,w,h] | 识别区域 |
-| `only_rec` | bool | 仅识别不筛选，返回所有识别到的文字 |
+| `only_rec` | bool | 跳过文字检测，直接识别指定 ROI 中的文字；需精确设置 ROI，不会取消 `expected` 筛选 |
 | `replace` | array | 文字替换对，用于纠正常见 OCR 错误 |
 
 ### ColorMatch — 颜色匹配
@@ -287,35 +295,105 @@
 
 ## next 跳转规则
 
+`next` 列出的是待识别的候选节点，不是“当前节点成功走第一个、失败走第二个”。当前节点动作完成后，框架按列表顺序检查候选节点各自的 `recognition`，只执行首个命中节点的动作，再处理该节点的 `next`。
+
+- 某个候选节点本轮未命中，只会继续检查下一个候选；这不是动作失败，也不会立即触发 `on_error`。
+- 所有候选都未命中时，按 `rate_limit` 继续轮询，直到命中或达到当前节点的 `timeout`。
+- `DirectHit` 总会命中。把它放在候选列表前面会挡住后续候选；作为兜底时应放在最后。
+
+**顺序执行：A → B → C。** 以下节点省略识别配置，默认 `DirectHit`。
+
 ```json
-// 顺序执行：A → B → C
-"A": { "next": "B" },
-"B": { "next": "C" },
-"C": { }
-
-// 分支：A 识别成功走 B，失败走 C
-"A": {
-    "recognition": { ... },
-    "next": ["B", "C"]    // 识别成功走 B，识别失败走 C
+{
+    "A": { "next": "B" },
+    "B": { "next": "C" },
+    "C": {}
 }
-
-// JumpBack：执行 B 后跳回 A 重新识别
-"A": {
-    "next": ["[JumpBack]B"]
-},
-"B": {
-    "action": { ... }
-    // 执行完后回到 A
-}
-
-// 循环：A → B → A（死循环，直到 timeout）
-"A": { "next": "B", "timeout": 86400000 },
-"B": { "next": "A" }
 ```
+
+**按候选识别结果分支。** 先识别 B 的“确认”；未命中才识别 C 的“取消”。两者都未命中则继续等待，不取决于 A 的识别结果。
+
+```json
+{
+    "A": { "next": ["B", "C"] },
+    "B": {
+        "recognition": {
+            "type": "OCR",
+            "param": { "expected": ["确认"] }
+        }
+    },
+    "C": {
+        "recognition": {
+            "type": "OCR",
+            "param": { "expected": ["取消"] }
+        }
+    }
+}
+```
+
+**错误分支：`on_error`。** 当前节点动作执行失败，或等待其 `next` 候选命中超时，才进入该节点的 `on_error` 列表。错误分支也按候选识别结果选择节点，不会依次执行列表中的所有节点。
+
+```json
+{
+    "等待按钮": {
+        "next": ["确认按钮"],
+        "timeout": 20000,
+        "on_error": ["识别超时处理"]
+    },
+    "确认按钮": {
+        "recognition": {
+            "type": "OCR",
+            "param": { "expected": ["确认"] }
+        },
+        "action": "Click",
+        "on_error": ["动作失败处理"]
+    },
+    "识别超时处理": {},
+    "动作失败处理": {}
+}
+```
+
+示例中的两个处理节点仅用于展示路由，默认 `DirectHit` / `DoNothing`，没有恢复操作。实际流程应接入所需的恢复动作或结束分支。“确认按钮”未命中时，等待的是“等待按钮”的 `next`，超时进入“等待按钮”的 `on_error`；命中后若点击动作失败，则使用“确认按钮”自己的 `on_error`，不会回退去尝试原列表的第二个候选。没有可用的错误处理分支时，任务失败结束。
+
+**JumpBack：处理分支后重新识别原候选列表。**
+
+```json
+{
+    "A": { "next": ["C", "[JumpBack]B"] },
+    "B": {
+        "recognition": {
+            "type": "OCR",
+            "param": { "expected": ["关闭"] }
+        },
+        "action": "Click"
+    },
+    "C": {
+        "recognition": {
+            "type": "OCR",
+            "param": { "expected": ["确认"] }
+        }
+    }
+}
+```
+
+当 C 未命中而 B 命中时，执行 B 及其后继节点链；节点链全部结束且当前不在错误处理路径时，从 A 的 `next` 列表起始位置重新识别，先尝试 C，再尝试 B，不重新执行 A 的识别和动作。若当前处于 `on_error` 错误处理路径，则不执行回跳，不能假设分支失败后仍会返回。`[JumpBack]` 不表示“识别失败时执行”，也不是 `on_error` 的替代品；它适合关闭弹窗后继续等待原目标等场景。
+
+**循环：A → B → A。**
+
+```json
+{
+    "A": { "next": "B", "timeout": 20000 },
+    "B": { "next": "A" }
+}
+```
+
+这个例子没有退出分支，A、B 都默认直接命中，因此会持续循环；`timeout` 不会累计整条流水线的运行时间并自动终止循环。需要结束条件时，应在循环候选列表中加入可识别的结束节点，并让其 `next` 为空；同时避免把始终命中的循环节点放在结束节点之前。也可以由调用方主动停止任务。顶层正常流程走到空 `next` 时结束；JumpBack 节点链走完后，仅在不处于错误处理路径时返回原候选列表。识别超时会转入 `on_error`，错误处理本身若又返回循环，也不能保证任务终止。
 
 ---
 
 ## interface.json 结构
+
+`task[].entry` 指向该任务开始执行的 Pipeline 节点名，不是文件名；该节点需要包含在任务所加载的资源中。
 
 ```json
 {

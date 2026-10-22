@@ -1,19 +1,36 @@
+---
+sidebar_label: 添加功能
+---
+
 # 如何添加新功能
 
-> 本文档指导 AI 开发者如何为 MaaStarResonance 添加新的自动化功能。
+本页说明如何添加自动化任务、接入用户选项，以及复用现有 Python 扩展。环境准备见[快速开始](../开发者文档/content/快速开始.md)，完成后的验收见[如何测试功能](./test-feature.md)。
 
 ---
 
 ## 功能开发流程总览
 
-```
-1. 截取游戏画面 → 确定识别区域 (ROI) 和模板图片
-2. 编写 Pipeline JSON → 定义识别节点和动作节点
-3. 编写 CustomAction (Python) → 实现复杂逻辑
-4. 编写 Attach 辅助函数 → 读取用户配置参数
-5. 注册到 interface.json → 定义任务入口和用户选项
-6. 测试验证
-```
+Pipeline 可以独立完成识别和动作；只有内置节点不足以表达逻辑时，才需要 Python 自定义动作或识别器。`attach` 是本项目的参数读取约定，不是所有任务都必须经过的执行层。
+
+1. 准备游戏截图、识别区域（ROI）和模板图片。
+2. 编写 Pipeline 节点及候选节点列表。
+3. 需要 Python 扩展时，复用或新增 CustomAction / CustomRecognition。
+4. 需要共享参数时，复用或新增 Attach 读取函数。
+5. 在 `assets/interface.json` 中声明任务入口和所需选项。
+6. 按变更范围完成资源加载、节点调试和实际任务验收。
+
+## 参数传递
+
+`pipeline_override` 是选项向节点写入配置的入口。`select`、`input` 等 UI 控件类型不决定 Python 的读取方式；应根据参数的使用范围选择已有通道。
+
+| 参数通道 | 适用范围、配置与读取 |
+| --- | --- |
+| 节点 `attach` | 多个动作或辅助函数共享的选项。选项覆盖参数节点的 `attach`；通过 `agent/attach/` 装饰器从节点读取。 |
+| `custom_action_param` | 单个自定义动作的调用参数。选项覆盖动作的 `action.param` 内同名字段；使用 `CustomActionParam` 解析 `argv.custom_action_param`。 |
+
+例如，世界分线列表使用 `get_world_line_id_list(context)` 读取共享的 `attach.line_ids`；自动钓鱼数量通过 `AutoFishing` 的 `custom_action_param` 传入。同一个配置值只保留一处来源，不在两条通道中各存一份。
+
+`CustomActionParam` 要求输入为 JSON 对象字符串。允许 `0` 或 `False` 的字段应显式判断是否存在；其 `require()` 当前会把这些值视为缺失，不能用于这类参数。
 
 ---
 
@@ -48,6 +65,7 @@
 ### 文件位置
 
 在 `assets/resource/base/pipeline/` 下创建或编辑 JSON 文件：
+
 - 简单功能直接放在 `pipeline/` 根目录（如 `roguelike.json`）
 - 复杂功能建子目录（如 `pipeline/fishing/`、`pipeline/little_games/`）
 
@@ -93,19 +111,20 @@
 
 ### 节点链接 (next)
 
-```json
+下面是节点字段片段；每个候选节点使用自己的识别条件，命中前一个后便不再尝试后面的候选。
+
+```jsonc
 // 单个后继
 "next": "下一个节点"
 
-// 多个候选（按顺序尝试）
+// 多个候选：依次识别节点 A、B，执行首个命中项
 "next": ["节点A", "节点B"]
 
-// JumpBack：执行完后跳回当前节点重新识别
+// 可回跳分支，具体返回规则见 Pipeline 参考手册
 "next": ["[JumpBack]从省电模式唤醒"]
-
-// 带识别条件的跳转
-"next": ["识别成功后的节点", "识别失败的备选节点"]
 ```
+
+动作失败和候选识别超时使用 `on_error`，不能把第二个 `next` 候选当作错误分支。详见 [next 跳转规则](./pipeline-reference.md#next-跳转规则)。
 
 ### 完整示例：一个简单的采集功能
 
@@ -156,6 +175,7 @@
 ### 文件位置
 
 在 `agent/custom/` 下创建 Python 文件：
+
 - 通用功能放 `agent/custom/general/`
 - 小游戏放 `agent/custom/little_games/`
 - 独立功能放 `agent/custom/` 根目录
@@ -263,7 +283,7 @@ if context.tasker.stopping:
 
 # 获取节点 attach 数据
 node_data = context.get_node_data("节点名")  # 返回 dict | None
-attach_value = node_data.get("attach", {}).get("key", "default")
+attach_value = node_data.get("attach", {}).get("key", "default") if node_data else "default"
 
 # 覆盖后续节点
 context.override_next("当前节点名", ["下一个节点名"])
@@ -282,17 +302,21 @@ key_code = ANDROID_KEY_EVENT_DATA["KEYCODE_E"]       # 33
 key_code = ANDROID_KEY_EVENT_DATA["KEYCODE_F"]       # 34
 ```
 
+完整键码含义见 [Android KeyEvent 官方文档](https://developer.android.com/reference/android/view/KeyEvent)。
+
 ---
 
 ## 步骤 4: 编写 Attach 辅助函数
 
 ### 文件位置
 
+仅在需要从节点 `attach` 读取配置时添加本节代码；只使用 `custom_action_param` 的动作不需要额外创建 Attach 文件。
+
 在 `agent/attach/` 下创建或编辑文件，文件名与功能对应（如 `my_feature_attach.py`）。
 
 ### 装饰器方式（推荐）
 
-项目提供了 `@attach_param` 和 `@attach_param_list` 装饰器，消除重复的模板代码：
+项目提供 `@attach_param` 和 `@attach_param_list` 装饰器，统一完成节点查询、默认值、类型转换和日志。被装饰函数的行为由装饰器提供，只有 docstring 或 `...` 的函数体不是待实现桩；固定节点名不要再复制手写读取逻辑。
 
 ```python
 from maa.context import Context
@@ -336,7 +360,7 @@ def get_id_list(context: Context) -> list[str]:
 
 ### 手动方式（仅用于动态节点名）
 
-当节点名需要动态拼接时（如 `f"获取参数-需要购买的{type_str}配件"`），无法使用装饰器，需手动编写：
+现有装饰器接收固定节点名；节点名需要动态拼接时（如 `f"获取参数-需要购买的{type_str}配件"`），保留独立读取函数：
 
 ```python
 from maa.context import Context
@@ -352,6 +376,7 @@ def get_fish_equipment(context: Context, type_str: str) -> str:
 ```
 
 **命名规范**：
+
 - pipeline 节点名：`获取参数-参数描述`
 - attach key：使用 snake_case 英文
 - 函数名：`get_` + 参数名（snake_case）
@@ -460,7 +485,7 @@ def get_fish_equipment(context: Context, type_str: str) -> str:
 
 如果功能需要常量数据（如物品列表、地图坐标等），在 `agent/constant/` 下创建：
 
-```
+```text
 agent/constant/my_feature/
 ├── __init__.py      # from .MyData import MY_DATA
 └── MyData.json      # JSON 数据文件
@@ -484,10 +509,8 @@ with open(_data_path, encoding="utf-8") as f:
 
 - [ ] Pipeline JSON 语法正确，节点间链接完整
 - [ ] 模板图片已放入 `assets/resource/base/image/` 对应目录
-- [ ] CustomAction 已用 `@AgentServer.custom_action("名称")` 注册
-- [ ] `custom_action` 名称与 pipeline 中引用的名称一致
-- [ ] Attach 辅助函数已创建，能正确读取参数
-- [ ] interface.json 中已添加 task 和 option
+- [ ] 使用 Python 扩展时，已注册对应动作或识别器，注册名与 Pipeline 引用一致
+- [ ] 使用 `attach` 时，读取函数、参数节点名和 key 一致
+- [ ] interface.json 中已声明 task，并按需添加 option；不重复保存同一个配置值
 - [ ] entry 名称与 pipeline 中的节点 key 一致
-- [ ] `pre-commit run --all-files` 通过
-- [ ] `python scripts/check_resource.py assets/resource/base` 通过
+- [ ] 按[测试与验收](./test-feature.md)运行适用的检查，说明资源加载与实际游戏任务分别验证了什么
