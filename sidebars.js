@@ -70,6 +70,16 @@ const sidebars = {
                         },
                     ],
                 },
+                {
+                    type: "category",
+                    label: "功能开发",
+                    items: [
+                        "knowledge/add-feature",
+                        "knowledge/modify-feature",
+                        "knowledge/pipeline-reference",
+                        "knowledge/test-feature",
+                    ],
+                },
             ],
         },
     ],
