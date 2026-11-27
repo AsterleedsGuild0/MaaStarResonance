@@ -8,7 +8,7 @@
     "version": "v0.13.0",
     "title": "星痕共鸣MAA小助手",
     "icon": "logo.ico",
-    "contact": "ayusummer233@qq.com",
+    "contact": "CONTACT",
     "description": "基于MAAFW的星痕共鸣黑盒测试工具",
     "controller": [
         {
