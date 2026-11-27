@@ -104,7 +104,7 @@ def verify_install_metadata(
         or attributes.get("versionCode") != str(version_code)
     ):
         raise ValueError("APK application ID or version does not match this build")
-    minimum = re.search(r"^sdkVersion:'(\d+)'", badging, re.MULTILINE)
+    minimum = re.search(r"^minSdkVersion:'(\d+)'", badging, re.MULTILINE)
     if minimum is None or int(minimum[1]) < 29:
         raise ValueError("Virtual-display APK must require Android 10 or newer")
     digests = re.findall(r"^Signer #\d+ certificate SHA-256 digest: (.+)$", signing, re.MULTILINE)

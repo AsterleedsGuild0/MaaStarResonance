@@ -12,6 +12,7 @@
 - Android 仅组装目标平台 wheel：MaaFw、NumPy、StrEnum 由校验过的 Agent Core 提供；RapidFuzz 固定版本并显式构建纯 Python wheel，禁用 CMake 扩展，不把宿主 Linux/Windows 二进制带入 Android。
 - Android 成品载荷独立生成，补齐模型、许可证、说明和 Agent JSON 数据，保留桌面 interface 不变；增加原生 StartApp 入口，固定 1280×720 / 240 dpi 虚拟屏模式，最低 Android 10。
 - 应用包名使用本仓库身份 `io.github.asterleedsguild0.maastarresonance`，不继承 MaaFwApp 默认包名前缀；使用现有四个签名 secrets，实际校验证书、包名、版本、ABI、资源与运行时指纹。覆盖旧包要求证书一致，旧外壳配置不保证继承。版本号递增，仅输出开发工件，不接发布和自更新。
+- 修正 CI 的 Android 37 平台包名（`android-37.0`）及 Build Tools 36 的 `minSdkVersion` 字段解析，避免 SDK 安装失败和最低系统版本误判。
 - 官方说明：[MaaFramework v6 升级事项](https://github.com/MaaXYZ/MaaFramework/releases/tag/v6.0.0-beta.1)、[MaaFwApp 接入](https://github.com/Aliothmoon/MaaFwApp/blob/1736e50deef562dc7bc0addf7c232a64897b55ac/INTEGRATION.md)、[配对 Agent Core](https://github.com/Aliothmoon/MaaAgentCoreAndroid/releases/tag/3.13.15-maafw6.0.0-beta.3)。
 
 ## 0.12.0 (2026-07-18)
