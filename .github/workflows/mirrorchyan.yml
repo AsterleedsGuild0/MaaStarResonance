@@ -2,24 +2,53 @@ name: mirrorchyan
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "已发布且包含全部平台产物的精确 tag（不创建 Release）"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+    secrets:
+      MirrorChyanUploadToken:
+        required: true
+
+permissions:
+  contents: read
+  issues: write
 
 jobs:
   mirrorchyan:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [win]
-        arch: [aarch64, x86_64]
+        include:
+          - os: win
+            arch: aarch64
+            extension: zip
+          - os: win
+            arch: x86_64
+            extension: zip
+          - os: android
+            arch: arm64
+            extension: apk
+          - os: android
+            arch: x64
+            extension: apk
     steps:
       - uses: MirrorChyan/uploading-action@v1
         with:
           filetype: latest-release
-          filename: "MaaStarResonance-${{ matrix.os }}-${{matrix.arch}}*"
+          filename: "MaaStarResonance-${{ matrix.os }}-${{ matrix.arch }}-${{ inputs.tag }}.${{ matrix.extension }}"
+          tag: ${{ inputs.tag }}
           mirrorchyan_rid: MaaStarResonance
 
-          owner: 233Official
-          repo: MaaStarResonance
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.event.repository.name }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           upload_token: ${{ secrets.MirrorChyanUploadToken }}
           os: ${{ matrix.os }}

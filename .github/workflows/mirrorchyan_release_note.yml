@@ -2,20 +2,39 @@ name: mirrorchyan_release_note
 
 on:
   workflow_dispatch:
+    inputs:
+      tag:
+        description: "需要同步更新说明的精确 Release tag"
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      tag:
+        required: true
+        type: string
+    secrets:
+      MirrorChyanUploadToken:
+        required: true
   release:
     types: [edited]
 
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   mirrorchyan:
-    runs-on: macos-latest
+    if: ${{ github.event_name != 'release' || !github.event.release.draft }}
+    runs-on: ubuntu-latest
 
     steps:
       - id: uploading
         uses: MirrorChyan/release-note-action@v1
         with:
           mirrorchyan_rid: MaaStarResonance
+          version_name: ${{ inputs.tag || github.event.release.tag_name }}
 
-          owner: 233Official
-          repo: MaaStarResonance
+          owner: ${{ github.repository_owner }}
+          repo: ${{ github.event.repository.name }}
           upload_token: ${{ secrets.MirrorChyanUploadToken }}
           github_token: ${{ secrets.GITHUB_TOKEN }}

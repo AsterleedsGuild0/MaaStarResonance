@@ -14,7 +14,7 @@
 
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white">
-  <img alt="platform" src="https://img.shields.io/badge/platform-Windows-blueviolet">
+  <img alt="platform" src="https://img.shields.io/badge/platform-Windows%20%7C%20Android-blueviolet">
   <img alt="license" src="https://img.shields.io/github/license/MAA1999/M9A">
   <br>
   <img alt="commit" src="https://img.shields.io/github/commit-activity/m/AsterleedsGuild0/MaaStarResonance">
@@ -44,7 +44,7 @@
 
 ## 功能列表
 
-> 桌面版使用 Windows + MuMu 模拟器；Android 开发版使用 MaaFwApp + Shizuku/root，在 `1280x720 / 240 dpi` 虚拟屏运行，要求 Android 10 或以上。Android 尚待真机验收，不代表所有任务均已验证。
+> 桌面版使用 Windows + MuMu 模拟器；Android 版使用 MaaFwApp + Shizuku/root，在 `1280x720 / 240 dpi` 虚拟屏运行，要求 Android 10 或以上。已由 AZMIAO 在自用红米 K80 Pro（root 环境）上测试通过；这不代表其他设备、Shizuku 模式或全部任务均已验证。
 >
 > 您可以采用多个配置页、复制、排列、组合任务列表的方式来完成日常
 
@@ -81,14 +81,16 @@
 
 - 在线文档入口: [星痕共鸣 Maa 小助手](https://maa-star-resonance.ayusummer233.top)
 
-### Android 开发包
+### Android 安装包
 
-- Actions 的 **Android development APK** 构建 arm64/x64 APK，仅保存开发工件，不发布 Release 或接入自更新。
+- Actions 的 **install** 统一构建 Windows 包及 Android arm64/x64 签名 APK。普通分支推送或手动运行只保存工件；推送 `v*` tag 且全部平台构建成功后，才发布到同一个 Release 并同步 Mirror酱。
+- Release 中 Android 产物为 `MaaStarResonance-android-<arm64|x64>-<tag>.apk` 及 `.apk.sha256`，不额外套 ZIP；红米 K80 Pro 等 ARM64 手机选择 arm64。
+- Mirror酱提供 APK 分发；当前固定版本 MaaFwApp 不支持应用内 Mirror酱自更新或资源热更新，需要下载完整 APK 覆盖安装。完整发布、签名、排错与不发版验证流程见 [Android 构建与发布](docs/开发者文档/content/Android构建与发布.md)。
 - 外壳、Agent Core 与工具版本固定于 `android/build-config.json`；客户端与 Python Agent 均使用 MaaFramework `v6.0.0-beta.3`，不自动降级。
 - 包名使用本仓库身份 `io.github.asterleedsguild0.maastarresonance`，在 `android/build-config.json` 的 `app.applicationId` 配置，由 Gradle 初始化脚本覆盖外壳默认前缀。旧包只有证书一致才可覆盖安装；切换外壳不保证继承旧配置。
 - 仓库需要 `ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD` 四个 secrets。构建后核对真实证书指纹；缺配置会失败，不回退到随机 debug 证书。
 - 安装后授予 Shizuku/root、通知和电池白名单权限，先运行「启动星痕共鸣」或「重启并登录星痕共鸣」，再运行其他任务。桌面 Npcap 插件不打入 Android。
-- MaaFwApp 已贯通多指触控并使用 `specialUse` 保活；仍需在设备上验收双指钓鱼、截图、键盘输入、后台长跑和覆盖安装，不能保证厂商系统不会杀后台。
+- MaaFwApp 已贯通多指触控并使用 `specialUse` 保活；新增设备、Shizuku、双指钓鱼、截图、键盘输入、后台长跑和覆盖安装仍需分别验收，不能保证厂商系统不会杀后台。
 
 本地预处理与检查（Python 3.13）：
 
@@ -116,7 +118,7 @@ python android/build_runtime.py --abi arm64-v8a
 ## 鸣谢
 
 - 本项目由 **[MaaFramework](https://github.com/MaaXYZ/MaaFramework)** 强力驱动！  
-- 桌面 UI 由 [MFAAvalonia](https://github.com/MaaXYZ/MFAAvalonia) 提供，Android 开发版使用 [MaaFwApp](https://github.com/Aliothmoon/MaaFwApp)。
+- 桌面 UI 由 [MFAAvalonia](https://github.com/MaaXYZ/MFAAvalonia) 提供，Android 版使用 [MaaFwApp](https://github.com/Aliothmoon/MaaFwApp)。
 - 感谢以下开发者对本项目作出的贡献:
 
 [![Contributors](https://contrib.rocks/image?repo=AsterleedsGuild0/MaaStarResonance&max=1000)](https://github.com/AsterleedsGuild0/MaaStarResonance/graphs/contributors)

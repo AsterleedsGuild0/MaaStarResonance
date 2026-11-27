@@ -8,6 +8,14 @@ on:
       - "**"
     paths:
       - ".github/workflows/install.yml"
+      - ".github/workflows/android.yml"
+      - ".github/workflows/mirrorchyan*.yml"
+      - "android/**"
+      - "requirements-android.txt"
+      - "pyproject.toml"
+      - "static/img/logo_transparent.png"
+      - "LICENSE"
+      - "CONTACT"
       - "assets/**"
       - "**.py"
   pull_request:
@@ -15,9 +23,20 @@ on:
       - "**"
     paths:
       - ".github/workflows/install.yml"
+      - ".github/workflows/android.yml"
+      - ".github/workflows/mirrorchyan*.yml"
+      - "android/**"
+      - "requirements-android.txt"
+      - "pyproject.toml"
+      - "static/img/logo_transparent.png"
+      - "LICENSE"
+      - "CONTACT"
       - "assets/**"
       - "**.py"
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 env:
   MAA_FRAMEWORK_VERSION: "v6.0.0-beta.3"
@@ -32,28 +51,22 @@ jobs:
           fetch-depth: 0
       - id: set_tag
         run: |
-          is_release=${{ startsWith(github.ref, 'refs/tags/v') }}
-          tag=$(git describe --tags --match "v*" ${{ github.ref }} || true)
-          if [[ $tag != v* ]]; then
-            tag=$(curl -sX GET "https://api.github.com/repos/${{ github.repository }}/releases/latest" --header 'authorization: Bearer ${{ secrets.GITHUB_TOKEN }}' | awk '/tag_name/{print $4}' FS='["]')
-            if [[ $tag != v* ]]; then
-              tag="v0.0.0"
-            fi
-            tag=$(date "+$tag-%y%m%d-$(git rev-parse --short HEAD)")
+          # 只有推送 v* tag 才发版；分支推送、PR 和手动执行均只构建。
+          is_release=${{ github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') }}
+          if [[ "$is_release" == true ]]; then
+            tag="$GITHUB_REF_NAME"
+          else
+            base_tag=$(git describe --tags --abbrev=0 --match "v*" || echo "v0.0.0")
+            tag="${base_tag%%-*}-ci.${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}.g${GITHUB_SHA:0:7}"
           fi
 
-          # 判断是否为预发布版本（包含 -alpha, -beta, -rc 等标识）
           is_prerelease=false
-          if [[ $tag =~ -alpha|-beta|-rc|-ci ]]; then
+          if [[ "$tag" == *-* ]]; then
             is_prerelease=true
           fi
 
-          if ! $($is_release) ; then
-            prefix=${tag%-*-*}
-            suffix=${tag#$prefix-}
-            tag="$prefix-ci.$suffix"
-            is_prerelease=true
-          fi
+          # 预留开发包旧计数区间，此后始终由 install 工作流统一递增。
+          echo "version_code=$((100000000 + GITHUB_RUN_NUMBER * 100 + GITHUB_RUN_ATTEMPT))" >> "$GITHUB_OUTPUT"
 
           echo tag=$tag | tee -a $GITHUB_OUTPUT
           echo is_release=$is_release | tee -a $GITHUB_OUTPUT
@@ -62,6 +75,20 @@ jobs:
       tag: ${{ steps.set_tag.outputs.tag }}
       is_release: ${{ steps.set_tag.outputs.is_release }}
       is_prerelease: ${{ steps.set_tag.outputs.is_prerelease }}
+      version_code: ${{ steps.set_tag.outputs.version_code }}
+
+  android:
+    if: ${{ github.event_name != 'pull_request' }}
+    needs: [meta]
+    uses: ./.github/workflows/android.yml
+    with:
+      version: ${{ needs.meta.outputs.tag }}
+      version-code: ${{ needs.meta.outputs.version_code }}
+    secrets:
+      ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+      ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+      ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+      ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
 
   prepare-wheels:
     runs-on: windows-latest
@@ -253,6 +280,8 @@ jobs:
     name: Generate changelog
     runs-on: ubuntu-latest
     needs: [meta]
+    permissions:
+      contents: write
     outputs:
       release_body: ${{ steps.generate-changelog.outputs.content }}
     steps:
@@ -299,30 +328,66 @@ jobs:
 
   release:
     if: ${{ needs.meta.outputs.is_release == 'true' }}
-    needs: [meta, install, changelog]
+    needs: [meta, install, android, changelog]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
-      - uses: actions/download-artifact@v8
+      - name: Download desktop packages
+        uses: actions/download-artifact@v8
         with:
-          path: assets
+          pattern: MaaStarResonance-win-*
+          path: desktop-artifacts
 
-      - run: |
-          cd assets
-          for f in *; do
-            (cd $f && zip -r ../$f-${{ needs.meta.outputs.tag }}.zip .)
+      - name: Download Android APKs and checksums
+        uses: actions/download-artifact@v8
+        with:
+          pattern: MaaStarResonance-android-*
+          path: release-assets
+          merge-multiple: true
+
+      - name: Package desktop assets without wrapping APKs
+        env:
+          TAG: ${{ needs.meta.outputs.tag }}
+        run: |
+          for arch in x86_64 aarch64; do
+            name="MaaStarResonance-win-$arch"
+            (cd "desktop-artifacts/$name" && zip -r "$GITHUB_WORKSPACE/release-assets/$name-$TAG.zip" .)
+          done
+          for arch in arm64 x64; do
+            name="MaaStarResonance-android-$arch-$TAG.apk"
+            (cd release-assets && sha256sum --check "$name.sha256")
           done
 
       - uses: softprops/action-gh-release@v3
         with:
-          files: assets/*
+          files: release-assets/*
+          fail_on_unmatched_files: true
           tag_name: ${{ needs.meta.outputs.tag }}
           body: ${{ needs.changelog.outputs.release_body }}
           draft: false
           prerelease: ${{ needs.meta.outputs.is_prerelease == 'true' }}
 
-      - name: Trigger MirrorChyanUploading
-        run: |
-          gh workflow run --repo $GITHUB_REPOSITORY mirrorchyan
-          gh workflow run --repo $GITHUB_REPOSITORY mirrorchyan_release_note
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  mirrorchyan:
+    if: ${{ needs.meta.outputs.is_release == 'true' }}
+    needs: [meta, release]
+    permissions:
+      contents: read
+      issues: write
+    uses: ./.github/workflows/mirrorchyan.yml
+    with:
+      tag: ${{ needs.meta.outputs.tag }}
+    secrets:
+      MirrorChyanUploadToken: ${{ secrets.MirrorChyanUploadToken }}
+
+  mirrorchyan-release-note:
+    if: ${{ needs.meta.outputs.is_release == 'true' }}
+    needs: [meta, mirrorchyan]
+    permissions:
+      contents: read
+      issues: write
+    uses: ./.github/workflows/mirrorchyan_release_note.yml
+    with:
+      tag: ${{ needs.meta.outputs.tag }}
+    secrets:
+      MirrorChyanUploadToken: ${{ secrets.MirrorChyanUploadToken }}

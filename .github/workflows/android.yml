@@ -1,31 +1,26 @@
-name: Android development APK
+name: Android APK
 
 on:
-  push:
-    branches:
-      - feat/android-apk
-    paths:
-      - ".github/workflows/android.yml"
-      - "android/**"
-      - "requirements-android.txt"
-      - "pyproject.toml"
-      - "scripts/json_utils.py"
-      - "tests/test_android_packaging.py"
-      - "agent/**"
-      - "assets/**"
-      - "assets/MaaCommonAssets"
-      - "static/img/logo_transparent.png"
-      - "LICENSE"
-      - "README.md"
-      - "CONTACT"
-  workflow_dispatch:
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+      version-code:
+        required: true
+        type: string
+    secrets:
+      ANDROID_KEYSTORE_BASE64:
+        required: true
+      ANDROID_KEYSTORE_PASSWORD:
+        required: true
+      ANDROID_KEY_ALIAS:
+        required: true
+      ANDROID_KEY_PASSWORD:
+        required: true
 
 permissions:
   contents: read
-
-concurrency:
-  group: android-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   build-android:
@@ -58,10 +53,14 @@ jobs:
 
       - name: Prepare Android payload and profile
         id: prepare
+        env:
+          VERSION: ${{ inputs.version }}
+          VERSION_CODE: ${{ inputs.version-code }}
         run: |
           python android/prepare.py \
             --abi "${{ matrix.abi }}" \
-            --version-code "$((10000 + GITHUB_RUN_NUMBER * 100 + GITHUB_RUN_ATTEMPT))" \
+            --version "$VERSION" \
+            --version-code "$VERSION_CODE" \
             --github-output "$GITHUB_OUTPUT"
 
       - name: Checkout pinned MaaFwApp
@@ -111,7 +110,7 @@ jobs:
             --abi "${{ matrix.abi }}" \
             --tag "${{ steps.prepare.outputs.maafw_tag }}"
 
-      # 只构建开发工件，但保持永久证书，避免每次 CI 都无法覆盖安装。
+      # 开发工件与发行包使用同一永久证书，支持后续覆盖安装。
       - name: Prepare fixed signing keystore
         id: signing
         env:
@@ -138,7 +137,7 @@ jobs:
           echo "keystore=$keystore" >> "$GITHUB_OUTPUT"
           echo "certificate=$(sha256sum "$certificate" | cut -d ' ' -f 1)" >> "$GITHUB_OUTPUT"
 
-      - name: Build signed development APK and check multitouch
+      - name: Build signed APK and check multitouch
         working-directory: android/MaaFwApp
         env:
           PI_PROFILE: ${{ github.workspace }}/android/.build/profile.json
@@ -179,11 +178,11 @@ jobs:
             --certificate "$CERTIFICATE" \
             --build-tools "$ANDROID_HOME/build-tools/${{ steps.prepare.outputs.build_tools }}"
           mkdir -p android-artifacts
-          name="MaaStarResonance-$VERSION-android-${{ matrix.arch }}.apk"
+          name="MaaStarResonance-android-${{ matrix.arch }}-$VERSION.apk"
           cp "${apks[0]}" "android-artifacts/$name"
           (cd android-artifacts && sha256sum "$name" > "$name.sha256")
 
-      - name: Upload development APK
+      - name: Upload signed APK and checksum
         uses: actions/upload-artifact@v7
         with:
           name: MaaStarResonance-android-${{ matrix.arch }}
