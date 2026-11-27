@@ -59,7 +59,7 @@ jobs:
         run: |
           python android/prepare.py \
             --abi "${{ matrix.abi }}" \
-            --version "$VERSION" \
+            --version "${VERSION#v}" \
             --version-code "$VERSION_CODE" \
             --github-output "$GITHUB_OUTPUT"
 
@@ -166,6 +166,7 @@ jobs:
           VERSION: ${{ steps.prepare.outputs.version_name }}
           VERSION_CODE: ${{ steps.prepare.outputs.version_code }}
           CERTIFICATE: ${{ steps.signing.outputs.certificate }}
+          TAG: ${{ inputs.version }}
         run: |
           apks=(android/MaaFwApp/app/build/outputs/apk/release/*.apk)
           if [[ "${#apks[@]}" != 1 || ! -f "${apks[0]}" ]]; then
@@ -178,7 +179,7 @@ jobs:
             --certificate "$CERTIFICATE" \
             --build-tools "$ANDROID_HOME/build-tools/${{ steps.prepare.outputs.build_tools }}"
           mkdir -p android-artifacts
-          name="MaaStarResonance-android-${{ matrix.arch }}-$VERSION.apk"
+          name="MaaStarResonance-android-${{ matrix.arch }}-$TAG.apk"
           cp "${apks[0]}" "android-artifacts/$name"
           (cd android-artifacts && sha256sum "$name" > "$name.sha256")
 

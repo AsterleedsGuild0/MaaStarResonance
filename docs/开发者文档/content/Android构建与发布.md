@@ -37,8 +37,8 @@ Windows x64/ARM64、Android arm64/x64 与更新说明生成必须全部成功，
 
 ## 版本、签名与固定依赖
 
-- 正式 APK 的 `versionName`、载荷资源版本与文件名使用同一个完整 tag，例如 `v1.2.3` 或 `v1.2.3-beta.1`，不会沿用 `pyproject.toml` 的旧项目版本。
-- 非发版构建使用 `v<最近基础版本>-ci.<run_number>.<run_attempt>.g<短SHA>`，避免开发包被误认成正式包。
+- 正式构建的 APK 文件名与 Mirror酱版本使用完整 tag，例如 `v1.2.3` 或 `v1.2.3-beta.1`；APK 的 `versionName` 和载荷资源版本仅去掉开头的 `v`，分别为 `1.2.3`、`1.2.3-beta.1`，符合预处理脚本的版本约束，不会沿用 `pyproject.toml` 的旧项目版本。
+- 非发版构建的 tag 使用 `v<最近基础版本>-ci.<run_number>.<run_attempt>.g<短SHA>`；APK 内版本同样去掉开头的 `v`，避免开发包被误认成正式包。
 - `versionCode = 100000000 + install.run_number × 100 + run_attempt`，两个 ABI 相同；预留旧 Android 开发包的低位计数区间，后续统一使用 `install` 的运行序号。覆盖安装需保持同一包名、签名，并避免安装更旧构建；不要重置该工作流的运行序号。
 - 包名固定为 `io.github.asterleedsguild0.maastarresonance`，配置在 `android/build-config.json`；切换包名或证书不能按原包覆盖更新。
 - 外壳 revision、Agent Core 校验和、MaaFramework 和 SDK/NDK/CMake 版本均固定于 `android/build-config.json`。客户端与 Python Agent 当前均为 MaaFramework `v6.0.0-beta.3`。
