@@ -1,4 +1,4 @@
-maafw==5.12.3
+maafw==6.0.0b3
 loguru>=0.7.3
 rapidfuzz>=3.14.3
 toml>=0.10.2

@@ -439,7 +439,7 @@ def build_one(
     staging_root = RELEASES_DIR / ".build" / tag / f"staging-{os_name}-{arch}"
     staging_root.mkdir(parents=True, exist_ok=True)
     MFD_REPO = "MaaXYZ/MaaFramework"
-    MFA_REPO = "SweetSmellFox/MFAAvalonia"
+    MFA_REPO = "MaaXYZ/MFAAvalonia"
     mfd_tag, mfd_assets = mfd_info
     if mfa_info:
         mfa_tag, mfa_assets = mfa_info
@@ -547,6 +547,12 @@ def build_one(
     if mfa_dst_dir and any(mfa_dst_dir.iterdir()):
         info("合并 MFA 到 install/ (忽略已存在)")
         copytree_ignore_existing(mfa_dst_dir, install_dir)
+        # MFA 预编译包仍附带 5.x；覆盖 UI 实际搜索的 RID 目录，避免 Agent 协议不一致。
+        shutil.copytree(
+            staging_root / "deps" / "bin",
+            install_dir / "runtimes" / f"{os_token}-{arch_token}" / "native",
+            dirs_exist_ok=True,
+        )
 
     # 5) 打包并返回包路径
     (RELEASES_DIR / tag).mkdir(parents=True, exist_ok=True)
@@ -616,12 +622,12 @@ def parse_args(argv: Optional[Sequence[str]] = None) -> argparse.Namespace:
     ap.add_argument(
         "--maafw-version",
         dest="maafw_version",
-        help="指定 MaaFramework 版本标签，如 v2.0.0；若省略，使用最新版本",
+        help="指定 MaaFramework 版本标签；默认 v6.0.0-beta.3（可用 MAAFW_VERSION 覆盖）",
     )
     ap.add_argument(
         "--mfaa-version",
         dest="mfaa_version",
-        help="指定 MFAAvalonia 版本标签，如 v1.5.0；若省略，使用最新版本",
+        help="指定 MFAAvalonia 版本标签；默认 v2.16.6（可用 MFAA_VERSION 覆盖）",
     )
     ap.add_argument(
         "--skip-deps",
@@ -688,16 +694,14 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     # 预先获取上游 release 信息（减少重复请求与下载）
     log_section("获取上游依赖 release 信息（用于缓存）")
-    selected_maafw_version = args.maafw_version or os.environ.get("MAAFW_VERSION")
-    selected_mfaa_version = args.mfaa_version or os.environ.get("MFAA_VERSION")
-    if selected_maafw_version:
-        info(f"使用指定的 MaaFramework 版本: {selected_maafw_version}")
-    else:
-        info("未指定 MaaFramework 版本，使用最新版本")
-    if selected_mfaa_version:
-        info(f"使用指定的 MFAAvalonia 版本: {selected_mfaa_version}")
-    else:
-        info("未指定 MFAAvalonia 版本，使用最新版本")
+    selected_maafw_version = (
+        args.maafw_version or os.environ.get("MAAFW_VERSION") or "v6.0.0-beta.3"
+    )
+    selected_mfaa_version = (
+        args.mfaa_version or os.environ.get("MFAA_VERSION") or "v2.16.6"
+    )
+    info(f"使用指定的 MaaFramework 版本: {selected_maafw_version}")
+    info(f"使用指定的 MFAAvalonia 版本: {selected_mfaa_version}")
 
     maafw_info: Tuple[str, List[dict]] = get_release_info(
         "MaaXYZ/MaaFramework", token, version=selected_maafw_version
@@ -705,7 +709,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     mfa_avalonia_info: Optional[Tuple[str, List[dict]]] = None
     try:
         mfa_avalonia_info = get_release_info(
-            "SweetSmellFox/MFAAvalonia", token, version=selected_mfaa_version
+            "MaaXYZ/MFAAvalonia", token, version=selected_mfaa_version
         )
     except Exception as e:
         warn(f"获取 MFAAvalonia release 失败: {e} — 将跳过 MFA 部分")

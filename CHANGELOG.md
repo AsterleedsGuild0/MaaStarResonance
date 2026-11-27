@@ -1,5 +1,17 @@
 # 更新日志
 
+## 未发布
+
+### 依赖升级与迁移注意事项
+
+- MaaFramework：`v5.12.3` → `v6.0.0-beta.3`；Python 包固定为 `maafw==6.0.0b3`，同步更新桌面、Android 和 `uv.lock`。
+- MFAAvalonia：桌面 `v2.15.2`、Android `v2.16.0-beta.3` → 最新正式版 `v2.16.6`。相较 `v2.16.6-beta.1`，官方仅修改程序版本标记，无新增接口或构建迁移事项；MaaFramework 继续使用上述预发布版。
+- **破坏性变更：MaaAgent 协议升级为 9，AgentClient / AgentServer 必须一起升级**。桌面编译时覆盖 MFA 原生运行时依赖，本地打包时覆盖 UI 的 `runtimes/<rid>/native`，Android 同步 Python binding 与原生 NuGet 包；不要只更新 Python 环境而沿用旧 UI 运行时。插件 ABI 仍为 v1。
+- Android 构建增加 PEP 440 → GitHub / NuGet 版本转换，避免将 `6.0.0b3` 错当作源码标签或 NuGet 版本；保留 Android binding 预加载和 `MAAFW_BINARY_PATH` 适配。
+- 过渡版本自 5.13 起禁止重复注册自定义动作/识别器，已核查项目 37 个注册名称无重复；5.14.3 废弃 CoreML，项目未配置该后端。现有 CustomRecognition 单结果返回仍受支持，无需改写业务逻辑。
+- MFA 更新涉及配置保留、预设默认值和任务续跑；发布前仍需实测旧配置覆盖升级、Agent 连接和 Android 覆盖安装。Android 的 ApplicationId 与签名须保持稳定。
+- 官方说明：[MaaFramework v6 升级事项](https://github.com/MaaXYZ/MaaFramework/releases/tag/v6.0.0-beta.1)、[目标框架版本](https://github.com/MaaXYZ/MaaFramework/releases/tag/v6.0.0-beta.3)、[MFA 更新说明](https://github.com/MaaXYZ/MFAAvalonia/releases/tag/v2.16.6)、[Android 集成要求](https://github.com/MaaXYZ/MFAAvalonia/blob/v2.16.6/docs/zh/Android资源项目构建.md)。
+
 ## 0.12.0 (2026-07-18)
 
 ### ✨ 新功能

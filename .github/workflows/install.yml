@@ -20,8 +20,8 @@ on:
   workflow_dispatch:
 
 env:
-  MAA_FRAMEWORK_VERSION: "v5.12.3"
-  MFAA_VERSION: "v2.15.2"
+  MAA_FRAMEWORK_VERSION: "v6.0.0-beta.3"
+  MFAA_VERSION: "v2.16.6"
 
 jobs:
   meta:
@@ -133,6 +133,19 @@ jobs:
         run: |
           cp assets/logo.ico MFA-src/MFAAvalonia/Assets/logo.ico
           echo "已替换 Windows 版 MFAAvalonia 的 logo.ico"
+
+      # MaaAgent 协议 9 要求 UI 与 Python Agent 使用同版原生运行时
+      - name: Align MFAAvalonia MaaFramework runtime
+        shell: pwsh
+        run: |
+          $projectPath = "MFA-src/MFAAvalonia/MFAAvalonia.csproj"
+          [xml]$project = Get-Content -Raw $projectPath
+          $runtime = $project.SelectSingleNode("//PackageReference[@Include='Maa.Framework.Runtimes']")
+          if ($null -eq $runtime) {
+            throw "MFAAvalonia Maa.Framework.Runtimes reference is missing"
+          }
+          $runtime.Version = $env:MAA_FRAMEWORK_VERSION.Substring(1)
+          $project.Save((Join-Path $PWD $projectPath))
       
       # 设置 .NET 版本
       - name: Setup .NET

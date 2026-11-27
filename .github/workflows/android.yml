@@ -20,8 +20,8 @@ env:
   LAUNCHER_LABEL: 星痕共鸣MAA小助手
   LAUNCHER_ICON: static/img/logo_transparent.png
   MFA_REPOSITORY: MaaXYZ/MFAAvalonia
-  # Android 支持自 v2.16.0 起引入，与桌面 install.yml 的 MFAA_VERSION(v2.15.2) 相互独立
-  MFA_REF: v2.16.0-beta.3
+  # 与桌面使用同一 MFA 正式版；原生运行时版本由 requirements-android.txt 决定
+  MFA_REF: v2.16.6
   P4A_ENTRYPOINT: agent/main.py
   P4A_REF: v2026.05.09
   P4A_NDK_VERSION: 28.2.13676358
@@ -60,6 +60,9 @@ jobs:
           ref: ${{ env.MFA_REF }}
           path: mfa-source
 
+      - name: Install requirements parser
+        run: python3 -m pip install packaging
+
       - name: Resolve Android Python requirements
         id: python_requirements
         shell: bash
@@ -68,6 +71,7 @@ jobs:
           from pathlib import Path
           import os
           import re
+          from packaging.version import Version
 
           root = Path("resource-source")
           path = next(
@@ -105,7 +109,14 @@ jobs:
               raise SystemExit(
                   "Android build requires an exact maafw==VERSION requirement"
               )
-          maafw_ref = f"v{maafw_version}"
+          # PyPI 使用 PEP 440（6.0.0b3），GitHub / NuGet 使用 SemVer（6.0.0-beta.3）
+          parsed_version = Version(maafw_version)
+          maafw_native_version = ".".join(map(str, parsed_version.release))
+          if parsed_version.pre:
+              stage, number = parsed_version.pre
+              stage = {"a": "alpha", "b": "beta", "rc": "rc"}[stage]
+              maafw_native_version += f"-{stage}.{number}"
+          maafw_ref = f"v{maafw_native_version}"
 
           import json
           import urllib.request
@@ -159,7 +170,7 @@ jobs:
 
           with Path("requirements.env").open("a", encoding="utf-8") as output:
               output.write(f"requirements={','.join(android_requirements)}\n")
-              output.write(f"maafw_version={maafw_version}\n")
+              output.write(f"maafw_version={maafw_native_version}\n")
               output.write(f"maafw_ref={maafw_ref}\n")
           print(f"requirements source: {path or 'default'}")
           print(f"python-for-android requirements: {','.join(android_requirements)}")
