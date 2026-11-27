@@ -42,6 +42,13 @@ Windows x64/ARM64、Android arm64/x64 与更新说明生成必须全部成功，
 - `versionCode = 100000000 + install.run_number × 100 + run_attempt`，两个 ABI 相同；预留旧 Android 开发包的低位计数区间，后续统一使用 `install` 的运行序号。覆盖安装需保持同一包名、签名，并避免安装更旧构建；不要重置该工作流的运行序号。
 - 包名固定为 `io.github.asterleedsguild0.maastarresonance`，配置在 `android/build-config.json`；切换包名或证书不能按原包覆盖更新。
 - 外壳 revision、Agent Core 校验和、MaaFramework 和 SDK/NDK/CMake 版本均固定于 `android/build-config.json`。客户端与 Python Agent 当前均为 MaaFramework `v6.0.0-beta.3`。
+- CI 在检出固定外壳后应用 `android/patches/0001-launcher-everybody-group.patch`，为启动器补齐 `everybody`（GID 9997）附加组，避免 Root 降为 shell 后无法遍历 Android 10 部分 sdcardfs 设备的外部存储。补丁不匹配时构建失败；升级外壳 revision 时需同步检查补丁。
+
+本地首次构建也需在固定外壳检出后、运行 Gradle 前，从本项目根目录执行一次：
+
+```bash
+git -C android/MaaFwApp apply --whitespace=error ../patches/0001-launcher-everybody-group.patch
+```
 
 在仓库 Settings → Secrets and variables → Actions 配置：
 
@@ -131,3 +138,4 @@ gh workflow run install.yml --ref <分支名>
 | Mirror酱拒绝上传 | 令牌权限、RID 及 Android 平台/架构是否开通；不影响已有 GitHub 附件 |
 | 安装报签名冲突或版本降级 | 包名、永久证书与 `versionCode`；不要默认卸载以免丢失配置 |
 | 安装成功但开始失败 | root/Shizuku 服务、启动游戏任务、应用内日志导出及 `adb logcat -s MaaFw` |
+| 提示“特权进程初始化失败”，日志含 `PI root not readable`、`0:9997 mode=0770`、`sdcardfs` | 检查 APK 是否包含 GID 9997 启动器补丁；已在雷电 K10 日志定位，修复包尚需设备验收，不要通过 `chmod 777` 修改系统存储权限 |

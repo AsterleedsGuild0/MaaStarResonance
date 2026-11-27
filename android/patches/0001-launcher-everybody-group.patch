@@ -1,0 +1,11 @@
+diff --git a/app/src/main/native/launcher.c b/app/src/main/native/launcher.c
+--- a/app/src/main/native/launcher.c
++++ b/app/src/main/native/launcher.c
+@@ -45,6 +45,7 @@ static const gid_t kRequiredShellGids[] = {
+         3011, /* uhid            */
+         3012, /* readtracefs     */
+         3013, /* virtualmachine  */
++        9997, /* everybody: traverse sdcardfs user storage */
+ };
+ 
+ typedef struct {

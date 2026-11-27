@@ -71,6 +71,10 @@ jobs:
           path: android/MaaFwApp
           persist-credentials: false
 
+      - name: Apply MaaFwApp storage permission fix
+        working-directory: android/MaaFwApp
+        run: git apply --whitespace=error ../patches/0001-launcher-everybody-group.patch
+
       - name: Setup Java
         uses: actions/setup-java@v6
         with:

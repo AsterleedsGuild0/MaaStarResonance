@@ -44,7 +44,7 @@
 
 ## 功能列表
 
-> 桌面版使用 Windows + MuMu 模拟器；Android 版使用 MaaFwApp + Shizuku/root，在 `1280x720 / 240 dpi` 虚拟屏运行，要求 Android 10 或以上。已由 AZMIAO 在自用红米 K80 Pro（root 环境）上测试通过；这不代表其他设备、Shizuku 模式或全部任务均已验证。
+> 桌面版使用 Windows + MuMu 模拟器；Android 版使用 MaaFwApp + Shizuku/root，在 `1280x720 / 240 dpi` 虚拟屏运行，要求 Android 10 或以上
 >
 > 您可以采用多个配置页、复制、排列、组合任务列表的方式来完成日常
 
@@ -80,32 +80,6 @@
 ## 文档
 
 - 在线文档入口: [星痕共鸣 Maa 小助手](https://maa-star-resonance.ayusummer233.top)
-
-### Android 安装包
-
-- Actions 的 **install** 统一构建 Windows 包及 Android arm64/x64 签名 APK。普通分支推送或手动运行只保存工件；推送 `v*` tag 且全部平台构建成功后，才发布到同一个 Release 并同步 Mirror酱。
-- Release 中 Android 产物为 `MaaStarResonance-android-<arm64|x64>-<tag>.apk` 及 `.apk.sha256`，不额外套 ZIP；红米 K80 Pro 等 ARM64 手机选择 arm64。
-- Mirror酱提供 APK 分发；当前固定版本 MaaFwApp 不支持应用内 Mirror酱自更新或资源热更新，需要下载完整 APK 覆盖安装。完整发布、签名、排错与不发版验证流程见 [Android 构建与发布](docs/开发者文档/content/Android构建与发布.md)。
-- 外壳、Agent Core 与工具版本固定于 `android/build-config.json`；客户端与 Python Agent 均使用 MaaFramework `v6.0.0-beta.3`，不自动降级。
-- 包名使用本仓库身份 `io.github.asterleedsguild0.maastarresonance`，在 `android/build-config.json` 的 `app.applicationId` 配置，由 Gradle 初始化脚本覆盖外壳默认前缀。旧包只有证书一致才可覆盖安装；切换外壳不保证继承旧配置。
-- 仓库需要 `ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD` 四个 secrets。构建后核对真实证书指纹；缺配置会失败，不回退到随机 debug 证书。
-- 安装后授予 Shizuku/root、通知和电池白名单权限，先运行「启动星痕共鸣」或「重启并登录星痕共鸣」，再运行其他任务。桌面 Npcap 插件不打入 Android。
-- MaaFwApp 已贯通多指触控并使用 `specialUse` 保活；新增设备、Shizuku、双指钓鱼、截图、键盘输入、后台长跑和覆盖安装仍需分别验收，不能保证厂商系统不会杀后台。
-
-本地预处理与检查（Python 3.13）：
-
-```bash
-python -m unittest discover -s tests -p test_android_packaging.py -v
-python android/prepare.py --abi arm64-v8a --version-code 10101
-git clone https://github.com/Aliothmoon/MaaFwApp.git android/MaaFwApp
-git -C android/MaaFwApp checkout 1736e50deef562dc7bc0addf7c232a64897b55ac
-python android/build_runtime.py --abi arm64-v8a
-```
-
-配方位于 `android/.build/profile.json`，载荷和解释器分别位于同目录的 `payload/`、`agent-dist/`。完整出包使用工作流中固定的 JDK 25、SDK 平台包 `android-37.0`、NDK 29 与外壳 Gradle Wrapper；`PI_PROFILE` 指向配方，设置与 `app.applicationId` 一致的 `BUILD_APPLICATION_ID`、`BUILD_VERSION_NAME`、递增的 `BUILD_VERSION_CODE` 和四个 Gradle 签名环境变量，通过 `android/maafwapp.init.gradle` 构建。RapidFuzz 在构建期生成官方纯 Python wheel；Android 不安装桌面 MaaFw wheel 或在设备上运行 pip。
-
-接入依据：[MaaFwApp 官方文档](https://github.com/Aliothmoon/MaaFwApp/blob/1736e50deef562dc7bc0addf7c232a64897b55ac/INTEGRATION.md)、[M9A Android 配方](https://github.com/MAA1999/M9A/tree/main/Android)、[MaaYuan 签名与版本实践](https://github.com/syoius/MaaYuan/blob/v5/android/README.md)。
-
 
 ---
 
