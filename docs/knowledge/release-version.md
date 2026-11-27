@@ -49,4 +49,5 @@ git push --atomic origin HEAD:<发布分支> refs/tags/vX.Y.Z
 2. 记录对应 run URL，使用 `gh run watch <run-id> --exit-status` 等待完成；同时确认该提交触发的 `check`。检查 Windows x64/ARM64、Android arm64/x64、更新说明、`release`、Mirror酱四平台上传和更新说明同步全部完成且状态正常。失败时查看具体 job 日志，报告失败阶段，不反复推 tag 试错。
 3. 工作流可能自动回写 `CHANGELOG.md` 并在默认分支生成机器人提交；发版 tag 仍应指向原发版提交，不因此挪动 tag 或把机器人提交误认作本次构建的 SHA。
 4. 全部工作流完成后，用 `gh release view <tag>` 或 Release 页面确认目标版本已发布、不是草稿、预发布标记符合预期、更新说明存在，并核对附件齐全：Windows `x86_64` / `aarch64` 各一份 ZIP，Android `arm64` / `x64` 各一份 APK 及对应 `.apk.sha256`。按目标 tag 核对，不只看 latest。
-5. 报告发版 commit、tag、工作流链接及结论、Release 链接。助手到此完成发布流程；Release 文件的下载、安装和实际游戏功能验证交给用户，不把 CI/附件存在等同于实机验收通过。
+5. 发布验证通过后，同步本地代码以拉取机器人回写的 Changelog 提交：确认本地当前位于机器人回写的默认分支（通常为 `main`），且工作区干净，再执行 `git pull --ff-only <远端> <默认分支>`。不在 tag 的 detached HEAD 上拉取，也不将默认分支合并进其他分支；若当前分支不符、存在未提交改动或无法快进，保留现场并报告未同步原因，禁止自动 stash、reset、强推或覆盖用户改动。同步本地分支不改变发版 tag 的指向。
+6. 报告发版 commit、tag、工作流链接及结论、Release 链接，以及本地分支同步结果（包括是否拉取到机器人提交）。助手到此完成发布流程；Release 文件的下载、安装和实际游戏功能验证交给用户，不把 CI/附件存在等同于实机验收通过。
