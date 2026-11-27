@@ -1,21 +1,71 @@
 # 更新日志
 
-## 未发布
+## 0.13.0 (2026-11-27)
 
-### 依赖升级与迁移注意事项
+### ✨ 新功能
 
-- MaaFramework：`v5.12.3` → `v6.0.0-beta.3`；桌面 Python 包固定为 `maafw==6.0.0b3`，同步 `uv.lock`。
-- 桌面 MFAAvalonia：`v2.15.2` → 正式版 `v2.16.6`。
-- 同步 `.vscode/launch.json` 中命令行参数与环境变量的依赖版本，避免本地打包仍使用旧依赖。
-- **MaaAgent 协议升级为 9，AgentClient / AgentServer 必须一起升级**。桌面编译与本地打包对齐原生运行时，Android 固定使用 `3.13.15-maafw6.0.0-beta.3` Agent Core；不混用 5.x。插件 ABI 仍为 v1。
-- Android 外壳从 MFAAvalonia 切换至 MaaFwApp `1736e50deef562dc7bc0addf7c232a64897b55ac`，删除旧 .NET/P4A 构建、适配补丁和临时签名回退。SDK 使用 setup-android v4，工具链和内核 SHA-256 固定于 `android/build-config.json`。
-- 新外壳原生桥接保留 `contact` 并实现独立多指序列；Agent 不再是 `dataSync` 前台服务，使用外壳的 `specialUse` 保活及特权子进程。实际后台保活和游戏双指行为仍需真机验收。
-- Android 仅组装目标平台 wheel：MaaFw、NumPy、StrEnum 由校验过的 Agent Core 提供；RapidFuzz 固定版本并显式构建纯 Python wheel，禁用 CMake 扩展，不把宿主 Linux/Windows 二进制带入 Android。
-- Android 成品载荷独立生成，补齐模型、许可证、说明和 Agent JSON 数据，保留桌面 interface 不变；增加原生 StartApp 入口，固定 1280×720 / 240 dpi 虚拟屏模式，最低 Android 10。
-- 应用包名使用本仓库身份 `io.github.asterleedsguild0.maastarresonance`，不继承 MaaFwApp 默认包名前缀；使用现有四个签名 secrets，实际校验证书、包名、版本、ABI、资源与运行时指纹。覆盖旧包要求证书一致，旧外壳配置不保证继承。版本号递增，仅输出开发工件，不接发布和自更新。
-- 修正 CI 的 Android 37 平台包名（`android-37.0`）及 Build Tools 36 的 `minSdkVersion` 字段解析，避免 SDK 安装失败和最低系统版本误判。
-- 修复雷电云手机 K10（Android 10 / sdcardfs）Root 模式开始任务时报“特权进程初始化失败”：构建时为 MaaFwApp 启动器补齐 `everybody`（GID 9997）附加组，保留 shell 降权，不修改设备目录权限；修复包仍需在 K10 上验收。
-- 官方说明：[MaaFramework v6 升级事项](https://github.com/MaaXYZ/MaaFramework/releases/tag/v6.0.0-beta.1)、[MaaFwApp 接入](https://github.com/Aliothmoon/MaaFwApp/blob/1736e50deef562dc7bc0addf7c232a64897b55ac/INTEGRATION.md)、[配对 Agent Core](https://github.com/Aliothmoon/MaaAgentCoreAndroid/releases/tag/3.13.15-maafw6.0.0-beta.3)。
+- 将Android外壳迁移至MaaFwApp @azmiao
+- 新增Android端Python依赖清单 @azmiao
+
+### 🐛 Bug修复
+
+- 修复安卓云手机存储访问并精简说明 @azmiao
+- 规范安卓版本名前缀并保留完整发行标签 @azmiao
+- 按aapt2实际字段校验APK最低SDK @azmiao
+- 使用Android 37实际SDK平台包名 @azmiao
+- 关闭loguru的enqueue以兼容Android无_multiprocessing环境 @azmiao
+- 修复agent在Android端因裸绝对导入导致的ModuleNotFoundError @azmiao
+- 修复部分异常和拼写错误 @azmiao
+
+### 🚀 性能优化
+
+- 使用装饰器优化attach读参逻辑 @azmiao
+
+### 📚 文档
+
+- 更新发布版本说明文档 @azmiao
+- 更新支持平台的说明文档 @azmiao
+- 说明Android迁移配置与验收边界 @azmiao
+- 将功能开发知识库接入文档导航 @233Official
+- 统一仓库指南入口并整理构建说明 @233Official
+- 纠正功能开发与流水线验收说明 @233Official
+- 更新AGENT.md @azmiao
+- 优化截图工具使用说明 @233Official
+
+### 🧹 日常维护
+
+- 更新gitignore @azmiao
+- Update CHANGELOG @github-actions[bot]
+
+### 🧩 修改依赖
+
+- *(deps)* bump actions/setup-python from 6 to 7 (#104) @dependabot[bot] (Co-authored: dependabot[bot])
+- 同步VS Code本地打包依赖版本 @azmiao
+- 升级MaaFramework预发布版与MFAAvalonia正式版 @azmiao
+- MaaFw更新至v5.12.3，MFAA更新至v2.15.2 @azmiao
+
+### 🧪 测试
+
+- 测试APK最低系统版本校验 @azmiao
+- 测试Android载荷与APK校验 @azmiao
+- 新增测试用获取角色坐标和方向方法 @azmiao
+
+### 📌 发布
+
+- v0.13.0 @azmiao
+
+### 🔧 配置文件
+
+- 更新gitignore @azmiao
+
+### ⚙️ 持续集成
+
+- 补齐安卓签名包自动发布与镜酱分发 @azmiao
+- 记录APK真实安装元数据便于校验诊断 @azmiao
+- 构建并校验MaaFwApp双架构开发APK @azmiao
+- 修复interface.json版本号变量未替换及支持固定release签名 @azmiao
+- 修正Android工作流MFAA版本至v2.16.0-beta.3（v2.15.2无Android支持） @azmiao
+- 新增Android APK构建工作流（含分支push触发用于验证） @azmiao
 
 ## 0.12.0 (2026-07-18)
 
@@ -1146,11 +1196,11 @@
 
 ### 🔧 配置文件
 
-- 修改包体名称 @233PC
+- 修改包体名称 @233Official
 
 ## 0.0.1 (2025-09-08)
 
 ### 🧹 日常维护
 
-- 📝 更新开发随笔 @233PC
+- 📝 更新开发随笔 @233Official
 - Initial commit @233Official
