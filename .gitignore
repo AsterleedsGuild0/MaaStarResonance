@@ -10,9 +10,6 @@ resource
 # MaaDebuger
 .nicegui
 
-.bitfun/
-/.bitfun/search/flashgrep-index/
-
 # docs
 docs/node_modules
 docs/.vuepress/.temp
@@ -482,7 +479,3 @@ scripts/config.toml
 
 # 插件目录
 agent/plugins/*
-
-# superpowers
-/.superpowers
-/docs/superpowers
