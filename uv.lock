@@ -78,17 +78,17 @@ dependencies = [
     { name = "strenum" },
 ]
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/91/90/d7ddc30bd4c960374b71b875b85232387e226273ee3fdee9e4a94c249407/maafw-6.0.0b3-py3-none-macosx_13_0_arm64.whl", hash = "sha256:fe533c129ab823bf855ed54a40224e521634d5478ba2e991854b8773ca65df73", size = 19367871, upload-time = "2026-11-18T02:36:52.668514Z" },
-    { url = "https://files.pythonhosted.org/packages/99/e2/4d085813e8975f2e2143c68d9e0197d43cef8827a5b7a7fe49092e02cd34/maafw-6.0.0b3-py3-none-macosx_13_0_x86_64.whl", hash = "sha256:22afdd77ecfacd9ac136a4180c637d31f7081feddab133b5f56da171729e063b", size = 21550739, upload-time = "2026-11-18T02:36:55.694445Z" },
-    { url = "https://files.pythonhosted.org/packages/9c/a9/8ab8c0ad532cf251fd211844255a78cff4153fd0eb820e6d8ed6a809d8b7/maafw-6.0.0b3-py3-none-manylinux2014_aarch64.whl", hash = "sha256:58be965fa8d0d227454ce893bdfe4e647ef4f359aded25cdbc24512db5a49a63", size = 21660626, upload-time = "2026-11-18T02:36:58.619759Z" },
-    { url = "https://files.pythonhosted.org/packages/87/ae/5a165f10d38203cdb94274fd80c465c5a66e31a4176c1f2505c8c5eefa32/maafw-6.0.0b3-py3-none-manylinux2014_x86_64.whl", hash = "sha256:b9efc177a2b5080f2b4d966baa5d5128c2f76333235999ef19588e39fdb41d64", size = 23995794, upload-time = "2026-11-18T02:37:01.447780Z" },
-    { url = "https://files.pythonhosted.org/packages/7c/71/e02aac7255d8c485df1283390c661c5afb4ddbe07690e15657352cf64b91/maafw-6.0.0b3-py3-none-win_amd64.whl", hash = "sha256:0904ba866bbcb50a91226fb621aa4dedda20d64a1b1ccf89544aab6df0ffddec", size = 36850841, upload-time = "2026-11-18T02:37:06.059707Z" },
-    { url = "https://files.pythonhosted.org/packages/69/20/3fde6c7a8ee938176f034122bf9585ada3a84e85c1d10721dc53064d6253/maafw-6.0.0b3-py3-none-win_arm64.whl", hash = "sha256:32b00d1fa17e98ef98a4913dc5307abef7cf181ee7296e63d0bb43bfedd9a8c9", size = 37414537, upload-time = "2026-11-18T02:37:09.988210Z" },
+    { url = "https://files.pythonhosted.org/packages/91/90/d7ddc30bd4c960374b71b875b85232387e226273ee3fdee9e4a94c249407/maafw-6.0.0b3-py3-none-macosx_13_0_arm64.whl", hash = "sha256:fe533c129ab823bf855ed54a40224e521634d5478ba2e991854b8773ca65df73", size = 19367871, upload-time = "2026-11-18T02:36:52.668Z" },
+    { url = "https://files.pythonhosted.org/packages/99/e2/4d085813e8975f2e2143c68d9e0197d43cef8827a5b7a7fe49092e02cd34/maafw-6.0.0b3-py3-none-macosx_13_0_x86_64.whl", hash = "sha256:22afdd77ecfacd9ac136a4180c637d31f7081feddab133b5f56da171729e063b", size = 21550739, upload-time = "2026-11-18T02:36:55.694Z" },
+    { url = "https://files.pythonhosted.org/packages/9c/a9/8ab8c0ad532cf251fd211844255a78cff4153fd0eb820e6d8ed6a809d8b7/maafw-6.0.0b3-py3-none-manylinux2014_aarch64.whl", hash = "sha256:58be965fa8d0d227454ce893bdfe4e647ef4f359aded25cdbc24512db5a49a63", size = 21660626, upload-time = "2026-11-18T02:36:58.619Z" },
+    { url = "https://files.pythonhosted.org/packages/87/ae/5a165f10d38203cdb94274fd80c465c5a66e31a4176c1f2505c8c5eefa32/maafw-6.0.0b3-py3-none-manylinux2014_x86_64.whl", hash = "sha256:b9efc177a2b5080f2b4d966baa5d5128c2f76333235999ef19588e39fdb41d64", size = 23995794, upload-time = "2026-11-18T02:37:01.447Z" },
+    { url = "https://files.pythonhosted.org/packages/7c/71/e02aac7255d8c485df1283390c661c5afb4ddbe07690e15657352cf64b91/maafw-6.0.0b3-py3-none-win_amd64.whl", hash = "sha256:0904ba866bbcb50a91226fb621aa4dedda20d64a1b1ccf89544aab6df0ffddec", size = 36850841, upload-time = "2026-11-18T02:37:06.059Z" },
+    { url = "https://files.pythonhosted.org/packages/69/20/3fde6c7a8ee938176f034122bf9585ada3a84e85c1d10721dc53064d6253/maafw-6.0.0b3-py3-none-win_arm64.whl", hash = "sha256:32b00d1fa17e98ef98a4913dc5307abef7cf181ee7296e63d0bb43bfedd9a8c9", size = 37414537, upload-time = "2026-11-18T02:37:09.988Z" },
 ]
 
 [[package]]
 name = "maastarresonance"
-version = "0.12.0"
+version = "0.13.0"
 source = { virtual = "." }
 dependencies = [
     { name = "loguru" },

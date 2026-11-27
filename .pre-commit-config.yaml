@@ -22,7 +22,7 @@ repos:
         pass_filenames: true
         additional_dependencies:
           - prettier@3.3.3
-          - prettier-plugin-multiline-arrays@^3.0.0
+          - prettier-plugin-multiline-arrays@^4.1.11
         # 如出现 Windows file:// 路径问题，可暂时移除插件或添加 .prettierrc.json 手动指定 plugins
   - repo: https://github.com/DavidAnson/markdownlint-cli2
     rev: v0.13.0
