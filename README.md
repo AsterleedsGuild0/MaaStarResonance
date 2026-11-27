@@ -44,7 +44,7 @@
 
 ## 功能列表
 
-> ⚠️ 目前仅支持 `MuMu模拟器` 运行星痕共鸣 接入本 Maa 应用程序，支持后台运行，支持多开
+> 桌面版使用 Windows + MuMu 模拟器；Android 开发版使用 MaaFwApp + Shizuku/root，在 `1280x720 / 240 dpi` 虚拟屏运行，要求 Android 10 或以上。Android 尚待真机验收，不代表所有任务均已验证。
 >
 > 您可以采用多个配置页、复制、排列、组合任务列表的方式来完成日常
 
@@ -81,6 +81,30 @@
 
 - 在线文档入口: [星痕共鸣 Maa 小助手](https://maa-star-resonance.ayusummer233.top)
 
+### Android 开发包
+
+- Actions 的 **Android development APK** 构建 arm64/x64 APK，仅保存开发工件，不发布 Release 或接入自更新。
+- 外壳、Agent Core 与工具版本固定于 `android/build-config.json`；客户端与 Python Agent 均使用 MaaFramework `v6.0.0-beta.3`，不自动降级。
+- 包名使用本仓库身份 `io.github.asterleedsguild0.maastarresonance`，在 `android/build-config.json` 的 `app.applicationId` 配置，由 Gradle 初始化脚本覆盖外壳默认前缀。旧包只有证书一致才可覆盖安装；切换外壳不保证继承旧配置。
+- 仓库需要 `ANDROID_KEYSTORE_BASE64`、`ANDROID_KEYSTORE_PASSWORD`、`ANDROID_KEY_ALIAS`、`ANDROID_KEY_PASSWORD` 四个 secrets。构建后核对真实证书指纹；缺配置会失败，不回退到随机 debug 证书。
+- 安装后授予 Shizuku/root、通知和电池白名单权限，先运行「启动星痕共鸣」或「重启并登录星痕共鸣」，再运行其他任务。桌面 Npcap 插件不打入 Android。
+- MaaFwApp 已贯通多指触控并使用 `specialUse` 保活；仍需在设备上验收双指钓鱼、截图、键盘输入、后台长跑和覆盖安装，不能保证厂商系统不会杀后台。
+
+本地预处理与检查（Python 3.13）：
+
+```bash
+python -m unittest discover -s tests -p test_android_packaging.py -v
+python android/prepare.py --abi arm64-v8a --version-code 10101
+git clone https://github.com/Aliothmoon/MaaFwApp.git android/MaaFwApp
+git -C android/MaaFwApp checkout 1736e50deef562dc7bc0addf7c232a64897b55ac
+python android/build_runtime.py --abi arm64-v8a
+```
+
+配方位于 `android/.build/profile.json`，载荷和解释器分别位于同目录的 `payload/`、`agent-dist/`。完整出包使用工作流中固定的 JDK 25、SDK 37、NDK 29 与外壳 Gradle Wrapper；`PI_PROFILE` 指向配方，设置与 `app.applicationId` 一致的 `BUILD_APPLICATION_ID`、`BUILD_VERSION_NAME`、递增的 `BUILD_VERSION_CODE` 和四个 Gradle 签名环境变量，通过 `android/maafwapp.init.gradle` 构建。RapidFuzz 在构建期生成官方纯 Python wheel；Android 不安装桌面 MaaFw wheel 或在设备上运行 pip。
+
+接入依据：[MaaFwApp 官方文档](https://github.com/Aliothmoon/MaaFwApp/blob/1736e50deef562dc7bc0addf7c232a64897b55ac/INTEGRATION.md)、[M9A Android 配方](https://github.com/MAA1999/M9A/tree/main/Android)、[MaaYuan 签名与版本实践](https://github.com/syoius/MaaYuan/blob/v5/android/README.md)。
+
+
 ---
 
 ## 插件
@@ -92,7 +116,7 @@
 ## 鸣谢
 
 - 本项目由 **[MaaFramework](https://github.com/MaaXYZ/MaaFramework)** 强力驱动！  
-- 软件UI 由 [MFAAvalonia](https://github.com/SweetSmellFox/MFAAvalonia)  大力支持！
+- 桌面 UI 由 [MFAAvalonia](https://github.com/MaaXYZ/MFAAvalonia) 提供，Android 开发版使用 [MaaFwApp](https://github.com/Aliothmoon/MaaFwApp)。
 - 感谢以下开发者对本项目作出的贡献:
 
 [![Contributors](https://contrib.rocks/image?repo=AsterleedsGuild0/MaaStarResonance&max=1000)](https://github.com/AsterleedsGuild0/MaaStarResonance/graphs/contributors)

@@ -4,13 +4,15 @@
 
 ### 依赖升级与迁移注意事项
 
-- MaaFramework：`v5.12.3` → `v6.0.0-beta.3`；Python 包固定为 `maafw==6.0.0b3`，同步更新桌面、Android 和 `uv.lock`。
-- MFAAvalonia：桌面 `v2.15.2`、Android `v2.16.0-beta.3` → 最新正式版 `v2.16.6`。相较 `v2.16.6-beta.1`，官方仅修改程序版本标记，无新增接口或构建迁移事项；MaaFramework 继续使用上述预发布版。
-- **破坏性变更：MaaAgent 协议升级为 9，AgentClient / AgentServer 必须一起升级**。桌面编译时覆盖 MFA 原生运行时依赖，本地打包时覆盖 UI 的 `runtimes/<rid>/native`，Android 同步 Python binding 与原生 NuGet 包；不要只更新 Python 环境而沿用旧 UI 运行时。插件 ABI 仍为 v1。
-- Android 构建增加 PEP 440 → GitHub / NuGet 版本转换，避免将 `6.0.0b3` 错当作源码标签或 NuGet 版本；保留 Android binding 预加载和 `MAAFW_BINARY_PATH` 适配。
-- 过渡版本自 5.13 起禁止重复注册自定义动作/识别器，已核查项目 37 个注册名称无重复；5.14.3 废弃 CoreML，项目未配置该后端。现有 CustomRecognition 单结果返回仍受支持，无需改写业务逻辑。
-- MFA 更新涉及配置保留、预设默认值和任务续跑；发布前仍需实测旧配置覆盖升级、Agent 连接和 Android 覆盖安装。Android 的 ApplicationId 与签名须保持稳定。
-- 官方说明：[MaaFramework v6 升级事项](https://github.com/MaaXYZ/MaaFramework/releases/tag/v6.0.0-beta.1)、[目标框架版本](https://github.com/MaaXYZ/MaaFramework/releases/tag/v6.0.0-beta.3)、[MFA 更新说明](https://github.com/MaaXYZ/MFAAvalonia/releases/tag/v2.16.6)、[Android 集成要求](https://github.com/MaaXYZ/MFAAvalonia/blob/v2.16.6/docs/zh/Android资源项目构建.md)。
+- MaaFramework：`v5.12.3` → `v6.0.0-beta.3`；桌面 Python 包固定为 `maafw==6.0.0b3`，同步 `uv.lock`。
+- 桌面 MFAAvalonia：`v2.15.2` → 正式版 `v2.16.6`。
+- **MaaAgent 协议升级为 9，AgentClient / AgentServer 必须一起升级**。桌面编译与本地打包对齐原生运行时，Android 固定使用 `3.13.15-maafw6.0.0-beta.3` Agent Core；不混用 5.x。插件 ABI 仍为 v1。
+- Android 外壳从 MFAAvalonia 切换至 MaaFwApp `1736e50deef562dc7bc0addf7c232a64897b55ac`，删除旧 .NET/P4A 构建、适配补丁和临时签名回退。SDK 使用 setup-android v4，工具链和内核 SHA-256 固定于 `android/build-config.json`。
+- 新外壳原生桥接保留 `contact` 并实现独立多指序列；Agent 不再是 `dataSync` 前台服务，使用外壳的 `specialUse` 保活及特权子进程。实际后台保活和游戏双指行为仍需真机验收。
+- Android 仅组装目标平台 wheel：MaaFw、NumPy、StrEnum 由校验过的 Agent Core 提供；RapidFuzz 固定版本并显式构建纯 Python wheel，禁用 CMake 扩展，不把宿主 Linux/Windows 二进制带入 Android。
+- Android 成品载荷独立生成，补齐模型、许可证、说明和 Agent JSON 数据，保留桌面 interface 不变；增加原生 StartApp 入口，固定 1280×720 / 240 dpi 虚拟屏模式，最低 Android 10。
+- 应用包名使用本仓库身份 `io.github.asterleedsguild0.maastarresonance`，不继承 MaaFwApp 默认包名前缀；使用现有四个签名 secrets，实际校验证书、包名、版本、ABI、资源与运行时指纹。覆盖旧包要求证书一致，旧外壳配置不保证继承。版本号递增，仅输出开发工件，不接发布和自更新。
+- 官方说明：[MaaFramework v6 升级事项](https://github.com/MaaXYZ/MaaFramework/releases/tag/v6.0.0-beta.1)、[MaaFwApp 接入](https://github.com/Aliothmoon/MaaFwApp/blob/1736e50deef562dc7bc0addf7c232a64897b55ac/INTEGRATION.md)、[配对 Agent Core](https://github.com/Aliothmoon/MaaAgentCoreAndroid/releases/tag/3.13.15-maafw6.0.0-beta.3)。
 
 ## 0.12.0 (2026-07-18)
 
