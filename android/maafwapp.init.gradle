@@ -1,0 +1,25 @@
+// 仅覆盖项目安装元数据；外壳源码和签名逻辑仍由固定版本 MaaFwApp 提供。
+gradle.beforeProject { target ->
+    if (target.path == ':app') {
+        target.pluginManager.withPlugin('com.android.application') {
+            target.extensions.getByName('androidComponents').finalizeDsl { android ->
+                def value = System.getenv('BUILD_VERSION_CODE')
+                if (value == null || !(value ==~ /[0-9]+/)) {
+                    throw new GradleException('BUILD_VERSION_CODE must be a positive integer')
+                }
+                def code = Long.parseLong(value)
+                if (code < 1 || code > 2100000000L) {
+                    throw new GradleException('BUILD_VERSION_CODE is outside the Android range')
+                }
+                def applicationId = System.getenv('BUILD_APPLICATION_ID')
+                if (applicationId == null || !(applicationId ==~ /[a-z][a-z0-9_]*(\.[a-z][a-z0-9_]*)+/)) {
+                    throw new GradleException('BUILD_APPLICATION_ID must be a complete Android package name')
+                }
+                android.defaultConfig.applicationId = applicationId
+                android.defaultConfig.versionCode = (int) code
+                // 本配方只提供 16:9 虚拟屏模式，该模式要求 Android 10+。
+                android.defaultConfig.minSdk = 29
+            }
+        }
+    }
+}

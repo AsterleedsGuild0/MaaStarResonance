@@ -1,0 +1,25 @@
+{
+  "maaFwApp": {
+    "repository": "Aliothmoon/MaaFwApp",
+    "revision": "1736e50deef562dc7bc0addf7c232a64897b55ac"
+  },
+  "maafw": "6.0.0b3",
+  "agentCore": {
+    "repository": "Aliothmoon/MaaAgentCoreAndroid",
+    "tag": "3.13.15-maafw6.0.0-beta.3",
+    "python": "3.13.15",
+    "sha256": {
+      "arm64-v8a": "5e5a613d03e60cbe5e8d84af7c9c60310678a329030383497f3b07e9eb81a6c8",
+      "x86_64": "f4c0ac5aef704027b6e7eae4fc195c78d81e33e3fbbfdcc162551bb95ba15e2a"
+    }
+  },
+  "app": {
+    "applicationId": "io.github.asterleedsguild0.maastarresonance",
+    "label": "星痕共鸣MAA小助手"
+  },
+  "gamePackage": "com.tencent.wlfz",
+  "compileSdk": 37,
+  "buildTools": "36.0.0",
+  "ndkVersion": "29.0.13113456",
+  "cmakeVersion": "3.22.1"
+}

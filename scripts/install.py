@@ -9,54 +9,9 @@ if str(REPO_ROOT) not in sys.path:
 import json
 import shutil
 from init_develop_environment import check_ocr_model_directory
+from scripts.json_utils import strip_interface_json_comments
 
 
-def _remove_line_comments(json_text: str) -> str:
-    """删除 JSON 中的 // 行注释（不处理 /* */，不移除字符串里的 //）."""
-    result: list[str] = []
-    i = 0
-    n = len(json_text)
-    in_string = False
-    escape = False
-    while i < n:
-        ch = json_text[i]
-        if in_string:
-            result.append(ch)
-            if escape:
-                escape = False
-            elif ch == "\\":
-                escape = True
-            elif ch == '"':
-                in_string = False
-            i += 1
-            continue
-        # 不在字符串中
-        if ch == '"':
-            in_string = True
-            result.append(ch)
-            i += 1
-            continue
-        # 处理 // 注释
-        if ch == "/" and i + 1 < n and json_text[i + 1] == "/":
-            # 跳过直到换行
-            i += 2
-            while i < n and json_text[i] not in ("\n", "\r"):
-                i += 1
-            # 保留换行
-            if i < n:
-                result.append(json_text[i])
-                i += 1
-            continue
-        result.append(ch)
-        i += 1
-    return "".join(result)
-
-
-def _strip_interface_json_comments(path: Path) -> None:
-    """读取并写回去掉 // 行注释后的 JSON 文件."""
-    raw = path.read_text(encoding="utf-8")
-    cleaned = _remove_line_comments(raw)
-    path.write_text(cleaned, encoding="utf-8")
 
 
 working_dir = (Path(__file__).parent / "..").resolve()
@@ -126,7 +81,7 @@ def install_resource():
     )
 
     ## 先将 assets/interface.json  中的 // 注释全部去掉
-    _strip_interface_json_comments(install_path / "interface.json")
+    strip_interface_json_comments(install_path / "interface.json")
 
     with open(install_path / "interface.json", "r", encoding="utf-8") as f:
         interface = json.load(f)

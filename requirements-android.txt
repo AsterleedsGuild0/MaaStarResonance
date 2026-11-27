@@ -1,5 +1,5 @@
 maafw==6.0.0b3
-loguru>=0.7.3
-rapidfuzz>=3.14.3
-toml>=0.10.2
-tzdata>=2025.2
+loguru==0.7.3
+rapidfuzz==3.14.3
+toml==0.10.2
+tzdata==2025.2

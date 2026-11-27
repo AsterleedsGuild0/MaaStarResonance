@@ -42,7 +42,7 @@ _REPO_ROOT_FOR_IMPORT = _SCRIPT_DIR.parent
 if str(_REPO_ROOT_FOR_IMPORT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT_FOR_IMPORT))
 
-from scripts.install import _strip_interface_json_comments
+from scripts.json_utils import strip_interface_json_comments
 
 
 REPO_ROOT = (Path(__file__).parent / "..").resolve()
@@ -314,7 +314,7 @@ def prepare_source_copy(repo_root: Path, dest_dir: Path) -> None:
 
     # 读取并修改 assets/interface.json 中的 agent 字段
     ## 先将 assets/interface.json  中的 // 注释全部去掉
-    _strip_interface_json_comments(dest_dir / "assets" / "interface.json")
+    strip_interface_json_comments(dest_dir / "assets" / "interface.json")
 
     with open(dest_dir / "assets" / "interface.json", "r", encoding="utf-8") as f:
         interface = json.load(f)

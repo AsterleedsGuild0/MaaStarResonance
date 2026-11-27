@@ -21,6 +21,7 @@ MaaFWDocs
 # Compiled Object files
 build
 build-*
+!/android/build-config.json
 *.slo
 *.lo
 *.o
@@ -479,3 +480,10 @@ scripts/config.toml
 
 # 插件目录
 agent/plugins/*
+
+# MaaFwApp 外壳检出、运行时、载荷与开发 APK
+/android/MaaFwApp/
+/android/.build/
+/android-artifacts/
+*.jks
+*.keystore
