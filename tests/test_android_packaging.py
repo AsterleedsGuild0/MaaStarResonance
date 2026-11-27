@@ -170,7 +170,7 @@ class AndroidPackagingTests(unittest.TestCase):
         package = "io.github.asterleedsguild0.maastarresonance"
         badging = (
             f"package: name='{package}' versionCode='10101' versionName='0.12.0-ci.1'\n"
-            "sdkVersion:'29'\n"
+            "minSdkVersion:'29'\n"
         )
         signing = "Signer #1 certificate SHA-256 digest: " + "a" * 64
         with self.assertRaisesRegex(ValueError, "configured keystore certificate"):
@@ -184,6 +184,13 @@ class AndroidPackagingTests(unittest.TestCase):
             verify_install_metadata(
                 upstream_badging, signing, package, "0.12.0-ci.1", 10101, "a" * 64
             )
+        for minimum in ("minSdkVersion:'28'", ""):
+            with self.subTest(minimum=minimum):
+                with self.assertRaisesRegex(ValueError, "Android 10 or newer"):
+                    verify_install_metadata(
+                        badging.replace("minSdkVersion:'29'", minimum),
+                        signing, package, "0.12.0-ci.1", 10101, "a" * 64,
+                    )
 
 
 if __name__ == "__main__":
