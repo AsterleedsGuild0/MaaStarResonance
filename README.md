@@ -100,7 +100,7 @@ git -C android/MaaFwApp checkout 1736e50deef562dc7bc0addf7c232a64897b55ac
 python android/build_runtime.py --abi arm64-v8a
 ```
 
-配方位于 `android/.build/profile.json`，载荷和解释器分别位于同目录的 `payload/`、`agent-dist/`。完整出包使用工作流中固定的 JDK 25、SDK 37、NDK 29 与外壳 Gradle Wrapper；`PI_PROFILE` 指向配方，设置与 `app.applicationId` 一致的 `BUILD_APPLICATION_ID`、`BUILD_VERSION_NAME`、递增的 `BUILD_VERSION_CODE` 和四个 Gradle 签名环境变量，通过 `android/maafwapp.init.gradle` 构建。RapidFuzz 在构建期生成官方纯 Python wheel；Android 不安装桌面 MaaFw wheel 或在设备上运行 pip。
+配方位于 `android/.build/profile.json`，载荷和解释器分别位于同目录的 `payload/`、`agent-dist/`。完整出包使用工作流中固定的 JDK 25、SDK 平台包 `android-37.0`、NDK 29 与外壳 Gradle Wrapper；`PI_PROFILE` 指向配方，设置与 `app.applicationId` 一致的 `BUILD_APPLICATION_ID`、`BUILD_VERSION_NAME`、递增的 `BUILD_VERSION_CODE` 和四个 Gradle 签名环境变量，通过 `android/maafwapp.init.gradle` 构建。RapidFuzz 在构建期生成官方纯 Python wheel；Android 不安装桌面 MaaFw wheel 或在设备上运行 pip。
 
 接入依据：[MaaFwApp 官方文档](https://github.com/Aliothmoon/MaaFwApp/blob/1736e50deef562dc7bc0addf7c232a64897b55ac/INTEGRATION.md)、[M9A Android 配方](https://github.com/MAA1999/M9A/tree/main/Android)、[MaaYuan 签名与版本实践](https://github.com/syoius/MaaYuan/blob/v5/android/README.md)。
 

@@ -86,7 +86,7 @@ jobs:
       - name: Install pinned Android build tools
         run: |
           sdkmanager --install \
-            "platforms;android-${{ steps.prepare.outputs.compile_sdk }}" \
+            "platforms;${{ steps.prepare.outputs.sdk_platform }}" \
             "build-tools;${{ steps.prepare.outputs.build_tools }}" \
             "ndk;${{ steps.prepare.outputs.ndk_version }}" \
             "cmake;${{ steps.prepare.outputs.cmake_version }}"

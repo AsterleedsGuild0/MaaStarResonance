@@ -160,6 +160,7 @@ def prepare_payload(
         "version_name": version, "version_code": str(version_code),
         "application_id": config["app"]["applicationId"],
         "compile_sdk": str(config["compileSdk"]),
+        "sdk_platform": config["sdkPlatform"],
         "build_tools": config["buildTools"], "ndk_version": config["ndkVersion"],
         "cmake_version": config["cmakeVersion"],
     }

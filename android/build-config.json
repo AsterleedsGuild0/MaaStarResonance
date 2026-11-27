@@ -19,6 +19,7 @@
   },
   "gamePackage": "com.tencent.wlfz",
   "compileSdk": 37,
+  "sdkPlatform": "android-37.0",
   "buildTools": "36.0.0",
   "ndkVersion": "29.0.13113456",
   "cmakeVersion": "3.22.1"
