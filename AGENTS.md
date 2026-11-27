@@ -77,6 +77,7 @@ flowchart LR
 | 修改节点、选项或 Python 扩展 | [修改功能](docs/knowledge/modify-feature.md) |
 | 查阅节点、`next` / `on_error` / `[JumpBack]` | [Pipeline 参考](docs/knowledge/pipeline-reference.md) |
 | 选择检查方式、调试和运行验收 | [测试与验收](docs/knowledge/test-feature.md) |
+| 更新项目版本、同步依赖、打 tag 与正式发布 | [版本更新与发布](docs/knowledge/release-version.md) |
 | 环境、站点维护和文档规范 | [开发者文档入口](docs/开发者文档/开发者文档入口.md) |
 
 依赖和命令以 `pyproject.toml`、`uv.lock`、`package.json` 为准；
@@ -86,13 +87,13 @@ flowchart LR
 
 ## Runtime/Tooling Preferences
 
-- Python 使用 **uv**：最低 `3.11`，`.python-version` 选择 **3.13**，当前固定 `maafw==5.12.3`。优先 `uv run`，不要依赖系统 Python 的包。
-- 开发 PI 指向 `.venv/Scripts/python.exe`；跨平台构建矩阵不代表入口已跨平台适配。CI 当前打包 Windows x64/ARM64，构建 UI 需要 .NET 10。
+- Python 使用 **uv**：最低 `3.11`，`.python-version` 选择 **3.13**；MaaFW 版本以 `pyproject.toml`、`uv.lock` 和 Android 固定配置为准。优先 `uv run`，不要依赖系统 Python 的包。
+- 开发 PI 指向 `.venv/Scripts/python.exe`；跨平台构建矩阵不代表入口已跨平台适配。CI 打包 Windows x64/ARM64 与 Android arm64/x64，桌面 UI 构建需要 .NET 10；Android 工具链以 `android/build-config.json` 和工作流为准。
 - 文档站使用 **Node.js >=20 + npm**，保留 `package-lock.json`，不新增第二套锁文件。
 - 不输出或提交 `scripts/config.toml` 的令牌，不把 `assets/config/` 的本机路径当成通用默认值。迁移脚本先 `--dry-run`；变更日志生成和打包脚本会写文件，不作只读检查。
 
 ## Testing & QA
 
-- 当前没有正式的 pytest/unittest 套件、npm `test` 或覆盖率门禁，不虚构测试通过结果。
+- 已有 Android 打包单测：`uv run python -m unittest discover -s tests -p test_android_packaging.py -v`；没有 npm `test` 或覆盖率门禁，不虚构测试通过结果。
 - 资源加载不能替代 Python 注册验证或实际识别/点击。游戏流程变更需在 MuMu 中运行受影响入口，核验选项、完成、停止及异常路径；缺少场景时明确未验证范围。
 - 文档/导航变更执行 `npm run docs:check` 并预览受影响页面；根 `AGENTS.md` 不在现有 Markdown hook 覆盖范围。各检查的版本差异、覆盖范围和副作用统一见[测试与验收](docs/knowledge/test-feature.md)。
