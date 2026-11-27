@@ -6,6 +6,7 @@
 
 - MaaFramework：`v5.12.3` → `v6.0.0-beta.3`；桌面 Python 包固定为 `maafw==6.0.0b3`，同步 `uv.lock`。
 - 桌面 MFAAvalonia：`v2.15.2` → 正式版 `v2.16.6`。
+- 同步 `.vscode/launch.json` 中命令行参数与环境变量的依赖版本，避免本地打包仍使用旧依赖。
 - **MaaAgent 协议升级为 9，AgentClient / AgentServer 必须一起升级**。桌面编译与本地打包对齐原生运行时，Android 固定使用 `3.13.15-maafw6.0.0-beta.3` Agent Core；不混用 5.x。插件 ABI 仍为 v1。
 - Android 外壳从 MFAAvalonia 切换至 MaaFwApp `1736e50deef562dc7bc0addf7c232a64897b55ac`，删除旧 .NET/P4A 构建、适配补丁和临时签名回退。SDK 使用 setup-android v4，工具链和内核 SHA-256 固定于 `android/build-config.json`。
 - 新外壳原生桥接保留 `contact` 并实现独立多指序列；Agent 不再是 `dataSync` 前台服务，使用外壳的 `specialUse` 保活及特权子进程。实际后台保活和游戏双指行为仍需真机验收。
