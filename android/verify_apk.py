@@ -132,6 +132,7 @@ def main() -> None:
         [str(args.build_tools / "aapt2"), "dump", "badging", str(args.apk)],
         check=True, capture_output=True, text=True,
     ).stdout
+    print(badging, flush=True)
     verify_install_metadata(
         badging, signing, config["app"]["applicationId"],
         args.version, args.version_code, args.certificate,
